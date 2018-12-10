@@ -6,7 +6,7 @@ import javafx.stage.Stage;
 public class Lanr extends Application {
 
 	public static void main(String[] args){
-		
+		launch(args);
 	}
 
 	@Override
@@ -14,6 +14,4 @@ public class Lanr extends Application {
 		// TODO Auto-generated method stub
 		
 	}
-	
-
 }

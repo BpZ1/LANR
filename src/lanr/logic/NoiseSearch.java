@@ -1,7 +1,7 @@
 package lanr.logic;
 
-import lanr.model.AudioData;
-import lanr.model.Noise;
+import lanr.logic.model.AudioData;
+import lanr.logic.model.Noise;
 
 public interface NoiseSearch {
 

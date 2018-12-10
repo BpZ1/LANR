@@ -1,4 +1,4 @@
-package lanr.model;
+package lanr.logic.model;
 
 public enum NoiseType {
 	Hum,

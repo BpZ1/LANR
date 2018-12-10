@@ -1,4 +1,4 @@
-package lanr.model;
+package lanr.logic.model;
 
 import java.util.List;
 
