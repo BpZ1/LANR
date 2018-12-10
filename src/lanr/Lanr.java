@@ -3,7 +3,7 @@ package lanr;
 import javafx.application.*;
 import javafx.stage.Stage;
 
-public class Main extends Application {
+public class Lanr extends Application {
 
 	public static void main(String[] args){
 		
