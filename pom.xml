@@ -3,4 +3,12 @@
   <groupId>LANR</groupId>
   <artifactId>LANR</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  
+  <dependencies>
+  	<dependency>
+	    <groupId>de.sciss</groupId>
+	    <artifactId>jwave</artifactId>
+	    <version>1.0.3</version>
+	</dependency>
+  </dependencies>
 </project>
