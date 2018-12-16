@@ -2,6 +2,9 @@ package lanr;
 
 import javafx.application.*;
 import javafx.stage.Stage;
+import lanr.controller.MainViewController;
+import lanr.model.MainModel;
+import lanr.view.MainView;
 
 public class Lanr extends Application {
 
@@ -11,7 +14,8 @@ public class Lanr extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		// TODO Auto-generated method stub
-		
+		MainModel model = new MainModel();
+		MainViewController mainController = new MainViewController(model);
+		mainController.start();
 	}
 }
