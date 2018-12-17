@@ -1,14 +1,21 @@
 package lanr.view;
 
+import java.awt.FileDialog;
+import java.awt.Frame;
+import java.io.File;
+
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lanr.controller.MainViewController;
+import lanr.logic.model.AudioData;
 import lanr.model.MainModel;
 
 public class MainView extends Stage {
@@ -16,6 +23,7 @@ public class MainView extends Stage {
 	private MainModel model;
 	private MainViewController controller;
 	private Pane rootPane;
+	private VBox centerPane;
 	
 	public MainView(MainModel model, MainViewController controller) {
 		this.model = model;
@@ -32,7 +40,8 @@ public class MainView extends Stage {
 
 		BorderPane bp = new BorderPane();
 		bp.setTop(createTopMenu());
-		bp.setCenter(createCenterPane());
+		centerPane = createCenterPane();
+		bp.setCenter(centerPane);
 		bp.setBottom(createBottomPane());
 
 		return bp;
@@ -52,11 +61,13 @@ public class MainView extends Stage {
 		editMenu.getItems().add(settingsMenuItem);
 		
 		openMenuItem.setOnAction(event -> {
-			
+			openFileDialog();
 		});
 		
 		debugMenuItem.setOnAction(event -> {
-			controller.startAnalyzing();
+			for(AudioData data : model.getAudioData()) {
+				centerPane.getChildren().add(new AudioVisualisation(data));
+			}
 		});
 		
 		exitMenuItem.setOnAction(event -> {
@@ -72,8 +83,20 @@ public class MainView extends Stage {
 		return menuBar;
 	}
 	
-	private Pane createCenterPane() {
-		return new BorderPane();
+	private void openFileDialog() {
+		Frame frame = new Frame();
+		FileDialog fd = new FileDialog(frame, "Choose a file", FileDialog.LOAD);
+		fd.setDirectory("C:\\");
+		fd.setFile("*.mp4");
+		fd.setVisible(true);
+		File[] files = fd.getFiles();
+		for(File file : files) {
+			controller.addFile(file);
+		}
+	}
+	
+	private VBox createCenterPane() {
+		return new VBox();
 	}
 	private Pane createBottomPane() {
 		return new BorderPane();

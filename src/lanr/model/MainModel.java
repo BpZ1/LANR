@@ -16,5 +16,13 @@ public class MainModel extends Model {
 		analyzer.anazlyze();
 	}
 	
+	public void addAudioData(AudioData data) {
+		audioData.add(data);
+	}
+	
+	public List<AudioData> getAudioData(){
+		return this.audioData;
+	}
+	
 	
 }
