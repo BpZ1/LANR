@@ -12,7 +12,7 @@ import lanr.model.Tuple;
 
 public class AudioVisualisation extends VBox {
 
-	private double width = 800;
+	private double width = 600;
 	private double height = 200;
 
 	public AudioVisualisation(AudioData data) {
@@ -31,6 +31,14 @@ public class AudioVisualisation extends VBox {
 		}
 	}
 
+	/**
+	 * Draws a canvas for a single audio channel.
+	 * 
+	 * @param channel - Current channel.
+	 * @param gc      - GraphicsContext for the canvas.
+	 * @return True if the canvas for the channel was drawn successfully. Otherwise
+	 *         false.
+	 */
 	private boolean drawAudioChannel(AudioChannel channel, GraphicsContext gc) {
 		gc.setStroke(Color.BLUE);
 		gc.setLineWidth(0.1);
@@ -52,13 +60,17 @@ public class AudioVisualisation extends VBox {
 		double sampleYPosition = 0;
 		for (double sample : channel.getSamples()) {
 			currentXPosition += sampleDistance;
+			/*
+			 * Half width is added to convert from negative to positive. The height value
+			 * multiplier is needed to convert the sample value into the height space of the
+			 * canvas.
+			 */
 			sampleYPosition = (sample + halfValue) * heightValue;
 			gc.strokeLine(lastPoint.x, lastPoint.y, currentXPosition, sampleYPosition);
 			// update last point
 			lastPoint.x = currentXPosition;
 			lastPoint.y = sampleYPosition;
 		}
-
 		gc.stroke();
 		return true;
 	}
