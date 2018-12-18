@@ -1,7 +1,5 @@
 package lanr.view;
 
-import java.awt.FileDialog;
-import java.awt.Frame;
 import java.io.File;
 
 import javafx.scene.Node;
@@ -10,11 +8,13 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import lanr.controller.MainViewController;
+import lanr.logic.FileReader;
 import lanr.logic.model.AudioData;
 import lanr.model.MainModel;
 
@@ -71,7 +71,8 @@ public class MainView extends Stage {
 		});
 		
 		exitMenuItem.setOnAction(event -> {
-			this.controller.close();
+			 Stage stage = (Stage) this.getScene().getWindow();
+			 stage.close();
 		});
 		
 		settingsMenuItem.setOnAction(event -> {
@@ -84,15 +85,16 @@ public class MainView extends Stage {
 	}
 	
 	private void openFileDialog() {
-		Frame frame = new Frame();
-		FileDialog fd = new FileDialog(frame, "Choose a file", FileDialog.LOAD);
-		fd.setDirectory("C:\\");
-		fd.setFile("*.mp4");
-		fd.setVisible(true);
-		File[] files = fd.getFiles();
-		for(File file : files) {
-			controller.addFile(file);
-		}
+		 FileChooser fileChooser = new FileChooser();
+		 fileChooser.setTitle("Open Lecture Recording");
+		 fileChooser.getExtensionFilters().addAll(
+		         new ExtensionFilter("Video Files", "*.mp4", "*.avi"),
+		         new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"),
+		         new ExtensionFilter("All Files", "*.*"));
+		 File selectedFile = fileChooser.showOpenDialog(this);
+		 if (selectedFile != null) {
+			 model.addAudioData(FileReader.readFile(selectedFile.getAbsolutePath()));
+		 }
 	}
 	
 	private VBox createCenterPane() {

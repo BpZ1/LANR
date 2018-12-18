@@ -17,7 +17,7 @@ public class AudioData {
 		for(AudioChannel c : audioChannels) {
 			System.out.println("Samples: " + c.getSamples().length);
 			System.out.println("SampleRate: " + c.getSampleRate());
-			System.out.println("BitRate: " + c.getBitRate());
+			System.out.println("BitRate: " + c.getBitDepth());
 		}
 	}
 	
@@ -25,6 +25,22 @@ public class AudioData {
 		severity = 0;
 		for(Noise noise : foundNoise) {
 			severity += noise.getSeverity();
+		}
+	}
+	
+	public int getSampleRate() {
+		if(audioChannels.size() > 0) {
+			return audioChannels.get(0).getSampleRate();
+		}else {
+			return 0;
+		}
+	}
+	
+	public int getBitDepth() {
+		if(audioChannels.size() > 0) {
+			return audioChannels.get(0).getBitDepth();
+		}else {
+			return 0;
 		}
 	}
 	

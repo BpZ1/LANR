@@ -21,10 +21,6 @@ public class MainViewController {
 		mainView.showAndWait();
 	}
 	
-	public void close() {
-		this.mainView.close();
-	}
-	
 	public void startAnalyzing() {
 		model.analyze();
 	}

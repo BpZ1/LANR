@@ -11,13 +11,15 @@ public class AudioChannel {
 		this.samples = samples;
 		this.bitRate = bitRate;
 		this.sampleRate = sampleRate;
+		int duration = samples.length/sampleRate;
+		System.out.println("Length: " + duration + " seconds");
 	}
 	
 	public double[] getSamples() {
 		return samples;
 	}
 	
-	public int getBitRate() {
+	public int getBitDepth() {
 		return bitRate;
 	}
 

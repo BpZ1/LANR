@@ -2,25 +2,28 @@ package lanr.view;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import lanr.logic.model.AudioChannel;
 import lanr.logic.model.AudioData;
 import lanr.model.Tuple;
 
-public class AudioVisualisation extends ScrollPane {
+public class AudioVisualisation extends VBox {
 
-	private double width = 300;
-	private double height = 100;
+	private double width = 800;
+	private double height = 200;
 
 	public AudioVisualisation(AudioData data) {
 
 		drawAudioData(data);
+		this.setBackground(new Background(new BackgroundFill(Color.LIGHTGREY, null, null)));
 	}
 
 	private void drawAudioData(AudioData data) {
 		for (AudioChannel channel : data.getAllChannel()) {
-			Canvas canvas = new Canvas();
+			Canvas canvas = new Canvas(width, height / data.getAllChannel().size());
 			GraphicsContext gc = canvas.getGraphicsContext2D();
 			if (drawAudioChannel(channel, gc)) {
 				this.getChildren().add(canvas);
@@ -29,16 +32,13 @@ public class AudioVisualisation extends ScrollPane {
 	}
 
 	private boolean drawAudioChannel(AudioChannel channel, GraphicsContext gc) {
-		gc.setFill(Color.GREEN);
 		gc.setStroke(Color.BLUE);
-		gc.setLineWidth(5);
+		gc.setLineWidth(0.1);
+
 		double sampleDistance = this.width / channel.getSamples().length;
-		System.out.println("Bitrate: " + channel.getBitRate());
-		double maxSampleValue = Math.pow(2, channel.getBitRate()) + 10; // added 10 for buffer
+		double maxSampleValue = Math.pow(2, channel.getBitDepth()) + 10; // added 10 for buffer
 		double heightValue = this.height / maxSampleValue;
 		double halfValue = maxSampleValue / 2;
-		System.out.println("Height value: " + heightValue);
-		System.out.println("Max sample value: " + maxSampleValue);
 
 		double[] samples = channel.getSamples();
 		if (samples.length < 1) {
@@ -52,13 +52,14 @@ public class AudioVisualisation extends ScrollPane {
 		double sampleYPosition = 0;
 		for (double sample : channel.getSamples()) {
 			currentXPosition += sampleDistance;
-			sampleYPosition = heightValue * sample + halfValue;
+			sampleYPosition = (sample + halfValue) * heightValue;
 			gc.strokeLine(lastPoint.x, lastPoint.y, currentXPosition, sampleYPosition);
 			// update last point
 			lastPoint.x = currentXPosition;
 			lastPoint.y = sampleYPosition;
 		}
 
+		gc.stroke();
 		return true;
 	}
 
