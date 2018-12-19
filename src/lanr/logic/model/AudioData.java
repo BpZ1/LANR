@@ -14,10 +14,7 @@ public class AudioData {
 	private String name;
 	
 	private final String path;
-	/**
-	 * List of found {@link Noise} types in the different channel of this audio file.
-	 */
-	private List<Noise> foundNoise;
+	
 	/**
 	 * Represents the amount and intensity of the found audio noises. 
 	 */
@@ -27,15 +24,34 @@ public class AudioData {
 
 	public AudioData(String path, List<AudioChannel> audioChannels) {
 		this.audioChannels = audioChannels;
+		//Set the channel indices
+		int counter = 1;
+		for(AudioChannel channel : audioChannels) {
+			channel.setParent(this);
+			channel.setIndex(counter);
+			counter++;
+		}
 		this.path = path;
 		this.name = Paths.get(path).getFileName().toString();
+		
+		//DEBUG:
+		for(AudioChannel c : audioChannels) {
+			c.addNoise(new Noise(NoiseType.Clipping, 200, 10000, 0.5));
+			c.addNoise(new Noise(NoiseType.Hum, 5000, 20000, 0.92));
+		}
 	}
 
-	private void calculateSeverity() {
+	/**
+	 * Calculates the severity of all found {@link Noise} types
+	 * found in all {@link AudioChannel}s.
+	 */
+	public void calculateSeverity() {
 		severity = 0;
-		for (Noise noise : foundNoise) {
-			severity += noise.getSeverity();
-		}
+		for(AudioChannel channel : audioChannels) {
+			for (Noise noise : channel.getFoundNoise()) {
+				severity += noise.getSeverity();
+			}
+		}	
 	}
 
 	public int getSampleRate() {
@@ -66,25 +82,8 @@ public class AudioData {
 		return path;
 	}
 
-	public List<Noise> getFoundNoise() {
-		return foundNoise;
-	}
-
-	public void setFoundNoise(List<Noise> foundNoise) {
-		this.foundNoise = foundNoise;
-		this.isAnalyzed = true;
-		calculateSeverity();
-	}
-
-	public void addNoise(Noise noise) {
-		this.foundNoise.add(noise);
-		this.isAnalyzed = true;
-		calculateSeverity();
-	}
-
-	public void removeNoise(Noise noise) {
-		this.foundNoise.remove(noise);
-		calculateSeverity();
+	public void setAnalyzed(boolean value) {
+		this.isAnalyzed = value;
 	}
 
 	public double getSeverity() {

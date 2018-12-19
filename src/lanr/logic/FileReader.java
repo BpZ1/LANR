@@ -64,7 +64,7 @@ public class FileReader {
 			return null;
 		}
 
-		double[] sampleData = new double[0];
+		byte[] sampleData = new byte[0];
 		if (audioCoder.open(null, null) < 0) {
 			throw new RuntimeException("could not open audio decoder for container: " + path);
 		}
@@ -86,10 +86,9 @@ public class FileReader {
 						long bitRate = samples.getSampleBitDepth();
 						maxBitRate = Math.max((int) bitRate, maxBitRate);
 						maxSampleRate = Math.max(samples.getSampleRate(), maxSampleRate);
-						double[] packageData = byteToDoubleConverter(bitRate,
+						sampleData = Utils.concatArrays(
+								sampleData,
 								samples.getData().getByteArray(0, samples.getSize()));
-
-						sampleData = Utils.concatArrays(sampleData, packageData);
 					}
 				}
 			} else {
@@ -106,12 +105,6 @@ public class FileReader {
 	}
 
 	public static double[] byteToDoubleConverter(long bitDepth, byte[] rawData) {
-		if (bitDepth % 8 != 0) {
-			throw new IllegalArgumentException("Invalid bit depth of: " + bitDepth);
-		}
-		if (rawData == null) {
-			throw new IllegalArgumentException("byte data can't be null.");
-		}
 		// If we have a bit depth of 16 we need 2 byte per value
 		int bytesPerSample = (int) bitDepth / 8;
 		// Number of samples in the result

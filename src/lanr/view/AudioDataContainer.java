@@ -1,6 +1,8 @@
 package lanr.view;
 
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -9,6 +11,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import lanr.logic.model.AudioChannel;
 import lanr.logic.model.AudioData;
 import lanr.logic.model.Noise;
 
@@ -37,11 +40,20 @@ public class AudioDataContainer extends TitledPane {
 		Text pathText = new Text();
 		pathText.setText(new StringBuilder()
 				.append("Path:")
-				.append("\t")
+				.append("\t\t")
 				.append(data.getPath())
 				.toString());
 		
 		content.getChildren().add(pathText);
+		
+		Text channelNumberText = new Text();
+		channelNumberText.setText(new StringBuilder()
+				.append("Channel:")
+				.append("\t")
+				.append(data.getAllChannel().size())
+				.toString());
+		
+		content.getChildren().add(channelNumberText);
 		
 		Text bitDepthText = new Text();
 		bitDepthText.setText(new StringBuilder()
@@ -65,7 +77,7 @@ public class AudioDataContainer extends TitledPane {
 			content.getChildren().add(createAudioVisual(data));
 			TitledPane noiseData = new TitledPane();
 			noiseData.setText("Found Problems");
-			TableView<Noise> noiseTable = createNoiseTable();
+			TableView<Noise> noiseTable = createNoiseTable(data);
 			noiseData.setContent(noiseTable);
 			content.getChildren().add(noiseData);
 		}
@@ -78,7 +90,7 @@ public class AudioDataContainer extends TitledPane {
 		return pane;
 	}
 
-	private TableView<Noise> createNoiseTable() {
+	private TableView<Noise> createNoiseTable(AudioData data) {
 		TableView<Noise> noiseTable = new TableView<Noise>();
 		noiseTable.setPrefWidth(Region.USE_COMPUTED_SIZE);
 
@@ -105,9 +117,21 @@ public class AudioDataContainer extends TitledPane {
 			return new SimpleStringProperty(String.valueOf(param.getValue().getSeverity()));
 		});
 		noiseTable.getColumns().add(severityColumn);
+		
+		TableColumn<Noise, String> channelColumn = new TableColumn<Noise, String>();
+		channelColumn.setText("Channel");
+		channelColumn.setCellValueFactory(param -> {
+			return new SimpleStringProperty(String.valueOf(param.getValue().getChannel()));
+		});
+		noiseTable.getColumns().add(channelColumn);
 
 		noiseTable.setEditable(false);
 
+		ObservableList<Noise> noiseList = FXCollections.observableArrayList();
+		for(AudioChannel c : data.getAllChannel()) {
+			noiseList.addAll(c.getFoundNoise());
+		}
+		noiseTable.setItems(noiseList);
 		return noiseTable;
 	}
 

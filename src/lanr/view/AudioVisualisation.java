@@ -43,29 +43,28 @@ public class AudioVisualisation extends VBox {
 		gc.setStroke(Color.BLUE);
 		gc.setLineWidth(0.1);
 
-		double sampleDistance = this.width / channel.getSamples().length;
+		double sampleDistance = this.width / channel.getSampleCount();
 		double maxSampleValue = Math.pow(2, channel.getBitDepth()) + 10; // added 10 for buffer
 		double heightValue = this.height / maxSampleValue;
 		double halfValue = maxSampleValue / 2;
 
-		double[] samples = channel.getSamples();
-		if (samples.length < 1) {
+		if (channel.getSampleCount() < 1) {
 			return false;
 		}
-
+		
 		double currentXPosition = 0.0;
 		Tuple<Double, Double> lastPoint = new Tuple<Double, Double>(currentXPosition,
-				heightValue * samples[0] + maxSampleValue);
+				heightValue * channel.get16BitSampleValue(0) + maxSampleValue);
 		// Draw all lines for the samples
 		double sampleYPosition = 0;
-		for (double sample : channel.getSamples()) {
+		for (int i = 0; i < channel.getSampleCount(); i++) {
 			currentXPosition += sampleDistance;
 			/*
 			 * Half width is added to convert from negative to positive. The height value
 			 * multiplier is needed to convert the sample value into the height space of the
 			 * canvas.
 			 */
-			sampleYPosition = (sample + halfValue) * heightValue;
+			sampleYPosition = (channel.get16BitSampleValue(i) + halfValue) * heightValue;
 			gc.strokeLine(lastPoint.x, lastPoint.y, currentXPosition, sampleYPosition);
 			// update last point
 			lastPoint.x = currentXPosition;
@@ -73,6 +72,19 @@ public class AudioVisualisation extends VBox {
 		}
 		gc.stroke();
 		return true;
+	}
+	
+	private Color getSeverityColor(double severity) {
+		if(severity < 0.3 && severity > 0.001) {
+			return Color.GREEN;
+		}
+		if(severity > 0.3 && severity < 0.6) {
+			return Color.YELLOW;
+		}
+		if(severity > 0.6) {
+			return Color.RED;
+		}
+		return Color.BLUE;
 	}
 
 }
