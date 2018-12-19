@@ -1,5 +1,6 @@
 package lanr.logic.model;
 
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -10,6 +11,8 @@ import java.util.List;
  */
 public class AudioData {
 
+	private String name;
+	
 	private final String path;
 	/**
 	 * List of found {@link Noise} types in the different channel of this audio file.
@@ -20,10 +23,12 @@ public class AudioData {
 	 */
 	private double severity;
 	private final List<AudioChannel> audioChannels;
+	private boolean isAnalyzed;
 
 	public AudioData(String path, List<AudioChannel> audioChannels) {
 		this.audioChannels = audioChannels;
 		this.path = path;
+		this.name = Paths.get(path).getFileName().toString();
 	}
 
 	private void calculateSeverity() {
@@ -67,10 +72,13 @@ public class AudioData {
 
 	public void setFoundNoise(List<Noise> foundNoise) {
 		this.foundNoise = foundNoise;
+		this.isAnalyzed = true;
+		calculateSeverity();
 	}
 
 	public void addNoise(Noise noise) {
 		this.foundNoise.add(noise);
+		this.isAnalyzed = true;
 		calculateSeverity();
 	}
 
@@ -81,5 +89,13 @@ public class AudioData {
 
 	public double getSeverity() {
 		return severity;
+	}
+	
+	public boolean isAnalyzed() {
+		return isAnalyzed;
+	}
+
+	public String getName() {
+		return name;
 	}
 }

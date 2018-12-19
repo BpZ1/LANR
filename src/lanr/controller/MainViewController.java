@@ -1,9 +1,5 @@
 package lanr.controller;
 
-import java.io.File;
-
-import lanr.logic.FileReader;
-import lanr.logic.model.AudioData;
 import lanr.model.MainModel;
 import lanr.view.MainView;
 
@@ -25,16 +21,7 @@ public class MainViewController {
 		model.analyze();
 	}
 	
-	public void addFile(File file) {
-		AudioData data = FileReader.readFile(file.getAbsolutePath());		
-		model.addAudioData(data);
-	}
-	
-	public void showWarningDialog(String message) {
-		
-	}
-	
-	public void showErrorDialog(String message) {
-		
+	public void addFile(String path) {
+		model.addAudioData(path);
 	}
 }
