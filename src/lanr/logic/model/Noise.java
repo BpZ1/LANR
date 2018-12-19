@@ -11,6 +11,7 @@ public class Noise {
 	private double severity;
 	private int location;
 	private int length;
+	private int channel;
 	private NoiseType type;
 
 	public Noise(NoiseType type, int location, int length, double severity) {
@@ -50,6 +51,14 @@ public class Noise {
 
 	public void setLength(int length) {
 		this.length = length;
+	}
+
+	public int getChannel() {
+		return channel;
+	}
+
+	public void setChannel(int channel) {
+		this.channel = channel;
 	}
 
 }
