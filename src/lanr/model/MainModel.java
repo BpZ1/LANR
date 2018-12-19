@@ -31,6 +31,11 @@ public class MainModel extends Model {
 		state.firePropertyChange(AUDIO_ADDED_PROPERTY, null, data);
 	}
 	
+	public void removeAudioData(AudioData data) {
+		audioData.remove(data);
+		state.firePropertyChange(AUDIO_REMOVED_PROPERTY, null, data);
+	}
+	
 	public List<AudioData> getAudioData(){
 		return this.audioData;
 	}
