@@ -31,7 +31,7 @@ public class AudioDataContainer extends TitledPane {
 		Text nameText = new Text();
 		nameText.setText(new StringBuilder()
 				.append("Name:")
-				.append("\t")
+				.append("\t\t")
 				.append(data.getName())
 				.toString());
 		
@@ -40,7 +40,7 @@ public class AudioDataContainer extends TitledPane {
 		Text pathText = new Text();
 		pathText.setText(new StringBuilder()
 				.append("Path:")
-				.append("\t\t")
+				.append("\t\t\t")
 				.append(data.getPath())
 				.toString());
 		
@@ -49,7 +49,7 @@ public class AudioDataContainer extends TitledPane {
 		Text channelNumberText = new Text();
 		channelNumberText.setText(new StringBuilder()
 				.append("Channel:")
-				.append("\t")
+				.append("\t\t")
 				.append(data.getAllChannel().size())
 				.toString());
 		
@@ -58,7 +58,7 @@ public class AudioDataContainer extends TitledPane {
 		Text bitDepthText = new Text();
 		bitDepthText.setText(new StringBuilder()
 				.append("Bit depth:")
-				.append("\t")
+				.append("\t\t")
 				.append(data.getBitDepth())
 				.toString());
 		
