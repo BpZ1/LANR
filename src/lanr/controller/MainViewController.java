@@ -4,6 +4,11 @@ import lanr.logic.model.LANRException;
 import lanr.model.MainModel;
 import lanr.view.MainView;
 
+/**
+ * @author Nicolas Bruch
+ *
+ *	Main controller.
+ */
 public class MainViewController {
 
 	private MainModel model;

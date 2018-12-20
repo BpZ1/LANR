@@ -8,6 +8,10 @@ import javafx.scene.paint.Color;
 import lanr.logic.model.AudioChannel;
 import lanr.logic.model.AudioData;
 
+/**
+ * @author Nicolas Bruch
+ *
+ */
 public class AudioVisualisation extends VBox {
 	
 	private static final String CSS_ID = "visualisationBackGround";
@@ -16,7 +20,6 @@ public class AudioVisualisation extends VBox {
 	 * Contains the channel index and its canvas + graphics context
 	 */
 	private List<ChannelVisualisation> channelVisuals = new LinkedList<ChannelVisualisation>();
-
 
 	public AudioVisualisation(double width, double height, AudioData data) {	
 		this.setId(CSS_ID);	

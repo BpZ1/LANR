@@ -19,10 +19,6 @@ public class AudioChannel {
 	public final static String DATA_ADDED_PROPERTY = "added";
 	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
 	
-	/**
-	 * Audio file containing the channel.
-	 */
-	private AudioData parent;
 	private int index;
 	private long length;
 	/**
@@ -50,14 +46,12 @@ public class AudioChannel {
 		this.bytesPerSample = bitRate / 8;
 		this.index = index;
 		this.length = length;
-	}
-
-	public void setParent(AudioData parent) {
-		this.parent = parent;
+		
+		addNoise(new Noise(NoiseType.Clipping, 200, 10000, 0.5));
+		addNoise(new Noise(NoiseType.Hum, 5000, 20000, 0.92));
 	}
 	
-	public void addRawData(ByteBuffer buffer) {
-		
+	public void addRawData(ByteBuffer buffer) {		
 		state.firePropertyChange(DATA_ADDED_PROPERTY,
 				null,
 				Utils.byteToShortConverter(bitRate, buffer.array()));
@@ -66,15 +60,11 @@ public class AudioChannel {
 	public void setFoundNoise(List<Noise> foundNoise) {
 		this.foundNoise = foundNoise;
 		foundNoise.forEach(n -> n.setChannel(index));
-		parent.setAnalyzed(true);
-		parent.calculateSeverity();
 	}
 
 	public void addNoise(Noise noise) {
 		this.foundNoise.add(noise);
 		noise.setChannel(index);
-		parent.setAnalyzed(true);
-		parent.calculateSeverity();
 	}
 
 	public List<Noise> getFoundNoise() {
@@ -83,7 +73,6 @@ public class AudioChannel {
 
 	public void removeNoise(Noise noise) {
 		this.foundNoise.remove(noise);
-		parent.calculateSeverity();
 	}
 
 	public byte[] getSamples() {

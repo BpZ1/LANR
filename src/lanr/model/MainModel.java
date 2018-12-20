@@ -27,7 +27,6 @@ public class MainModel extends Model {
 		return instance;
 	}
 	
-	
 	public static final String AUDIO_ADDED_PROPERTY = "addAudio";
 	public static final String AUDIO_REMOVED_PROPERTY = "removeAudio";
 	public static final String PROGRESS_UPDATE_PROPERTY = "progressUpdate";

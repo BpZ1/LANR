@@ -27,6 +27,10 @@ import lanr.controller.MainViewController;
 import lanr.logic.model.AudioData;
 import lanr.model.MainModel;
 
+/**
+ * @author Nicolas Bruch
+ *
+ */
 public class MainView extends Stage {
 
 	private MainViewController controller;

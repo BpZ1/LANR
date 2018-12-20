@@ -27,6 +27,7 @@ public class ChannelVisualisation extends Canvas {
 	private double lastYPosition = 0;
 
 	public ChannelVisualisation(double width, double height, AudioChannel channel) {
+		super(width, height);
 		this.channel = channel;
 		this.width = width;
 		this.height = height;
@@ -50,7 +51,11 @@ public class ChannelVisualisation extends Canvas {
 			 * canvas.
 			 */
 			sampleYPosition = (sample + halfValue) * heightValue;
-			this.getGraphicsContext2D().strokeLine(currentXPosition, lastYPosition, newXPosition, sampleYPosition);
+			this.getGraphicsContext2D().strokeLine(
+					currentXPosition,
+					lastYPosition,
+					newXPosition,
+					sampleYPosition);
 			// update last point
 			lastYPosition = sampleYPosition;
 			currentXPosition = newXPosition;

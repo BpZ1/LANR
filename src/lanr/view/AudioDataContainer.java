@@ -11,6 +11,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
@@ -41,10 +42,8 @@ public class AudioDataContainer extends TitledPane {
 		this.setId(AUDIO_CONTAINER_CSS_ID);
 		this.setText(data.getPath());
 		data.addChangeListener(createChangeListener());
-		GridPane pane = new GridPane();
 		this.content = createContent();
-		pane.getChildren().add(content);
-		this.setContent(pane);
+		this.setContent(content);
 		this.visualisationContainer = createAudioVisual();
 	}
 
@@ -116,8 +115,7 @@ public class AudioDataContainer extends TitledPane {
 			content.getChildren().add(visualisationContainer);			
 		}else {
 			content.getChildren().add(createAnalyzeButton());
-		}
-		
+		}	
 		return content;
 	}
 	
@@ -162,6 +160,8 @@ public class AudioDataContainer extends TitledPane {
 
 	private ScrollPane createAudioVisual() {
 		ScrollPane pane = new ScrollPane();
+		pane.setVbarPolicy(ScrollBarPolicy.NEVER);
+		pane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
 		AudioVisualisation canvasContainer = new AudioVisualisation(600, 200, data);
 		pane.setContent(canvasContainer);
 		return pane;
@@ -169,6 +169,7 @@ public class AudioDataContainer extends TitledPane {
 
 	private TableView<Noise> createNoiseTable() {
 		TableView<Noise> noiseTable = new TableView<Noise>();
+		noiseTable.setPlaceholder(new Text("No noise found"));
 		noiseTable.setPrefWidth(Region.USE_COMPUTED_SIZE);
 
 		// Create the column for the type of noise

@@ -31,12 +31,6 @@ public class AudioData {
 		this.audioChannels = audioChannels;
 		this.path = path;
 		this.name = Paths.get(path).getFileName().toString();
-		
-		//DEBUG:
-		for(AudioChannel c : audioChannels) {
-			c.addNoise(new Noise(NoiseType.Clipping, 200, 10000, 0.5));
-			c.addNoise(new Noise(NoiseType.Hum, 5000, 20000, 0.92));
-		}
 	}
 
 	/**
@@ -87,6 +81,7 @@ public class AudioData {
 	public void setAnalyzed(boolean value) {
 		this.isAnalyzed = value;
 		if(value) {
+			calculateSeverity();
 			state.firePropertyChange(DATA_ANALYZED_PROPERTY, null, null);
 		}
 	}
