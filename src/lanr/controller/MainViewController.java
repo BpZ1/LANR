@@ -1,5 +1,6 @@
 package lanr.controller;
 
+import lanr.logic.model.LANRException;
 import lanr.model.MainModel;
 import lanr.view.MainView;
 
@@ -22,6 +23,11 @@ public class MainViewController {
 	}
 	
 	public void addFile(String path) {
-		model.addAudioData(path);
+		try {
+			model.addAudioData(path);
+		} catch (LANRException e) {
+			mainView.showErrorDialog("Could not read file!", e.getMessage());
+			e.printStackTrace();
+		}
 	}
 }
