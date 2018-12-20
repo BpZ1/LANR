@@ -1,121 +1,141 @@
 package lanr.logic;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import com.xuggle.xuggler.IContainer;
-import com.xuggle.xuggler.IPacket;
-import com.xuggle.xuggler.IStream;
-import com.xuggle.xuggler.IStreamCoder;
-
+import io.humble.video.Decoder;
+import io.humble.video.Demuxer;
+import io.humble.video.DemuxerStream;
+import io.humble.video.MediaAudio;
+import io.humble.video.MediaDescriptor;
+import io.humble.video.MediaPacket;
+import io.humble.video.javaxsound.MediaAudioConverter;
+import io.humble.video.javaxsound.MediaAudioConverterFactory;
 import lanr.logic.model.AudioChannel;
 import lanr.logic.model.AudioData;
-
-import com.xuggle.xuggler.IAudioSamples;
-import com.xuggle.xuggler.ICodec;
+import lanr.logic.model.LANRFileException;
 
 public class FileReader {
 
+	public static final String PROGRESS_CHANGED_PROPERTY = "progress";
+	public static final String LOADING_STARTED_PROPERTY = "start";
+	public static final String LOADING_ENDED_PROPERTY = "end";
+	public static final String DECODING_CHANNEL_STARTED_PROPERTY = "channelStart";
+	public static final String DECODING_CHANNEL_ENDED_PROPERTY = "channelEnd";
+
+	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
+
+	public void addChangeListener(PropertyChangeListener listener) {
+		this.state.addPropertyChangeListener(listener);
+	}
+
+	public FileReader() {
+	};
+
+	public FileReader(PropertyChangeListener listener) {
+		addChangeListener(listener);
+	}
+
+	private int currentProgress;
+
 	/**
 	 * @param path
+	 * @throws IOException
+	 * @throws InterruptedException
+	 * @throws LANRFileException
 	 */
-	public static AudioData readFile(String path) {
+	public AudioData readFile(String path) throws InterruptedException, IOException, LANRFileException {
 
+		currentProgress = 0;
+		state.firePropertyChange(LOADING_STARTED_PROPERTY, null, null);
 		List<AudioChannel> audioChannels = new ArrayList<AudioChannel>();
-		// Create a Xuggler container object
-		IContainer container = IContainer.make();
-
-		if (container.open(path, IContainer.Type.READ, null) < 0) {
-			throw new IllegalArgumentException("Could not open file: " + path);
-		}
+		/*
+		 * Start by creating a container object, in this case a demuxer since we are
+		 * reading, to get audio data from.
+		 */
+		Demuxer demuxer = Demuxer.make();
+		demuxer.open(path, null, false, true, null, null);
 
 		// Iterate through all audio streams
-		int numStreams = container.getNumStreams();
+		int numStreams = demuxer.getNumStreams();
 		for (int i = 0; i < numStreams; i++) {
-			AudioChannel channel = getAudioChannelData(i, container, path);
-			if (channel != null) {
-				audioChannels.add(channel);
+			final DemuxerStream stream = demuxer.getStream(i);
+			final Decoder decoder = stream.getDecoder();
+			// Check if the found stream is an audio stream
+			if (decoder != null && decoder.getCodecType() == MediaDescriptor.Type.MEDIA_AUDIO) {
+				AudioChannel channel = getAudioChannelData(i, demuxer, decoder);
+				if (channel != null) {
+					audioChannels.add(channel);
+				}
 			}
 		}
-		container.close();
+		if (audioChannels.isEmpty()) {
+			throw new LANRFileException("No audio stream could be found in " + path);
+		}
+		demuxer.close();
+		state.firePropertyChange(LOADING_ENDED_PROPERTY, null, null);
 		AudioData data = new AudioData(path, audioChannels);
 		return data;
 	}
 
-	private static AudioChannel getAudioChannelData(int index, IContainer container, String path) {
-		int audioStreamId = -1;
-		int maxBitRate = -1;
-		int maxSampleRate = -1;
-		IStreamCoder audioCoder = null;
-		// Find the stream object
-		IStream stream = container.getStream(index);
+	private AudioChannel getAudioChannelData(int index, Demuxer demuxer, Decoder audioDecoder)
+			throws InterruptedException, IOException {
 
-		// Get the decoder
-		IStreamCoder coder = stream.getStreamCoder();
+		state.firePropertyChange(DECODING_CHANNEL_STARTED_PROPERTY, null, index);
+		
+		
+		/*
+		 * Based on code from
+		 * https://github.com/artclarke/humble-video/blob/master/humble-video-demos/src
+		 * /main/java/io/humble/video/demos/DecodeAndPlayAudio.java
+		 * 
+		 */
+		audioDecoder.open(null, null);
+		final MediaAudio samples = MediaAudio.make(
+				audioDecoder.getFrameSize(),
+				audioDecoder.getSampleRate(),
+				audioDecoder.getChannels(),
+				audioDecoder.getChannelLayout(),
+				audioDecoder.getSampleFormat());
 
-		if (coder.getCodecType() == ICodec.Type.CODEC_TYPE_AUDIO) {
-			audioStreamId = index;
-			audioCoder = coder;
-		} else {
-			coder.close();
-			return null;
-		}
+		//Returns not the correct bit value, therefore *4 instead of 8
+		int bitDepth = samples.getBytesPerSample() * 4; 
+		int sampleRate = samples.getSampleRate();
+		int bytesPerSample = bitDepth / 8;
+		final double progressIncrement = 100 / samples.getNumSamples();
+		
+		final MediaAudioConverter converter = MediaAudioConverterFactory
+				.createConverter(MediaAudioConverterFactory.DEFAULT_JAVA_AUDIO, samples);
+		
+		ByteBuffer rawAudio = null;
+		byte[] rawSamples = new byte[0];
+		final MediaPacket packet = MediaPacket.make();
 
-		byte[] sampleData = new byte[0];
-		if (audioCoder.open(null, null) < 0) {
-			throw new RuntimeException("could not open audio decoder for container: " + path);
-		}
-
-		IPacket packet = IPacket.make();
-		while (container.readNextPacket(packet) >= 0) {
-			// Check if the package belongs to the audio stream
-			if (packet.getStreamIndex() == audioStreamId) {
-				IAudioSamples samples = IAudioSamples.make(1024, audioCoder.getChannels());
+		
+		// Read the packets
+		while (demuxer.read(packet) >= 0) {
+			if (packet.getStreamIndex() == index) {
 				int offset = 0;
-				while (offset < packet.getSize()) {
-					int bytesDecoded = audioCoder.decodeAudio(samples, packet, offset);
-					if (bytesDecoded < 0) {
-						throw new RuntimeException("got error decoding audio in: " + path);
-					}
-					offset += bytesDecoded;
-					// Check if the set of samples is complete
+				int bytesRead = 0;
+				do {
+					bytesRead += audioDecoder.decode(samples, packet, offset);
 					if (samples.isComplete()) {
-						long bitRate = samples.getSampleBitDepth();
-						maxBitRate = Math.max((int) bitRate, maxBitRate);
-						maxSampleRate = Math.max(samples.getSampleRate(), maxSampleRate);
-						sampleData = Utils.concatArrays(
-								sampleData,
-								samples.getData().getByteArray(0, samples.getSize()));
+						//Save the packet data
+						rawAudio = converter.toJavaAudio(rawAudio, samples);
+						rawSamples = Utils.concatArrays(rawSamples, rawAudio.array());
+						this.currentProgress = (int) (progressIncrement * bytesRead / bytesPerSample);
+						state.firePropertyChange(PROGRESS_CHANGED_PROPERTY, null, currentProgress);
 					}
-				}
-			} else {
-				// Package not part of audio stream
+					offset += bytesRead;
+				} while (offset < packet.getSize());
 			}
 		}
-
-		if (audioCoder != null) {
-			audioCoder.close();
-			audioCoder = null;
-		}
-		AudioChannel channel = new AudioChannel(sampleData, maxBitRate, maxSampleRate);
+		state.firePropertyChange(DECODING_CHANNEL_ENDED_PROPERTY, null, null);
+		AudioChannel channel = new AudioChannel(rawSamples, bitDepth, sampleRate);
 		return channel;
-	}
-
-	public static double[] byteToDoubleConverter(long bitDepth, byte[] rawData) {
-		// If we have a bit depth of 16 we need 2 byte per value
-		int bytesPerSample = (int) bitDepth / 8;
-		// Number of samples in the result
-		int sampleCount = rawData.length / bytesPerSample;
-		double[] resultData = new double[sampleCount];
-		int resultCounter = 0;
-		for (int i = 0; i < sampleCount; i += bytesPerSample) {
-			byte[] data = Arrays.copyOfRange(rawData, i, i + bytesPerSample);
-			resultData[resultCounter] = (double) ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getShort();
-			resultCounter++;
-		}
-		return resultData;
 	}
 }
