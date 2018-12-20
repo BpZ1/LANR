@@ -22,6 +22,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+import lanr.controller.AudioController;
 import lanr.controller.MainViewController;
 import lanr.logic.model.AudioData;
 import lanr.model.MainModel;
@@ -158,7 +159,9 @@ public class MainView extends Stage {
 					case MainModel.AUDIO_ADDED_PROPERTY:
 						if (evt.getNewValue() instanceof AudioData) {
 							AudioData data = (AudioData) evt.getNewValue();
-							audioList.add(new AudioDataContainer(data));
+							audioList.add(new AudioDataContainer(
+									data,
+									new AudioController(MainModel.instance())));
 						}
 						break;
 

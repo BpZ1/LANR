@@ -5,6 +5,8 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import lanr.logic.AudioAnalyzer;
 import lanr.logic.FileReader;
@@ -14,12 +16,24 @@ import lanr.logic.model.LANRFileException;
 
 public class MainModel extends Model {
 
+	private static MainModel instance;
+	
+	private MainModel() {};
+	
+	public static MainModel instance() {
+		if(instance == null) {
+			instance = new MainModel();
+		}
+		return instance;
+	}
+	
+	
 	public static final String AUDIO_ADDED_PROPERTY = "addAudio";
 	public static final String AUDIO_REMOVED_PROPERTY = "removeAudio";
-	public static final String PROGRESS_UPDATE_PROPERTY = "prorgessUpdate";
+	public static final String PROGRESS_UPDATE_PROPERTY = "progressUpdate";
 	public static final String ERROR_PROPERTY = "error";
 
-	private Thread fileReaderThread;
+	private ExecutorService executors = Executors.newFixedThreadPool(10);
 
 	private List<AudioData> audioData = new ArrayList<AudioData>();
 	private AudioAnalyzer analyzer = new AudioAnalyzer();
@@ -29,17 +43,15 @@ public class MainModel extends Model {
 	}
 
 	/**
-	 * Adds an audio file to the model and fires the property change.
+	 * Reads the data of a given file and saves it.
 	 * 
 	 * @param path - Path to the audio file
 	 * @throws LANRException
 	 */
-	public void addAudioData(String path) throws LANRException {
+	public void addAudioData(String path) throws LANRException {	
 		Runnable algorithmRunnable = () -> {
-			FileReader reader = new FileReader(path, getFileReaderEventHandler());
-			AudioData data;
 			try {
-				data = reader.readFile(null);
+				AudioData data = FileReader.getFile(path, getFileEventHandler());
 				if (data != null) {
 					audioData.add(data);
 					state.firePropertyChange(AUDIO_ADDED_PROPERTY, null, data);
@@ -48,8 +60,23 @@ public class MainModel extends Model {
 				state.firePropertyChange(ERROR_PROPERTY, null, new LANRException(e));
 			}
 		};
-		fileReaderThread = new Thread(algorithmRunnable);
-		fileReaderThread.start();
+		executors.execute(algorithmRunnable);
+	}
+	
+	/**
+	 * Starts the decoding and analyzing of the given audio data in a separate thread.
+	 * @param data - Data to be decoded and analyzed.
+	 */
+	public void analyzeAudio(AudioData data) {
+		FileReader.interrupted = false;
+		Runnable algorithmRunnable = () -> {
+			try {
+				FileReader.readFile(data, getFileEventHandler());
+			} catch (InterruptedException | IOException e) {
+				state.firePropertyChange(ERROR_PROPERTY, null, new LANRException(e));
+			}
+		};
+		executors.execute(algorithmRunnable);
 	}
 
 	public void removeAudioData(AudioData data) {
@@ -61,7 +88,11 @@ public class MainModel extends Model {
 		return this.audioData;
 	}
 
-	private PropertyChangeListener getFileReaderEventHandler() {
+	/**
+	 * Event handler for loading start and stop.
+	 * @return
+	 */
+	private PropertyChangeListener getFileEventHandler() {
 		PropertyChangeListener eventHandler = new PropertyChangeListener() {
 
 			@Override
@@ -73,21 +104,18 @@ public class MainModel extends Model {
 					case FileReader.LOADING_ENDED_PROPERTY:
 						state.firePropertyChange(PROGRESS_UPDATE_PROPERTY, null, false);
 						break;
-					default:
-						state.firePropertyChange(PROGRESS_UPDATE_PROPERTY, null, evt.getNewValue());
-						break;
-				}
-				
+				}			
 			}
-
 		};
 		return eventHandler;
 	}
 	
+	/**
+	 * Ends all running threads used for analyzing data.
+	 */
 	public void shutdown() {
-		if(this.fileReaderThread != null) {
-			FileReader.interrupted = true;
-		}
+		FileReader.interrupted = true;
+		executors.shutdown();
 	}
 
 }

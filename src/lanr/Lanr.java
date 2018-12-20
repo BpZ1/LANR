@@ -4,7 +4,6 @@ import javafx.application.*;
 import javafx.stage.Stage;
 import lanr.controller.MainViewController;
 import lanr.model.MainModel;
-import lanr.view.MainView;
 
 public class Lanr extends Application {
 
@@ -14,7 +13,7 @@ public class Lanr extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		MainModel model = new MainModel();
+		MainModel model = MainModel.instance();
 		MainViewController mainController = new MainViewController(model);
 		mainController.start();
 	}

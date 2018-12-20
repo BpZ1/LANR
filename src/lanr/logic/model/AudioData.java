@@ -1,5 +1,7 @@
 package lanr.logic.model;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.nio.file.Paths;
 import java.util.List;
 
@@ -11,6 +13,9 @@ import java.util.List;
  */
 public class AudioData {
 
+	public final static String DATA_ANALYZED_PROPERTY = "analyzed";
+	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
+	
 	private String name;
 	
 	private final String path;
@@ -24,13 +29,6 @@ public class AudioData {
 
 	public AudioData(String path, List<AudioChannel> audioChannels) {
 		this.audioChannels = audioChannels;
-		//Set the channel indices
-		int counter = 1;
-		for(AudioChannel channel : audioChannels) {
-			channel.setParent(this);
-			channel.setIndex(counter);
-			counter++;
-		}
 		this.path = path;
 		this.name = Paths.get(path).getFileName().toString();
 		
@@ -52,6 +50,10 @@ public class AudioData {
 				severity += noise.getSeverity();
 			}
 		}	
+	}
+	
+	public void addChangeListener(PropertyChangeListener listener) {
+		this.state.addPropertyChangeListener(listener);
 	}
 
 	public int getSampleRate() {
@@ -84,6 +86,9 @@ public class AudioData {
 
 	public void setAnalyzed(boolean value) {
 		this.isAnalyzed = value;
+		if(value) {
+			state.firePropertyChange(DATA_ANALYZED_PROPERTY, null, null);
+		}
 	}
 
 	public double getSeverity() {

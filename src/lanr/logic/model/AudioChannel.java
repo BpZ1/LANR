@@ -1,5 +1,8 @@
 package lanr.logic.model;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,19 +16,19 @@ import lanr.logic.Utils;
  */
 public class AudioChannel {
 
+	public final static String DATA_ADDED_PROPERTY = "added";
+	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
+	
 	/**
 	 * Audio file containing the channel.
 	 */
 	private AudioData parent;
 	private int index;
+	private long length;
 	/**
 	 * Bit depth per sample.
 	 */
 	private final int bitRate;
-	/**
-	 * Number of samples in the channel.
-	 */
-	private final int sampleCount;
 	private final int bytesPerSample;
 	/**
 	 * Samples per second.
@@ -34,23 +37,30 @@ public class AudioChannel {
 	/**
 	 * Samples of the audio channel.
 	 */
-	private final byte[] samples;
+	private byte[] samples;
 	/**
 	 * List of found {@link Noise} types in the different channel of this audio
 	 * file.
 	 */
 	private List<Noise> foundNoise = new ArrayList<Noise>();
-
-	public AudioChannel(byte[] samples, int bitRate, int sampleRate) {
-		this.samples = samples;
+	
+	public AudioChannel(int bitRate, int sampleRate, int index, long length) {
 		this.bitRate = bitRate;
 		this.sampleRate = sampleRate;
 		this.bytesPerSample = bitRate / 8;
-		this.sampleCount = samples.length / bytesPerSample;
+		this.index = index;
+		this.length = length;
 	}
 
 	public void setParent(AudioData parent) {
 		this.parent = parent;
+	}
+	
+	public void addRawData(ByteBuffer buffer) {
+		
+		state.firePropertyChange(DATA_ADDED_PROPERTY,
+				null,
+				Utils.byteToShortConverter(bitRate, buffer.array()));
 	}
 
 	public void setFoundNoise(List<Noise> foundNoise) {
@@ -138,6 +148,10 @@ public class AudioChannel {
 	public double[] get64BitSampleValues(int fromIndex, int toIndex) {
 		return Utils.byteToDoubleConverter(bytesPerSample, getValueRange(fromIndex, toIndex));
 	}
+	
+	public void addChangeListener(PropertyChangeListener listener) {
+		this.state.addPropertyChangeListener(listener);
+	}
 
 	/**
 	 * Converts all samples into 16 bit values.
@@ -160,11 +174,7 @@ public class AudioChannel {
 		return index;
 	}
 
-	public void setIndex(int index) {
-		this.index = index;
-	}
-
-	public int getSampleCount() {
-		return sampleCount;
+	public long getLength() {
+		return length;
 	}
 }
