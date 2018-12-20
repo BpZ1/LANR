@@ -43,6 +43,9 @@ public class MainView extends Stage {
 		Scene scene = new Scene(rootPane, 800, 500);
 		scene.getStylesheets().add(MainView.class.getResource("Main.css").toExternalForm());
 		this.setScene(scene);
+		scene.getWindow().setOnCloseRequest(event ->{
+			controller.shutdown();
+		});
 	}
 
 	private Pane createRootPane() {
@@ -138,6 +141,7 @@ public class MainView extends Stage {
 	private Pane createBottomPane() {
 		AnchorPane pane = new AnchorPane();
 		this.progressBar = new ProgressBar();
+		progressBar.setVisible(false);
 		pane.getChildren().add(progressBar);
 		AnchorPane.setRightAnchor(progressBar, 5.0);
 		return pane;
@@ -168,6 +172,9 @@ public class MainView extends Stage {
 					case MainModel.PROGRESS_UPDATE_PROPERTY:
 						if (evt.getNewValue() instanceof Integer) {
 							progressBar.setProgress((int) evt.getNewValue());
+							System.out.println((int) evt.getNewValue());
+						}else if(evt.getNewValue() instanceof Boolean) {
+							progressBar.setVisible((boolean)evt.getNewValue());
 						}
 						break;
 					}

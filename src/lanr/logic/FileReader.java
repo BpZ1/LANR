@@ -13,6 +13,7 @@ import io.humble.video.DemuxerStream;
 import io.humble.video.MediaAudio;
 import io.humble.video.MediaDescriptor;
 import io.humble.video.MediaPacket;
+import io.humble.video.Rational;
 import io.humble.video.javaxsound.MediaAudioConverter;
 import io.humble.video.javaxsound.MediaAudioConverterFactory;
 import lanr.logic.model.AudioChannel;
@@ -21,35 +22,43 @@ import lanr.logic.model.LANRFileException;
 
 public class FileReader {
 
+	public static volatile boolean interrupted = false;
+	
 	public static final String PROGRESS_CHANGED_PROPERTY = "progress";
 	public static final String LOADING_STARTED_PROPERTY = "start";
 	public static final String LOADING_ENDED_PROPERTY = "end";
 	public static final String DECODING_CHANNEL_STARTED_PROPERTY = "channelStart";
 	public static final String DECODING_CHANNEL_ENDED_PROPERTY = "channelEnd";
-
+	
 	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
+	
+	private String path;
 
 	public void addChangeListener(PropertyChangeListener listener) {
 		this.state.addPropertyChangeListener(listener);
 	}
 
-	public FileReader() {
+	public FileReader(String path) {
+		this.path = path;
 	};
 
-	public FileReader(PropertyChangeListener listener) {
+	public FileReader(String path, PropertyChangeListener listener) {
 		addChangeListener(listener);
+		this.path = path;
 	}
 
 	private int currentProgress;
-
+	
+	
 	/**
 	 * @param path
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws LANRFileException
 	 */
-	public AudioData readFile(String path) throws InterruptedException, IOException, LANRFileException {
+	public AudioData readFile(AudioData data) throws InterruptedException, IOException, LANRFileException {
 
+		AudioData d;
 		currentProgress = 0;
 		state.firePropertyChange(LOADING_STARTED_PROPERTY, null, null);
 		List<AudioChannel> audioChannels = new ArrayList<AudioChannel>();
@@ -78,15 +87,14 @@ public class FileReader {
 		}
 		demuxer.close();
 		state.firePropertyChange(LOADING_ENDED_PROPERTY, null, null);
-		AudioData data = new AudioData(path, audioChannels);
-		return data;
+		d = new AudioData(path, audioChannels);
+		return d;
 	}
 
 	private AudioChannel getAudioChannelData(int index, Demuxer demuxer, Decoder audioDecoder)
 			throws InterruptedException, IOException {
 
-		state.firePropertyChange(DECODING_CHANNEL_STARTED_PROPERTY, null, index);
-		
+		state.firePropertyChange(DECODING_CHANNEL_STARTED_PROPERTY, null, index);	
 		
 		/*
 		 * Based on code from
@@ -106,7 +114,9 @@ public class FileReader {
 		int bitDepth = samples.getBytesPerSample() * 4; 
 		int sampleRate = samples.getSampleRate();
 		int bytesPerSample = bitDepth / 8;
-		final double progressIncrement = 100 / samples.getNumSamples();
+		//Calculate the time of the stream in seconds
+		Rational r = demuxer.getStream(index).getTimeBase();	
+		final double progressIncrement = 100.0 / ((double)demuxer.getStream(index).getDuration() / r.getDenominator());		
 		
 		final MediaAudioConverter converter = MediaAudioConverterFactory
 				.createConverter(MediaAudioConverterFactory.DEFAULT_JAVA_AUDIO, samples);
@@ -115,19 +125,25 @@ public class FileReader {
 		byte[] rawSamples = new byte[0];
 		final MediaPacket packet = MediaPacket.make();
 
-		
+		double elapsedSeconds = 0;
 		// Read the packets
 		while (demuxer.read(packet) >= 0) {
+			//Check if the packet is part of the current stream
 			if (packet.getStreamIndex() == index) {
 				int offset = 0;
 				int bytesRead = 0;
 				do {
+					if(interrupted) {
+						return null;
+					}
 					bytesRead += audioDecoder.decode(samples, packet, offset);
 					if (samples.isComplete()) {
 						//Save the packet data
 						rawAudio = converter.toJavaAudio(rawAudio, samples);
 						rawSamples = Utils.concatArrays(rawSamples, rawAudio.array());
-						this.currentProgress = (int) (progressIncrement * bytesRead / bytesPerSample);
+						double packetTime = ((double)bytesRead / (double)bytesPerSample) / (double)sampleRate;
+						elapsedSeconds += packetTime;
+						this.currentProgress = (int) (progressIncrement * elapsedSeconds) * 4;
 						state.firePropertyChange(PROGRESS_CHANGED_PROPERTY, null, currentProgress);
 					}
 					offset += bytesRead;

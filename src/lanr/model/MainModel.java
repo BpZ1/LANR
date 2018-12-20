@@ -18,7 +18,7 @@ public class MainModel extends Model {
 	public static final String AUDIO_REMOVED_PROPERTY = "removeAudio";
 	public static final String PROGRESS_UPDATE_PROPERTY = "prorgessUpdate";
 	public static final String ERROR_PROPERTY = "error";
-	
+
 	private Thread fileReaderThread;
 
 	private List<AudioData> audioData = new ArrayList<AudioData>();
@@ -36,10 +36,10 @@ public class MainModel extends Model {
 	 */
 	public void addAudioData(String path) throws LANRException {
 		Runnable algorithmRunnable = () -> {
-			FileReader reader = new FileReader(getFileReaderEventHandler());
+			FileReader reader = new FileReader(path, getFileReaderEventHandler());
 			AudioData data;
 			try {
-				data = reader.readFile(path);
+				data = reader.readFile(null);
 				if (data != null) {
 					audioData.add(data);
 					state.firePropertyChange(AUDIO_ADDED_PROPERTY, null, data);
@@ -66,11 +66,28 @@ public class MainModel extends Model {
 
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
-				state.firePropertyChange(PROGRESS_UPDATE_PROPERTY, null, evt.getNewValue());
+				switch(evt.getPropertyName()) {
+					case FileReader.LOADING_STARTED_PROPERTY:
+						state.firePropertyChange(PROGRESS_UPDATE_PROPERTY, null, true);
+						break;
+					case FileReader.LOADING_ENDED_PROPERTY:
+						state.firePropertyChange(PROGRESS_UPDATE_PROPERTY, null, false);
+						break;
+					default:
+						state.firePropertyChange(PROGRESS_UPDATE_PROPERTY, null, evt.getNewValue());
+						break;
+				}
+				
 			}
 
 		};
 		return eventHandler;
+	}
+	
+	public void shutdown() {
+		if(this.fileReaderThread != null) {
+			FileReader.interrupted = true;
+		}
 	}
 
 }

@@ -30,4 +30,8 @@ public class MainViewController {
 			e.printStackTrace();
 		}
 	}
+	
+	public void shutdown() {
+		this.model.shutdown();
+	}
 }
