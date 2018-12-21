@@ -143,9 +143,6 @@ public class FileReader {
 		final MediaAudioConverter converter = MediaAudioConverterFactory
 				.createConverter(MediaAudioConverterFactory.DEFAULT_JAVA_AUDIO, samples);
 		
-		
-		int bytePerSample = samples.getBytesPerSample() * 4 / 8; 
-		int sampleRate = samples.getSampleRate();
 		int bufferSize = bufferSizeMegabyte * 1000 * 1000;
 		ByteBuffer rawAudio = null;
 		ByteBuffer buffer = ByteBuffer.allocate(bufferSize + 1024); //Added extra buffer to prevent overflow
