@@ -16,6 +16,7 @@ import lanr.logic.Utils;
  */
 public class AudioChannel {
 
+	public static final int VISUALISATION_REDUCTION_FACTOR = 10;
 	public final static String DATA_ADDED_PROPERTY = "added";
 	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
 	
@@ -25,15 +26,11 @@ public class AudioChannel {
 	 * Bit depth per sample.
 	 */
 	private final int bitRate;
-	private final int bytesPerSample;
+	private final int bytePerSample;
 	/**
 	 * Samples per second.
 	 */
 	private final int sampleRate;
-	/**
-	 * Samples of the audio channel.
-	 */
-	private byte[] samples;
 	/**
 	 * List of found {@link Noise} types in the different channel of this audio
 	 * file.
@@ -43,19 +40,28 @@ public class AudioChannel {
 	public AudioChannel(int bitRate, int sampleRate, int index, long length) {
 		this.bitRate = bitRate;
 		this.sampleRate = sampleRate;
-		this.bytesPerSample = bitRate / 8;
 		this.index = index;
 		this.length = length;
-		
+		this.bytePerSample = bitRate / 8;		
 		addNoise(new Noise(NoiseType.Clipping, 200, 10000, 0.5));
 		addNoise(new Noise(NoiseType.Hum, 5000, 20000, 0.92));
-	}
+	}	
 	
-	public void addRawData(ByteBuffer buffer) {		
-		state.firePropertyChange(DATA_ADDED_PROPERTY,
-				null,
-				Utils.byteToShortConverter(bitRate, buffer.array()));
-	}
+	public void addRawData(byte[] data) {	
+		short[] samples = Utils.byteToShortConverter(bytePerSample, data);
+		short[] visualSamples = new short[samples.length / VISUALISATION_REDUCTION_FACTOR];
+		//Take every Xth element
+		int counter = 0;
+		for(int i = 0; i < visualSamples.length; i++) {
+			if(samples[counter] > Short.MAX_VALUE) {
+				visualSamples[i] = Short.MAX_VALUE;
+			}else {
+				visualSamples[i] = (short) samples[counter];
+			}	
+			counter += VISUALISATION_REDUCTION_FACTOR;
+		}
+		state.firePropertyChange(DATA_ADDED_PROPERTY, null, visualSamples);
+ 	}
 
 	public void setFoundNoise(List<Noise> foundNoise) {
 		this.foundNoise = foundNoise;
@@ -74,81 +80,9 @@ public class AudioChannel {
 	public void removeNoise(Noise noise) {
 		this.foundNoise.remove(noise);
 	}
-
-	public byte[] getSamples() {
-		return samples;
-	}
-
-	private byte[] getValueRange(int fromIndex, int toIndex) {
-		// Double the size because of byte short conversion
-		int size = (toIndex - fromIndex) * bytesPerSample;
-		byte[] data = new byte[size];
-		int counter = fromIndex * bytesPerSample;
-		for (int i = 0; i < size; i++) {
-			data[i] = samples[counter];
-			counter++;
-		}
-		return data;
-	}
-
-	/**
-	 * Converts the value in the given index to a 16 bit value.
-	 * @param index - Index of the sample.
-	 * @return Sample 16 bit value for the given index.
-	 */
-	public short get16BitSampleValue(int index) {
-		byte[] data = { 
-				samples[index * bytesPerSample],
-				samples[index * bytesPerSample + 1]
-					};
-		return Utils.byteToShortConverter(bytesPerSample, data)[0];
-	}
-
-	/**
-	 * Converts a range of samples to 16 bit values.
-	 * @param fromIndex - Beginning index of the sample.
-	 * @param toIndex - End index of the sample.
-	 * @return Sample 16 bit values for the given range.
-	 */
-	public short[] get16BitSampleValues(int fromIndex, int toIndex) {
-		return Utils.byteToShortConverter(bytesPerSample, getValueRange(fromIndex, toIndex));
-	}
-
-	/**
-	 * Converts the value in the given index to a 64 bit value.
-	 * @param index - Index of the sample value.
-	 * @return Sample 64 bit value for the given index.
-	 */
-	public double get64BitSampleValue(int index) {
-		byte[] data = { 
-				samples[index * bytesPerSample],
-				samples[index * bytesPerSample + 1]
-					};
-		return Utils.byteToDoubleConverter(bytesPerSample, data)[0];
-	}
-
-	/**
-	 * Converts a range of samples to 64 bit values.<br>
-	 * <b>Should not be used for long ranges because of the memory usage!</b>
-	 * @param fromIndex - Beginning index of the sample.
-	 * @param toIndex - End index of the sample.
-	 * @return Sample 64 bit values for the given range.
-	 */
-	public double[] get64BitSampleValues(int fromIndex, int toIndex) {
-		return Utils.byteToDoubleConverter(bytesPerSample, getValueRange(fromIndex, toIndex));
-	}
 	
 	public void addChangeListener(PropertyChangeListener listener) {
 		this.state.addPropertyChangeListener(listener);
-	}
-
-	/**
-	 * Converts all samples into 16 bit values.
-	 * This will double the memory used, so use with caution!
-	 * @return
-	 */
-	public short[] get16BitSampleValues() {
-		return Utils.byteToShortConverter(bytesPerSample, samples);
 	}
 
 	public int getBitDepth() {

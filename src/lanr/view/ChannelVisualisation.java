@@ -26,21 +26,29 @@ public class ChannelVisualisation extends Canvas {
 	private double currentXPosition = 0;
 	private double lastYPosition = 0;
 
-	public ChannelVisualisation(double width, double height, AudioChannel channel) {
-		super(width, height);
+	public ChannelVisualisation(double parentWidth, double height, AudioChannel channel) {
+		this.height = height;	
+		this.setHeight(height);
 		this.channel = channel;
-		this.width = width;
-		this.height = height;
 		this.getGraphicsContext2D().setStroke(Color.BLUE);
 		this.getGraphicsContext2D().setLineWidth(0.1);
 		channel.addChangeListener(createChangeListener());
-		this.sampleCount = channel.getLength() * channel.getSampleRate();
-		this.sampleDistance = this.width / sampleCount;
+		this.sampleCount = (channel.getLength() * channel.getSampleRate())
+				/ AudioChannel.VISUALISATION_REDUCTION_FACTOR;
+		
+		if(channel.getLength() / 3 < parentWidth) {
+			this.width = parentWidth;
+		}else {
+			this.width = channel.getLength() / 3;
+		}
+		this.setWidth(width);
+		this.sampleDistance = width / sampleCount;
 		this.maxSampleValue = Math.pow(2, channel.getBitDepth()) + 10; // added 10 for buffer
-		this.heightValue = this.height / maxSampleValue;
+		this.heightValue = height / maxSampleValue;
 		this.halfValue = maxSampleValue / 2;
-	}
 
+	}
+	
 	private void drawAudioData(short[] data) {
 		double sampleYPosition;
 		for (short sample : data) {
@@ -60,7 +68,7 @@ public class ChannelVisualisation extends Canvas {
 			lastYPosition = sampleYPosition;
 			currentXPosition = newXPosition;
 		}
-		this.getGraphicsContext2D().stroke();
+		this.getGraphicsContext2D().fill();
 	}
 
 	private PropertyChangeListener createChangeListener() {

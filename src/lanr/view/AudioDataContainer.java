@@ -42,9 +42,9 @@ public class AudioDataContainer extends TitledPane {
 		this.setId(AUDIO_CONTAINER_CSS_ID);
 		this.setText(data.getPath());
 		data.addChangeListener(createChangeListener());
-		this.content = createContent();
-		this.setContent(content);
 		this.visualisationContainer = createAudioVisual();
+		this.content = createContent();
+		this.setContent(content);		
 	}
 
 	/**
@@ -111,11 +111,8 @@ public class AudioDataContainer extends TitledPane {
 		row++;
 
 		content.getChildren().add(infoBox);
-		if(data.isAnalyzed()) {
-			content.getChildren().add(visualisationContainer);			
-		}else {
-			content.getChildren().add(createAnalyzeButton());
-		}	
+		content.getChildren().add(visualisationContainer);		
+		content.getChildren().add(createAnalyzeButton());
 		return content;
 	}
 	
@@ -144,7 +141,6 @@ public class AudioDataContainer extends TitledPane {
 				Platform.runLater(()->{
 					//Add the visualisation
 					content.getChildren().remove(placeHolderText);
-					content.getChildren().add(visualisationContainer);
 					//Add the table
 					TitledPane noiseData = new TitledPane();
 					noiseData.setText("Found Problems");
@@ -162,7 +158,7 @@ public class AudioDataContainer extends TitledPane {
 		ScrollPane pane = new ScrollPane();
 		pane.setVbarPolicy(ScrollBarPolicy.NEVER);
 		pane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
-		AudioVisualisation canvasContainer = new AudioVisualisation(600, 200, data);
+		AudioVisualisation canvasContainer = new AudioVisualisation(200, data);
 		pane.setContent(canvasContainer);
 		return pane;
 	}

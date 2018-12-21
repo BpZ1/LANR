@@ -1,8 +1,5 @@
 package lanr.view;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import lanr.logic.model.AudioChannel;
@@ -15,19 +12,16 @@ import lanr.logic.model.AudioData;
 public class AudioVisualisation extends VBox {
 	
 	private static final String CSS_ID = "visualisationBackGround";
-	
-	/**
-	 * Contains the channel index and its canvas + graphics context
-	 */
-	private List<ChannelVisualisation> channelVisuals = new LinkedList<ChannelVisualisation>();
 
-	public AudioVisualisation(double width, double height, AudioData data) {	
+	public AudioVisualisation(double height, AudioData data) {	
+		this.setHeight(height);
 		this.setId(CSS_ID);	
+		double canvasHeight = height / data.getAllChannel().size();
 		//The canvas are created in advance and drawn to when analyzing
 		for (AudioChannel channel : data.getAllChannel()) {
-			channelVisuals.add(new ChannelVisualisation(
-					width,
-					height / data.getAllChannel().size(),
+			this.getChildren().add(new ChannelVisualisation(
+					this.getWidth(),
+					canvasHeight,
 					channel));
 		}
 	}
