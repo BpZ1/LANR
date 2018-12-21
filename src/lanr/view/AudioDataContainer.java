@@ -15,7 +15,6 @@ import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -41,15 +40,15 @@ public class AudioDataContainer extends TitledPane {
 	private Text placeHolderText;
 	private ScrollPane visualisationContainer;
 	private Circle statusCircle;
-	private Tooltip tooltip;
 	
 	public AudioDataContainer(AudioData data, AudioController controller) {
 		this.controller = controller;
 		this.data = data;
 		this.setId(AUDIO_CONTAINER_CSS_ID);
-		this.setText(data.getPath());
+		this.setText(data.getPath() + " - Not analyzed");
 		data.addChangeListener(createChangeListener());
 		createNodeElements();
+		
 	}
 	
 	private void createNodeElements() {
@@ -60,10 +59,7 @@ public class AudioDataContainer extends TitledPane {
 		this.statusCircle = new Circle(6, Color.WHITE);	
 		this.statusCircle.setStroke(Color.BLACK);
 		this.setGraphic(statusCircle);
-		//Creating the tooltip
-		this.tooltip = new Tooltip();
-		this.tooltip.setText("Not Analyzed");
-		this.setTooltip(tooltip);
+
 		this.placeHolderText = new Text("In Progress..."); 
 		this.placeHolderText.setId(PLACEHOLDER_CSS_ID);
 	}
@@ -147,7 +143,7 @@ public class AudioDataContainer extends TitledPane {
 			content.getChildren().remove(analyzeButton);
 			placeHolderText = new Text("In Progress..."); 
 			placeHolderText.setId("placeHolderText");
-			tooltip.setText("Is being analyzed...");
+			this.setText(data.getPath() + " - Is being analyzed...");
 			content.getChildren().add(placeHolderText);
 			controller.analyze(data);
 			content.getChildren().add(visualisationContainer);
@@ -173,7 +169,7 @@ public class AudioDataContainer extends TitledPane {
 					noiseData.setContent(createNoiseTable());
 					content.getChildren().add(noiseData);
 					statusCircle.setFill(getSeverityColor(data.getSeverity()));
-					tooltip.setText("Severity: " + data.getSeverity());
+					setText(data.getPath() + " - Severity: " + data.getSeverity());
 				});
 				
 			}			
