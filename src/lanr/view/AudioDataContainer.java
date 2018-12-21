@@ -15,9 +15,12 @@ import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import lanr.controller.AudioController;
 import lanr.logic.model.AudioChannel;
@@ -28,6 +31,8 @@ public class AudioDataContainer extends TitledPane {
 
 	private static final String AUDIO_CONTAINER_CSS_ID = "audioContainer";
 	private static final String LABEL_CSS_ID = "labelText";
+	private static final String NOISE_TABLE_CSS_ID = "noiseTable";
+	private static final String PLACEHOLDER_CSS_ID = "placeHolder";
 	
 	private final AudioController controller;
 	private final AudioData data;
@@ -35,6 +40,8 @@ public class AudioDataContainer extends TitledPane {
 	private Button analyzeButton;
 	private Text placeHolderText;
 	private ScrollPane visualisationContainer;
+	private Circle statusCircle;
+	private Tooltip tooltip;
 	
 	public AudioDataContainer(AudioData data, AudioController controller) {
 		this.controller = controller;
@@ -42,9 +49,23 @@ public class AudioDataContainer extends TitledPane {
 		this.setId(AUDIO_CONTAINER_CSS_ID);
 		this.setText(data.getPath());
 		data.addChangeListener(createChangeListener());
+		createNodeElements();
+	}
+	
+	private void createNodeElements() {
 		this.visualisationContainer = createAudioVisual();
 		this.content = createContent();
-		this.setContent(content);		
+		this.setContent(content);	
+		//Creating the state circle
+		this.statusCircle = new Circle(6, Color.WHITE);	
+		this.statusCircle.setStroke(Color.BLACK);
+		this.setGraphic(statusCircle);
+		//Creating the tooltip
+		this.tooltip = new Tooltip();
+		this.tooltip.setText("Not Analyzed");
+		this.setTooltip(tooltip);
+		this.placeHolderText = new Text("In Progress..."); 
+		this.placeHolderText.setId(PLACEHOLDER_CSS_ID);
 	}
 
 	/**
@@ -110,8 +131,7 @@ public class AudioDataContainer extends TitledPane {
 		infoBox.add(sampleRateText, 1, row);	
 		row++;
 
-		content.getChildren().add(infoBox);
-		content.getChildren().add(visualisationContainer);		
+		content.getChildren().add(infoBox);				
 		content.getChildren().add(createAnalyzeButton());
 		return content;
 	}
@@ -127,12 +147,18 @@ public class AudioDataContainer extends TitledPane {
 			content.getChildren().remove(analyzeButton);
 			placeHolderText = new Text("In Progress..."); 
 			placeHolderText.setId("placeHolderText");
+			tooltip.setText("Is being analyzed...");
 			content.getChildren().add(placeHolderText);
 			controller.analyze(data);
+			content.getChildren().add(visualisationContainer);
 		});
 		return analyzeButton;
 	}
 	
+	/**
+	 * Gets called when the analyzing is finished.
+	 * @return
+	 */
 	private PropertyChangeListener createChangeListener() {
 		PropertyChangeListener listener = new  PropertyChangeListener() {
 			@Override
@@ -144,9 +170,10 @@ public class AudioDataContainer extends TitledPane {
 					//Add the table
 					TitledPane noiseData = new TitledPane();
 					noiseData.setText("Found Problems");
-					TableView<Noise> noiseTable = createNoiseTable();
-					noiseData.setContent(noiseTable);
+					noiseData.setContent(createNoiseTable());
 					content.getChildren().add(noiseData);
+					statusCircle.setFill(getSeverityColor(data.getSeverity()));
+					tooltip.setText("Severity: " + data.getSeverity());
 				});
 				
 			}			
@@ -156,6 +183,7 @@ public class AudioDataContainer extends TitledPane {
 
 	private ScrollPane createAudioVisual() {
 		ScrollPane pane = new ScrollPane();
+		pane.setPrefHeight(200);
 		pane.setVbarPolicy(ScrollBarPolicy.NEVER);
 		pane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
 		AudioVisualisation canvasContainer = new AudioVisualisation(200, data);
@@ -163,8 +191,12 @@ public class AudioDataContainer extends TitledPane {
 		return pane;
 	}
 
-	private TableView<Noise> createNoiseTable() {
+	private ScrollPane createNoiseTable() {
+		ScrollPane pane = new ScrollPane();
+		pane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
+		pane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
 		TableView<Noise> noiseTable = new TableView<Noise>();
+		noiseTable.setId(NOISE_TABLE_CSS_ID);
 		noiseTable.setPlaceholder(new Text("No noise found"));
 		noiseTable.setPrefWidth(Region.USE_COMPUTED_SIZE);
 
@@ -206,7 +238,18 @@ public class AudioDataContainer extends TitledPane {
 			noiseList.addAll(c.getFoundNoise());
 		}
 		noiseTable.setItems(noiseList);
-		return noiseTable;
+		pane.setContent(noiseTable);
+		return pane;
+	}
+	
+	private Color getSeverityColor(double severity) {
+		if(severity < 3) {
+			return Color.GREEN;
+		}
+		if(severity < 6) {
+			return Color.YELLOW;
+		}
+		return Color.RED;
 	}
 	
 	private String getDurationString(long durationInSeconds) {
