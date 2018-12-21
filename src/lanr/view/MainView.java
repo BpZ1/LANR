@@ -77,7 +77,7 @@ public class MainView extends Stage {
 		fileMenu.getItems().add(debugMenuItem);
 		fileMenu.getItems().add(exitMenuItem);
 		Menu editMenu = new Menu("Edit");
-		MenuItem settingsMenuItem = new MenuItem("Exit");
+		MenuItem settingsMenuItem = new MenuItem("Settings");
 		editMenu.getItems().add(settingsMenuItem);
 
 		openMenuItem.setOnAction(event -> {
