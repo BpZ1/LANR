@@ -16,7 +16,7 @@ import lanr.logic.Utils;
  */
 public class AudioChannel {
 
-	public static final int VISUALISATION_REDUCTION_FACTOR = 10;
+	public static final int VISUALISATION_REDUCTION_FACTOR = 100;
 	public final static String DATA_ADDED_PROPERTY = "added";
 	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
 	
