@@ -30,8 +30,8 @@ public class AudioDataContainer extends TitledPane {
 
 	private static final String AUDIO_CONTAINER_CSS_ID = "audioContainer";
 	private static final String LABEL_CSS_ID = "labelText";
-	private static final String NOISE_TABLE_CSS_ID = "noiseTable";
 	private static final String PLACEHOLDER_CSS_ID = "placeHolder";
+	private static final String DATA_BOX_CSS_ID = "dataBox";
 	
 	private final AudioController controller;
 	private final AudioData data;
@@ -71,6 +71,7 @@ public class AudioDataContainer extends TitledPane {
 	private VBox createContent() {
 		VBox content = new VBox();
 		GridPane infoBox = new GridPane();
+		infoBox.setId(DATA_BOX_CSS_ID);
 		infoBox.setPadding(new Insets(2,2,2,2));
 		infoBox.setVgap(4);
 		infoBox.setHgap(10);
@@ -187,12 +188,8 @@ public class AudioDataContainer extends TitledPane {
 		return pane;
 	}
 
-	private ScrollPane createNoiseTable() {
-		ScrollPane pane = new ScrollPane();
-		pane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
-		pane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+	private TableView<Noise> createNoiseTable() {
 		TableView<Noise> noiseTable = new TableView<Noise>();
-		noiseTable.setId(NOISE_TABLE_CSS_ID);
 		noiseTable.setPlaceholder(new Text("No noise found"));
 		noiseTable.setPrefWidth(Region.USE_COMPUTED_SIZE);
 
@@ -234,8 +231,7 @@ public class AudioDataContainer extends TitledPane {
 			noiseList.addAll(c.getFoundNoise());
 		}
 		noiseTable.setItems(noiseList);
-		pane.setContent(noiseTable);
-		return pane;
+		return noiseTable;
 	}
 	
 	private Color getSeverityColor(double severity) {

@@ -1,0 +1,32 @@
+
+.root{
+	-fx-base: #383838;
+	-fx-background-color: #818284;
+}
+
+#labelText{
+	-fx-font-weight: bold;
+	-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );
+}
+
+#visualisationBackGround{
+	-fx-background-color: #828080;
+}
+
+.progress-bar{
+	-fx-progress-color:#003aba;
+	-fx-border-radius: 0 0 0 0;
+}
+
+.menu-bar{
+	-fx-font-weight: bold;
+}
+
+#placeHolder{
+	-fx-font-size: 16;
+	-fx-font-weight: bold;
+}
+
+#dataBox{
+	-fx-background-color: #a9abad;
+}

@@ -6,6 +6,7 @@ import java.io.File;
 
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Accordion;
@@ -32,7 +33,7 @@ import lanr.model.MainModel;
  *
  */
 public class MainView extends Stage {
-
+	
 	private MainViewController controller;
 	private Pane rootPane;
 	private Accordion centerPane;
@@ -46,6 +47,8 @@ public class MainView extends Stage {
 		this.setTitle("LANR");
 		rootPane = createRootPane();
 		Scene scene = new Scene(rootPane, 800, 500);
+		this.setMinWidth(700);
+		this.setMinHeight(400);
 		scene.getStylesheets().add(MainView.class.getResource("Main.css").toExternalForm());
 		this.setScene(scene);
 		scene.getWindow().setOnCloseRequest(event ->{
@@ -69,12 +72,11 @@ public class MainView extends Stage {
 	 */
 	private Node createTopMenu() {
 		MenuBar menuBar = new MenuBar();
+		menuBar.setPadding(new Insets(2,2,2,2));
 		Menu fileMenu = new Menu("File");
 		MenuItem openMenuItem = new MenuItem("Open");
-		MenuItem debugMenuItem = new MenuItem("Debug");
 		MenuItem exitMenuItem = new MenuItem("Exit");
 		fileMenu.getItems().add(openMenuItem);
-		fileMenu.getItems().add(debugMenuItem);
 		fileMenu.getItems().add(exitMenuItem);
 		Menu editMenu = new Menu("Edit");
 		MenuItem settingsMenuItem = new MenuItem("Settings");
@@ -84,17 +86,13 @@ public class MainView extends Stage {
 			openFileDialog();
 		});
 
-		debugMenuItem.setOnAction(event -> {
-
-		});
-
 		exitMenuItem.setOnAction(event -> {
 			Stage stage = (Stage) this.getScene().getWindow();
 			stage.close();
 		});
 
 		settingsMenuItem.setOnAction(event -> {
-
+			controller.openSettings();
 		});
 
 		menuBar.getMenus().add(fileMenu);
@@ -146,7 +144,7 @@ public class MainView extends Stage {
 	private Pane createBottomPane() {
 		AnchorPane pane = new AnchorPane();
 		this.progressBar = new ProgressBar();
-		progressBar.setVisible(false);
+		this.progressBar.setVisible(false);
 		pane.getChildren().add(progressBar);
 		AnchorPane.setRightAnchor(progressBar, 5.0);
 		return pane;
