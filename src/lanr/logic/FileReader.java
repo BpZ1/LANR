@@ -29,6 +29,7 @@ public class FileReader {
 	public static final String DECODING_STARTED_PROPERTY = "dStart";
 	public static final String DECODING_ENDED_PROPERTY = "dEnd";
 	
+	private static int bufferSizeMegabyte = 10;
 	/**
 	 * Creates a {@link AudioData} object containing data about the 
 	 * @param path
@@ -142,10 +143,14 @@ public class FileReader {
 		final MediaAudioConverter converter = MediaAudioConverterFactory
 				.createConverter(MediaAudioConverterFactory.DEFAULT_JAVA_AUDIO, samples);
 		
+		
+		int bytePerSample = samples.getBytesPerSample() * 4 / 8; 
+		int sampleRate = samples.getSampleRate();
+		int bufferSize = bufferSizeMegabyte * 1000 * 1000;
 		ByteBuffer rawAudio = null;
-
+		ByteBuffer buffer = ByteBuffer.allocate(bufferSize + 1024); //Added extra buffer to prevent overflow
+		
 		final MediaPacket packet = MediaPacket.make();
-
 		// Read the packets
 		while (demuxer.read(packet) >= 0) {
 			//Check if the packet is part of the current stream
@@ -160,7 +165,15 @@ public class FileReader {
 					if (samples.isComplete()) {
 						//Send the packet data to listeners					
 						rawAudio = converter.toJavaAudio(rawAudio, samples);
-						channel.addRawData(rawAudio);						
+						buffer.put(rawAudio);
+						if(buffer.position() >= bufferSize) {
+							int bufferBytes = buffer.position();
+							byte[] data = new byte[bufferBytes];
+							buffer.flip();
+							buffer.get(data, 0, bufferBytes);
+							channel.addRawData(data);	
+							buffer.clear();
+						}										
 					}
 					offset += bytesRead;
 				} while (offset < packet.getSize());
