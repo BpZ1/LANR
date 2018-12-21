@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantLock;
 
 import lanr.logic.AudioAnalyzer;
 import lanr.logic.FileReader;
@@ -27,6 +28,12 @@ public class MainModel extends Model {
 		return instance;
 	}
 	
+	/**
+	 * Counter for the number of running threads
+	 */
+	private static int processCounter = 0;
+	private static ReentrantLock counterLock = new ReentrantLock(true);
+	
 	public static final String AUDIO_ADDED_PROPERTY = "addAudio";
 	public static final String AUDIO_REMOVED_PROPERTY = "removeAudio";
 	public static final String PROGRESS_UPDATE_PROPERTY = "progressUpdate";
@@ -40,6 +47,31 @@ public class MainModel extends Model {
 	public void analyze() {
 		analyzer.anazlyze();
 	}
+	
+	public boolean isBussy() {
+		if(processCounter == 0) {
+			return false;
+		}
+		return true;
+	}
+	
+	private static void incrementCounter(){
+		counterLock.lock();
+        try{
+            processCounter++;
+        }finally{
+        	counterLock.unlock();
+        }
+     }
+	
+	private static void decrementCounter(){
+		counterLock.lock();
+        try{
+            processCounter--;
+        }finally{
+        	counterLock.unlock();
+        }
+     }
 
 	/**
 	 * Reads the data of a given file and saves it.
@@ -54,11 +86,13 @@ public class MainModel extends Model {
 				if (data != null) {
 					audioData.add(data);
 					state.firePropertyChange(AUDIO_ADDED_PROPERTY, null, data);
+					decrementCounter();
 				}
 			} catch (InterruptedException | IOException | LANRFileException e) {
 				state.firePropertyChange(ERROR_PROPERTY, null, new LANRException(e));
 			}
 		};
+		incrementCounter();
 		executors.execute(algorithmRunnable);
 	}
 	
@@ -71,10 +105,12 @@ public class MainModel extends Model {
 		Runnable algorithmRunnable = () -> {
 			try {
 				FileReader.readFile(data, getFileEventHandler());
+				decrementCounter();
 			} catch (InterruptedException | IOException e) {
 				state.firePropertyChange(ERROR_PROPERTY, null, new LANRException(e));
 			}
 		};
+		incrementCounter();
 		executors.execute(algorithmRunnable);
 	}
 
