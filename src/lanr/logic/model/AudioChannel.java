@@ -2,7 +2,6 @@ package lanr.logic.model;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
