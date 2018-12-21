@@ -49,9 +49,22 @@ public class MainViewController {
 	 * Opens the settings window.
 	 */
 	public void openSettings() {
-		SettingsView view = new SettingsView();
-		view.initModality(Modality.APPLICATION_MODAL);
-		view.showAndWait();
+		if(!model.isBussy()) {
+			SettingsView view = new SettingsView();
+			view.initModality(Modality.APPLICATION_MODAL);
+			view.showAndWait();
+		}else {
+			mainView.showInfoDialog("Can't open settings",
+					"The settings can't be changed while files are being processed.");
+		}
+	}
+	
+	/**
+	 * State of the current computing process.
+	 * @return True if the program is currently reading files.
+	 */
+	public boolean isBussy() {
+		return model.isBussy();
 	}
 	
 	/**
