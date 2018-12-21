@@ -45,26 +45,26 @@ public class Utils {
 		return result;
 	}
 	
-	public static double[] byteToDoubleConverter(int bitPerValue, byte[] rawData) {
+	public static double[] byteToDoubleConverter(int bytePerValue, byte[] rawData) {
 		// Number of samples in the result
-		int sampleCount = rawData.length / bitPerValue;
-		double[] resultData = new double[sampleCount];
+		int values = rawData.length / bytePerValue;
+		double[] resultData = new double[values];
 		int resultCounter = 0;
-		for (int i = 0; i < sampleCount; i += bitPerValue) {
-			byte[] data = Arrays.copyOfRange(rawData, i, i + bitPerValue);
+		for (int i = 0; i < rawData.length; i += bytePerValue) {
+			byte[] data = Arrays.copyOfRange(rawData, i, i + bytePerValue);
 			resultData[resultCounter] = (double) ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getShort();
 			resultCounter++;
 		}
 		return resultData;
 	}
 	
-	public static short[] byteToShortConverter(int bitPerValue, byte[] rawData) {
+	public static short[] byteToShortConverter(int bytePerValue, byte[] rawData) {
 		// Number of samples in the result
-		int sampleCount = rawData.length / bitPerValue;
-		short[] resultData = new short[sampleCount];
+		int values = rawData.length / bytePerValue;
+		short[] resultData = new short[values];
 		int resultCounter = 0;
-		for (int i = 0; i < sampleCount; i += bitPerValue) {
-			byte[] data = Arrays.copyOfRange(rawData, i, i + bitPerValue);
+		for (int i = 0; i < rawData.length; i += bytePerValue) {
+			byte[] data = Arrays.copyOfRange(rawData, i, i + bytePerValue);
 			resultData[resultCounter] = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getShort();
 			resultCounter++;
 		}
