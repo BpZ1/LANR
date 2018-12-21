@@ -14,7 +14,6 @@ public class SettingsView extends Stage {
 		TabPane root = createRootPane();
 		this.setTitle("Settings");
 		Scene scene = new Scene(root, 450, 450);
-		scene.getWindow().setOpacity(0.0);
 		this.setScene(scene);
 		scene.getStylesheets().add(MainView.class.getResource("Main.css").toExternalForm());
 	}
