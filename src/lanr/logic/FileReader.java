@@ -29,7 +29,7 @@ public class FileReader {
 	public static final String DECODING_STARTED_PROPERTY = "dStart";
 	public static final String DECODING_ENDED_PROPERTY = "dEnd";
 	
-	private static int bufferSizeMegabyte = 10;
+	private static int bufferSizeSeconds = 60;
 	/**
 	 * Creates a {@link AudioData} object containing data about the 
 	 * @param path
@@ -143,10 +143,22 @@ public class FileReader {
 		final MediaAudioConverter converter = MediaAudioConverterFactory
 				.createConverter(MediaAudioConverterFactory.DEFAULT_JAVA_AUDIO, samples);
 		
-		int bufferSize = bufferSizeMegabyte * 1000 * 1000;
+		int bytePerSample = samples.getBytesPerSample() * 4 / 8; 
+		int sampleRate = samples.getSampleRate();
+		int bufferSize = bufferSizeSeconds * bytePerSample * sampleRate;
+		/*
+		 * The buffer size has to be of power of 2. 
+		 */
+		int power = 1;
+		while(power < bufferSize) {
+			power*=2;			
+		}
+		bufferSize = power;
 		ByteBuffer rawAudio = null;
-		ByteBuffer buffer = ByteBuffer.allocate(bufferSize + 1024); //Added extra buffer to prevent overflow
-		
+		ByteBuffer buffer = ByteBuffer.allocate(bufferSize + 10000); //Added extra buffer to prevent overflow
+		//Data that will be processed
+		byte[] bufferData = new byte[bufferSize];
+		int byteInBuffer = 0;
 		final MediaPacket packet = MediaPacket.make();
 		// Read the packets
 		while (demuxer.read(packet) >= 0) {
@@ -162,19 +174,37 @@ public class FileReader {
 					if (samples.isComplete()) {
 						//Send the packet data to listeners					
 						rawAudio = converter.toJavaAudio(rawAudio, samples);
+						//Count number of bytes in buffer
+						byteInBuffer += rawAudio.capacity();
 						buffer.put(rawAudio);
+						//If enough bytes are in the buffer send data to channel
 						if(buffer.position() >= bufferSize) {
-							int bufferBytes = buffer.position();
-							byte[] data = new byte[bufferBytes];
 							buffer.flip();
-							buffer.get(data, 0, bufferBytes);
-							channel.addRawData(data);	
-							buffer.clear();
+							buffer.get(bufferData, 0, bufferSize);
+							channel.addRawData(bufferData);
+							buffer.position(bufferSize);
+							buffer.compact();
+							byteInBuffer -= bufferSize;
+							buffer.position(byteInBuffer);						
 						}										
 					}
 					offset += bytesRead;
 				} while (offset < packet.getSize());
 			}
 		}
+		int currentPos = buffer.position();
+		int lastVal = 0;
+		int pow = 1;
+		while(pow < currentPos) {
+			pow *= 2;
+			if(pow < currentPos) {
+				lastVal = pow;				
+			}
+		}
+		//Send final data in the biggest possible power of 2
+		bufferData = new byte[lastVal];
+		buffer.flip();
+		buffer.get(bufferData, 0, lastVal);
+		channel.addRawData(bufferData);
 	}
 }
