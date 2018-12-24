@@ -35,18 +35,6 @@ public class Spectrogram {
 	}
 
 	public void addFrame(double[] frame) {
-		System.out.println(frame.length);
-		if(currentFrame == 521) {
-			System.out.println(Arrays.toString(Arrays.copyOfRange(frame, 0, 100)));	
-			double[] test = Arrays.copyOfRange(frame, frame.length-100, frame.length-1);
-			double[] testRev = new double[frame.length];
-			int counter = test.length-1;
-			for(int i = 0; i < test.length; i++) {
-				testRev[i] = test[counter];
-				counter--;
-			}
-			System.out.println(Arrays.toString(testRev));	
-		}
 		if(currentFrame > maxFrames) {
 			resize();			
 		}
