@@ -27,31 +27,43 @@ public class ChannelVisualisation extends Canvas {
 	private double lastYPosition = 0;
 
 	public ChannelVisualisation(double parentWidth, double height, AudioChannel channel) {
-		this.height = height;	
+		this.height = height;
 		this.setHeight(height);
 		this.channel = channel;
 		this.getGraphicsContext2D().setStroke(Color.BLUE);
 		this.getGraphicsContext2D().setLineWidth(0.1);
 		channel.addChangeListener(createChangeListener());
-		this.sampleCount = (channel.getLength() * channel.getSampleRate())
-				/ AudioChannel.VISUALISATION_REDUCTION_FACTOR;
-		
-		if(channel.getLength() / 3 < parentWidth) {
+		this.sampleCount = (long) (channel.getLength() * channel.getSampleRate()
+				* AudioChannel.visualisationReductionFactor);
+
+		if (channel.getLength() / 3 < parentWidth) {
 			this.width = parentWidth;
-		}else {
+		} else {
 			this.width = channel.getLength() / 3;
 		}
 		this.setWidth(width);
 		this.sampleDistance = width / sampleCount;
-		this.maxSampleValue = Math.pow(2, channel.getBitDepth()) + 10; // added 10 for buffer
+		this.maxSampleValue = Math.pow(2, channel.getBitDepth()) + 10; // added 10 for puffer
 		this.heightValue = height / maxSampleValue;
 		this.halfValue = maxSampleValue / 2;
 
 	}
-	
-	private void drawAudioData(short[] data) {
+
+	private void drawAudioData(double[] data) {
+		
+		// Take every Xth element
+		int sampleSize = (int) (data.length 
+				* AudioChannel.visualisationReductionFactor);
+		int skipDistance = (int) (AudioChannel.visualisationReductionFactor * 100);
+		double[] samples = new double[sampleSize];
+		int counter = 0;
+		for (int i = 0; i < samples.length; i++) {	
+			samples[i] = data[counter];		
+			counter += skipDistance;
+		}
+
 		double sampleYPosition;
-		for (short sample : data) {
+		for (double sample : samples) {
 			double newXPosition = currentXPosition + sampleDistance;
 			/*
 			 * Half width is added to convert from negative to positive. The height value
@@ -59,11 +71,7 @@ public class ChannelVisualisation extends Canvas {
 			 * canvas.
 			 */
 			sampleYPosition = (sample + halfValue) * heightValue;
-			this.getGraphicsContext2D().strokeLine(
-					currentXPosition,
-					lastYPosition,
-					newXPosition,
-					sampleYPosition);
+			this.getGraphicsContext2D().strokeLine(currentXPosition, lastYPosition, newXPosition, sampleYPosition);
 			// update last point
 			lastYPosition = sampleYPosition;
 			currentXPosition = newXPosition;
@@ -76,7 +84,7 @@ public class ChannelVisualisation extends Canvas {
 
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
-				short[] dataPacket = (short[]) evt.getNewValue();
+				double[] dataPacket = (double[]) evt.getNewValue();
 				drawAudioData(dataPacket);
 			}
 		};

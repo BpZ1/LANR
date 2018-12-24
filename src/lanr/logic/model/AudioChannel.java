@@ -2,10 +2,14 @@ package lanr.logic.model;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import lanr.logic.Utils;
+import javax.imageio.ImageIO;
+
+import lanr.logic.AudioAnalyzer;
 
 /**
  * @author Nicolas Bruch
@@ -15,10 +19,14 @@ import lanr.logic.Utils;
  */
 public class AudioChannel {
 
-	public static final int VISUALISATION_REDUCTION_FACTOR = 100;
+	/**
+	 * Percentage of the frame that will be visualized.
+	 */
+	public static double visualisationReductionFactor = 0.1;
 	public final static String DATA_ADDED_PROPERTY = "added";
 	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
-	
+
+	private AudioAnalyzer analyzer;
 	private int index;
 	private long length;
 	/**
@@ -35,32 +43,44 @@ public class AudioChannel {
 	 * file.
 	 */
 	private List<Noise> foundNoise = new ArrayList<Noise>();
-	
+
 	public AudioChannel(int bitRate, int sampleRate, int index, long length) {
 		this.bitRate = bitRate;
 		this.sampleRate = sampleRate;
 		this.index = index;
 		this.length = length;
-		this.bytePerSample = bitRate / 8;		
+		this.bytePerSample = bitRate / 8;
 		addNoise(new Noise(NoiseType.Clipping, 200, 10000, 0.5));
 		addNoise(new Noise(NoiseType.Hum, 5000, 20000, 0.92));
-	}	
-	
-	public void addRawData(byte[] data) {	
-		short[] samples = Utils.byteToShortConverter(bytePerSample, data);
-		short[] visualSamples = new short[samples.length / VISUALISATION_REDUCTION_FACTOR];
-		//Take every Xth element
-		int counter = 0;
-		for(int i = 0; i < visualSamples.length; i++) {
-			if(samples[counter] > Short.MAX_VALUE) {
-				visualSamples[i] = Short.MAX_VALUE;
-			}else {
-				visualSamples[i] = (short) samples[counter];
-			}	
-			counter += VISUALISATION_REDUCTION_FACTOR;
+	}
+
+	public void analyseStart(int frameSize) {
+		analyzer = new AudioAnalyzer(frameSize, sampleRate, true);
+	}
+
+	public void analyseEnd() {
+		if (analyzer != null) {
+			File outputfile = new File("spectrograms/spectro.png");
+			try {
+				ImageIO.write(analyzer.getSpectrogram(), "PNG", outputfile);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			analyzer = null;
 		}
-		state.firePropertyChange(DATA_ADDED_PROPERTY, null, visualSamples);
- 	}
+	}
+
+	public void analyzeData(double[] samples) {
+		state.firePropertyChange(DATA_ADDED_PROPERTY, null, samples);
+		analyzer.anazlyze(samples);
+	}
+	
+	public void clearAnalysisData() {
+		if(this.analyzer != null) {
+			analyzer = null;
+		}
+	}
 
 	public void setFoundNoise(List<Noise> foundNoise) {
 		this.foundNoise = foundNoise;
@@ -79,7 +99,7 @@ public class AudioChannel {
 	public void removeNoise(Noise noise) {
 		this.foundNoise.remove(noise);
 	}
-	
+
 	public void addChangeListener(PropertyChangeListener listener) {
 		this.state.addPropertyChangeListener(listener);
 	}
