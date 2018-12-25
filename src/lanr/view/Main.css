@@ -13,6 +13,14 @@
 	-fx-background-color: #828080;
 }
 
+#bottomPane{
+	-fx-font-weight: bold;	
+}
+
+#bottomPane .label .text{
+	-fx-font-size: 12;
+}
+
 .progress-bar{
 	-fx-progress-color:#003aba;
 	-fx-border-radius: 0 0 0 0;

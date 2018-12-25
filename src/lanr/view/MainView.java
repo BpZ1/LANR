@@ -5,21 +5,27 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -35,15 +41,16 @@ import lanr.model.MainModel;
  */
 public class MainView extends Stage {
 	
+	private static final String BOTTOM_PANE_CSS_ID = "bottomPane";
 	private MainViewController controller;
 	private Pane rootPane;
 	private Accordion centerPane;
 	private ProgressBar progressBar;
+	private ProgressBar memoryUsage;
+	private SimpleStringProperty memoryValue = new SimpleStringProperty("");
 	private ObservableList<TitledPane> audioList;
 
-	public MainView(MainModel model, MainViewController controller) {
-		// Add event handler
-		model.addChangeListener(getEventHandler());
+	public MainView(MainModel model, MainViewController controller) {				
 		this.controller = controller;
 		this.setTitle("LANR");
 		rootPane = createRootPane();
@@ -52,6 +59,8 @@ public class MainView extends Stage {
 		this.setMinHeight(400);
 		scene.getStylesheets().add(MainView.class.getResource("Main.css").toExternalForm());
 		this.setScene(scene);
+		// Add event handler
+		model.addChangeListener(getEventHandler());
 		scene.getWindow().setOnCloseRequest(event ->{
 			controller.shutdown();
 		});
@@ -65,6 +74,21 @@ public class MainView extends Stage {
 		bp.setBottom(createBottomPane());
 		return bp;
 	}
+	
+	private void updateMemoryUsage(double value) {
+		memoryUsage.setProgress(value);
+		if(value < 0.6) {
+			memoryUsage.setStyle("-fx-accent: green;");
+		}else if(value < 0.7) {
+			memoryUsage.setStyle("-fx-accent: yellow;");
+		}else if(value < 0.8) {
+			memoryUsage.setStyle("-fx-accent: orange;");
+		}else{
+			memoryUsage.setStyle("-fx-accent: red;");
+		}
+		memoryValue.setValue((int)(value * 100) + "%");
+	}
+
 
 	/**
 	 * Contains the Menu bar
@@ -100,7 +124,7 @@ public class MainView extends Stage {
 		menuBar.getMenus().add(editMenu);
 		return menuBar;
 	}
-
+	
 	private void openFileDialog() {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Open Lecture Recording");
@@ -145,9 +169,21 @@ public class MainView extends Stage {
 
 	private Pane createBottomPane() {
 		AnchorPane pane = new AnchorPane();
+		pane.setId(BOTTOM_PANE_CSS_ID);
+		// Creating the memory progress bar
+		this.memoryUsage = new ProgressBar();
+		this.memoryUsage.tooltipProperty().set(new Tooltip() {{
+			textProperty().bind(memoryValue);
+		}});
+		HBox memoryBox = new HBox();
+		memoryBox.setSpacing(3);
+		Label memoryLabel = new Label("Memory usage");
+		memoryBox.getChildren().addAll(memoryLabel, memoryUsage);
+				
 		this.progressBar = new ProgressBar();
 		this.progressBar.setVisible(false);
-		pane.getChildren().add(progressBar);
+		pane.getChildren().addAll(memoryBox, progressBar);
+		AnchorPane.setLeftAnchor(memoryBox, 5.0);
 		AnchorPane.setRightAnchor(progressBar, 5.0);
 		return pane;
 	}
@@ -159,21 +195,20 @@ public class MainView extends Stage {
 			public void propertyChange(PropertyChangeEvent evt) {
 				Platform.runLater(() -> {
 					switch (evt.getPropertyName()) {
+						case MainModel.MEMORY_USAGE_PROPERTY:
+							updateMemoryUsage((double)evt.getNewValue());
+							break;
 						// If a new audio file has been added
 						case MainModel.AUDIO_ADDED_PROPERTY:
-							if (evt.getNewValue() instanceof AudioData) {
-								AudioData data = (AudioData) evt.getNewValue();
-								audioList.add(new AudioDataContainer(
-										data,
-										new AudioController(MainModel.instance())));
-							}
+							AudioData addedData = (AudioData) evt.getNewValue();
+							audioList.add(new AudioDataContainer(
+									addedData,
+										new AudioController(MainModel.instance())));							
 							break;
 	
 						case MainModel.AUDIO_REMOVED_PROPERTY:
-							if (evt.getNewValue() instanceof AudioData) {
-								AudioData data = (AudioData) evt.getNewValue();
-								removeAudioData(data);
-							}
+							AudioData removedData = (AudioData) evt.getNewValue();
+							removeAudioData(removedData);
 							break;
 	
 						case MainModel.PROGRESS_UPDATE_PROPERTY:
