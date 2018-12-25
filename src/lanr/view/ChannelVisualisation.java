@@ -3,6 +3,7 @@ package lanr.view;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
 import lanr.logic.model.AudioChannel;
@@ -33,7 +34,8 @@ public class ChannelVisualisation extends Canvas {
 		this.getGraphicsContext2D().setStroke(Color.BLUE);
 		this.getGraphicsContext2D().setLineWidth(0.1);
 		channel.addChangeListener(createChangeListener());
-		this.sampleCount = (long) (channel.getLength() * channel.getSampleRate()
+		this.sampleCount = (long) ((channel.getLength() * channel.getSampleRate()) 
+				/ channel.getParent().getChannel().size()
 				* AudioChannel.visualisationReductionFactor);
 
 		if (channel.getLength() / 3 < parentWidth) {
@@ -50,33 +52,34 @@ public class ChannelVisualisation extends Canvas {
 	}
 
 	private void drawAudioData(double[] data) {
-		
-		// Take every Xth element
-		int sampleSize = (int) (data.length 
-				* AudioChannel.visualisationReductionFactor);
-		int skipDistance = (int) (AudioChannel.visualisationReductionFactor * 100);
-		double[] samples = new double[sampleSize];
-		int counter = 0;
-		for (int i = 0; i < samples.length; i++) {	
-			samples[i] = data[counter];		
-			counter += skipDistance;
-		}
+		Platform.runLater(()->{
+			// Take every Xth element
+			int sampleSize = (int) (data.length 
+					* AudioChannel.visualisationReductionFactor);
+			int skipDistance = (int) (AudioChannel.visualisationReductionFactor * 100);
+			double[] samples = new double[sampleSize];
+			int counter = 0;
+			for (int i = 0; i < samples.length; i++) {	
+				samples[i] = data[counter];		
+				counter += skipDistance;
+			}
 
-		double sampleYPosition;
-		for (double sample : samples) {
-			double newXPosition = currentXPosition + sampleDistance;
-			/*
-			 * Half width is added to convert from negative to positive. The height value
-			 * multiplier is needed to convert the sample value into the height space of the
-			 * canvas.
-			 */
-			sampleYPosition = (sample + halfValue) * heightValue;
-			this.getGraphicsContext2D().strokeLine(currentXPosition, lastYPosition, newXPosition, sampleYPosition);
-			// update last point
-			lastYPosition = sampleYPosition;
-			currentXPosition = newXPosition;
-		}
-		this.getGraphicsContext2D().fill();
+			double sampleYPosition;
+			for (double sample : samples) {
+				double newXPosition = currentXPosition + sampleDistance;
+				/*
+				 * Half width is added to convert from negative to positive. The height value
+				 * multiplier is needed to convert the sample value into the height space of the
+				 * canvas.
+				 */
+				sampleYPosition = (sample + halfValue) * heightValue;
+				this.getGraphicsContext2D().strokeLine(currentXPosition, lastYPosition, newXPosition, sampleYPosition);
+				// update last point
+				lastYPosition = sampleYPosition;
+				currentXPosition = newXPosition;
+			}
+			this.getGraphicsContext2D().fill();
+		});		
 	}
 
 	private PropertyChangeListener createChangeListener() {
