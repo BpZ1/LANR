@@ -5,15 +5,14 @@ import java.awt.Image;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.util.Arrays;
 
 public class Spectrogram {
 
 	private static final int ARRAY_MULTIPLICATOR = 1000;
-	private static final double COLOR_MULTIPLIER = 10;
+	private static final double COLOR_MULTIPLIER = 0.08;
 	private final int frameSize;
 	private int[] pixel;
-	private int contrast = 1000;
+	private int contrast = 300;
 	private int maxFrames = ARRAY_MULTIPLICATOR;
 	private int currentFrame = 0;
 	private BufferedImage image;
@@ -23,6 +22,9 @@ public class Spectrogram {
 		pixel = new int[frameSize * ARRAY_MULTIPLICATOR];
 	}
 	
+	/**
+	 * Doubles the size of the pixel array.
+	 */
 	private void resize() {
 		int[] resultArray = new int[pixel.length * 2];
 		for(int column = 0; column < maxFrames; column ++) {
@@ -34,6 +36,10 @@ public class Spectrogram {
 		maxFrames *= 2;
 	}
 
+	/**
+	 * Adds one vertical line to the spectrogram.
+	 * @param frame - FFT data.
+	 */
 	public void addFrame(double[] frame) {
 		if(currentFrame > maxFrames) {
 			resize();			
@@ -48,12 +54,23 @@ public class Spectrogram {
 		currentFrame++;
 	}
 
+	/**
+	 * Returns the color for a given value.
+	 * @param val
+	 * @return
+	 */
 	private int colorFor(double val) {
 		int greyVal = (int) (contrast * Math.log1p(Math.abs(COLOR_MULTIPLIER * val)));
 		greyVal = Math.min(255, Math.max(0, greyVal));
 		return (greyVal << 16) | (greyVal << 8) | (greyVal);
 	}
 
+	/**
+	 * Transforms the image.
+	 * @param image
+	 * @param at
+	 * @return
+	 */
 	private BufferedImage createTransformed(BufferedImage image, AffineTransform at) {
 		BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = newImage.createGraphics();
@@ -63,6 +80,13 @@ public class Spectrogram {
 		return newImage;
 	}
 
+	/**
+	 * Changes the size of the image.
+	 * @param img
+	 * @param newW
+	 * @param newH
+	 * @return
+	 */
 	private BufferedImage resize(BufferedImage img, int newW, int newH) {
 		Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
 		BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
