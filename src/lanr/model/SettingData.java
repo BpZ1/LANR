@@ -10,6 +10,7 @@ public class SettingData {
 	private Optional<Boolean> showVisualisation = Optional.empty();
 	private Optional<Integer> spectrogramContrast = Optional.empty();
 	private Optional<Double> spectrogramScale = Optional.empty();
+	private Optional<Integer> threadCount = Optional.empty();
 	
 	public Optional<Integer> getFrameSize() {
 		return frameSize;
@@ -47,5 +48,10 @@ public class SettingData {
 	public void setSpectrogramScale(double spectrogramScale) {
 		this.spectrogramScale = Optional.of(spectrogramScale);
 	}
-	
+	public Optional<Integer> getThreadCount(){
+		return threadCount;
+	}
+	public void setThreadCount(int threadCount) {
+		this.threadCount = Optional.of(threadCount);
+	}
 }

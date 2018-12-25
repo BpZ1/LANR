@@ -13,24 +13,29 @@ public class Settings {
 	/**
 	 * Size of samples that are analyzed of a given signal.
 	 */
-	private static int frameSize = 1024;
+	private int frameSize = 1024;
 	/**
 	 * Reduction factor of the visualization of the signal.<br>
 	 * 0.01 = 10% of the signals sample content will be displayed.
 	 */
-	private static double visualisationFactor = 0.01;
+	private double visualisationFactor = 0.01;
 	/**
 	 * Indicates whether a spectrogram will be drawn while analyzing or not.
 	 */
-	private static boolean createSpectrogram = false;
+	private boolean createSpectrogram = true;
 	/**
 	 * Indicates whether the vizualisation will be created when analyzing.
 	 */
-	private static boolean showVisualisation = false;
+	private boolean showVisualisation = false;
 	/**
 	 * Contrast for the spectrogram.
 	 */
-	private static int spectrogramContrast = 300;
+	private int spectrogramContrast = 300;
+	
+	/**
+	 * Number of threads used for analyzing and reading files.
+	 */
+	private int threadCount = 10;
 
 	private Settings() {
 	};
@@ -54,6 +59,9 @@ public class Settings {
 		if (data.getSpectrogramContrast().isPresent()) {
 			spectrogramContrast = data.getSpectrogramContrast().get();
 		}
+		if(data.getThreadCount().isPresent()) {
+			threadCount = data.getThreadCount().get();
+		}
 		return instance;
 	}
 
@@ -69,7 +77,7 @@ public class Settings {
 	}
 
 	public void setFrameSize(int frameSize) {
-		Settings.frameSize = frameSize;
+		this.frameSize = frameSize;
 	}
 
 	public double getVisualisationFactor() {
@@ -77,7 +85,7 @@ public class Settings {
 	}
 
 	public void setVisualisationFactor(double visualisationFactor) {
-		Settings.visualisationFactor = visualisationFactor;
+		this.visualisationFactor = visualisationFactor;
 	}
 
 	public boolean createSpectrogram() {
@@ -85,26 +93,30 @@ public class Settings {
 	}
 
 	public void setCreateSpectrogram(boolean createSpectrogram) {
-		Settings.createSpectrogram = createSpectrogram;
+		this.createSpectrogram = createSpectrogram;
 	}
 
 	public boolean showVisualisation() {
 		return showVisualisation;
 	}
 
-	public static void setShowVisualisation(boolean showVisualisation) {
-		Settings.showVisualisation = showVisualisation;
+	public void setShowVisualisation(boolean showVisualisation) {
+		this.showVisualisation = showVisualisation;
 	}
 
-	public static int getSpectrogramContrast() {
+	public int getSpectrogramContrast() {
 		return spectrogramContrast;
 	}
 
-	public static void setSpectrogramContrast(int spectrogramContrast) {
-		Settings.spectrogramContrast = spectrogramContrast;
+	public void setSpectrogramContrast(int spectrogramContrast) {
+		this.spectrogramContrast = spectrogramContrast;
 	}
 
-	public static void setInstance(Settings instance) {
-		Settings.instance = instance;
+	public int getThreadCount() {
+		return threadCount;
+	}
+
+	public void setThreadCount(int threadCount) {
+		this.threadCount = threadCount;
 	}
 }
