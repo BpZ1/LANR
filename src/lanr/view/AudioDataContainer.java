@@ -52,8 +52,8 @@ public class AudioDataContainer extends TitledPane {
 	}
 	
 	private void createNodeElements() {
-		this.visualisationContainer = createAudioVisual();
 		this.content = createContent();
+		this.visualisationContainer = createAudioVisual();
 		this.setContent(content);	
 		//Creating the state circle
 		this.statusCircle = new Circle(6, Color.WHITE);	
@@ -96,13 +96,13 @@ public class AudioDataContainer extends TitledPane {
 		
 		Text channelLabelText = new Text("Channel:");
 		channelLabelText.setId(LABEL_CSS_ID);
-		Text channelNumberText = new Text(String.valueOf(data.getAllChannel().size()));	
+		Text channelNumberText = new Text(String.valueOf(data.getChannel().size()));	
 		
 		infoBox.add(channelLabelText, 0, row);
 		infoBox.add(channelNumberText, 1, row);	
 		row++;
 		
-		for(AudioChannel channel : data.getAllChannel()) {
+		for(AudioChannel channel : data.getChannel()) {
 			Text durationLabelText = new Text("Duration:");
 			durationLabelText.setId(LABEL_CSS_ID);
 			Text durationNumberText = new Text(getDurationString(channel.getLength()));
@@ -183,7 +183,7 @@ public class AudioDataContainer extends TitledPane {
 		pane.setPrefHeight(200);
 		pane.setVbarPolicy(ScrollBarPolicy.NEVER);
 		pane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
-		AudioVisualisation canvasContainer = new AudioVisualisation(200, data);
+		AudioVisualisation canvasContainer = new AudioVisualisation(200, 600, data);
 		pane.setContent(canvasContainer);
 		return pane;
 	}
@@ -227,7 +227,7 @@ public class AudioDataContainer extends TitledPane {
 		noiseTable.setEditable(false);
 
 		ObservableList<Noise> noiseList = FXCollections.observableArrayList();
-		for(AudioChannel c : data.getAllChannel()) {
+		for(AudioChannel c : data.getChannel()) {
 			noiseList.addAll(c.getFoundNoise());
 		}
 		noiseTable.setItems(noiseList);

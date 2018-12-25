@@ -16,9 +16,9 @@ public class AudioVisualisation extends VBox {
 	public AudioVisualisation(double height, double width, AudioData data) {	
 		this.setHeight(height);
 		this.setId(CSS_ID);	
-		double canvasHeight = height / data.getAllChannel().size();
+		double canvasHeight = height / data.getChannel().size();
 		//The canvas are created in advance and drawn to when analyzing
-		for (AudioChannel channel : data.getAllChannel()) {
+		for (AudioChannel channel : data.getChannel()) {
 			this.getChildren().add(new ChannelVisualisation(
 					width,
 					canvasHeight,
