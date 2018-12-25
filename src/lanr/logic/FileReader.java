@@ -2,7 +2,6 @@ package lanr.logic;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
@@ -11,8 +10,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import javax.sound.sampled.UnsupportedAudioFileException;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.locks.ReentrantLock;
 
 import io.humble.video.Decoder;
 import io.humble.video.Demuxer;
@@ -23,6 +27,7 @@ import io.humble.video.MediaPacket;
 import io.humble.video.Rational;
 import io.humble.video.javaxsound.MediaAudioConverter;
 import io.humble.video.javaxsound.MediaAudioConverterFactory;
+import javafx.beans.property.SimpleDoubleProperty;
 import lanr.logic.model.AudioChannel;
 import lanr.logic.model.AudioData;
 import lanr.logic.model.LANRException;
@@ -31,16 +36,103 @@ import lanr.logic.utils.Converter;
 import lanr.logic.utils.DoubleConverter;
 import lanr.model.Settings;
 
-public class FileReader {
+public class FileReader  {
 
-	public static volatile boolean interrupted = false;
+	private volatile boolean interrupted = false;
 
 	public static final String LOADING_STARTED_PROPERTY = "start";
 	public static final String LOADING_ENDED_PROPERTY = "end";
-	public static final String DECODING_STARTED_PROPERTY = "dStart";
-	public static final String DECODING_ENDED_PROPERTY = "dEnd";
-
+	public static final String MEMORY_USAGE_PROPERTY = "memory";
+	public static final String ANALYSIS_STARTED_PROPERTY = "dStart";
+	public static final String ANALYSIS_ENDED_PROPERTY = "dEnd";
+	public static final String ERROR_PROPERTY = "error";
+	private static final int TASK_DELAY = 1000;
 	private final static int BUFFER_PUFFER = 50000; // 50kb Puffer
+	
+	private Timer timer = new Timer();
+	
+	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
+	/**
+	 * Counter for the number of running threads
+	 */
+	private int processCounter = 0;
+	private ReentrantLock counterLock = new ReentrantLock(true);
+	private List<Future<AudioData>> runningTasks = new LinkedList<Future<AudioData>>();
+	private List<Future<AudioData>> completedTasks = new LinkedList<Future<AudioData>>();
+	
+	/**
+	 * Thread pool
+	 */
+	private ExecutorService executors;
+	
+	public FileReader(int threads, PropertyChangeListener listener) {
+		this.executors = Executors.newFixedThreadPool(threads);
+		this.state.addPropertyChangeListener(listener);
+		//Timer to check if the analyzing tasks are finished
+				timer.schedule(new TimerTask() {
+					@Override
+					public void run() {
+						checkTasks();
+						updateMemoryUsage();
+					}			
+				}, 1000, TASK_DELAY);
+	}
+
+	public void getFileContainer(String path) {
+		incrementCounter();
+		runningTasks.add(executors.submit(() -> {
+			return createFileContainer(path);
+		}));
+	}
+
+	public void analyze(AudioData data) {
+		interrupted = false;
+		Runnable algorithmRunnable = () -> {
+			try {
+				state.firePropertyChange(LOADING_STARTED_PROPERTY, null, null);
+				analyseFile(data);
+				decrementCounter();
+			} catch (InterruptedException | IOException | LANRFileException | LANRException e) {
+				state.firePropertyChange(ERROR_PROPERTY, null, new LANRException(e));
+			}
+		};
+		incrementCounter();
+		executors.execute(algorithmRunnable);
+	}
+	
+	private void updateMemoryUsage() {
+		double freeMemory = Runtime.getRuntime().freeMemory();
+		double totalMemory = Runtime.getRuntime().totalMemory();
+		double memoryUsage = freeMemory / totalMemory;
+		state.firePropertyChange(MEMORY_USAGE_PROPERTY, null, memoryUsage);
+	}
+	
+	private void checkTasks() {
+		for(int i = 0; i < runningTasks.size(); i++) {
+			Future<AudioData> task = runningTasks.get(i);
+			if(task.isDone()) {
+				try {
+					AudioData data = task.get();
+					state.firePropertyChange(LOADING_ENDED_PROPERTY, null, data);
+					completedTasks.add(task);
+				} catch (InterruptedException | ExecutionException e) {
+					state.firePropertyChange(ERROR_PROPERTY, null, e);
+				}
+			}
+		}
+		for(Future<AudioData> task : completedTasks) {
+			runningTasks.remove(task);
+		}
+		completedTasks.clear();
+	}
+	
+	/**
+	 * Adds a change listener that will be notified if errors occured.
+	 * @param listener
+	 */
+	public void addChangeListener(PropertyChangeListener listener) {
+		state.addPropertyChangeListener(listener);
+	}
 
 	/**
 	 * Creates a {@link AudioData} object containing data about the
@@ -52,18 +144,10 @@ public class FileReader {
 	 * @throws IOException
 	 * @throws LANRFileException
 	 */
-	public static AudioData getFileContainer(String path, PropertyChangeListener listener)
-			throws InterruptedException, IOException, LANRFileException {
+	private AudioData createFileContainer(String path) throws InterruptedException, IOException, LANRFileException {
 		// Creating the audio object
 		List<AudioChannel> audioChannels = new ArrayList<AudioChannel>();
 		AudioData data = new AudioData(path, audioChannels);
-
-		PropertyChangeSupport state = new PropertyChangeSupport(data);
-		if (listener != null) {
-			state.addPropertyChangeListener(listener);
-		}
-
-		state.firePropertyChange(LOADING_STARTED_PROPERTY, null, path);
 
 		/*
 		 * Start by creating a container object, in this case a demuxer since we are
@@ -98,28 +182,14 @@ public class FileReader {
 			throw new LANRFileException("No audio stream could be found in " + path);
 		}
 		demuxer.close();
-		state.firePropertyChange(LOADING_ENDED_PROPERTY, null, null);
 		return data;
 	}
 
-	/**
-	 * @param path
-	 * @throws IOException
-	 * @throws InterruptedException
-	 * @throws LANRFileException
-	 * @throws LANRException 
-	 */
-	public static void analyseFile(AudioData data, PropertyChangeListener listener)
+	private void analyseFile(AudioData data)
 			throws InterruptedException, IOException, LANRFileException, LANRException {
 		if (data == null) {
 			throw new IllegalArgumentException("Audio data musn't be null");
 		}
-		path2 = data.getPath();// TODO:DEBUG------------------------------------------------
-		PropertyChangeSupport state = new PropertyChangeSupport(data);
-		if (listener != null) {
-			state.addPropertyChangeListener(listener);
-		}
-		state.firePropertyChange(DECODING_STARTED_PROPERTY, null, null);
 
 		Demuxer demuxer = Demuxer.make();
 		demuxer.open(data.getPath(), null, false, true, null, null);
@@ -144,12 +214,9 @@ public class FileReader {
 
 		data.setAnalyzed(true);
 		demuxer.close();
-		state.firePropertyChange(DECODING_ENDED_PROPERTY, null, null);
 	}
 
-	private static String path2 = null;
-
-	private static void readAudioStreamData(int streamId, List<AudioChannel> channels, Demuxer demuxer)
+	private void readAudioStreamData(int streamId, List<AudioChannel> channels, Demuxer demuxer)
 			throws InterruptedException, IOException, LANRFileException, LANRException {
 
 		final DemuxerStream stream = demuxer.getStream(streamId);
@@ -163,7 +230,7 @@ public class FileReader {
 		decoder.open(null, null);
 		final MediaAudio samples = MediaAudio.make(decoder.getFrameSize(), decoder.getSampleRate(),
 				decoder.getChannels(), decoder.getChannelLayout(), decoder.getSampleFormat());
-		
+
 		MediaAudioConverter converter = null;
 		try {
 			converter = MediaAudioConverterFactory.createConverter(MediaAudioConverterFactory.DEFAULT_JAVA_AUDIO,
@@ -181,10 +248,10 @@ public class FileReader {
 		byte[] bufferData = new byte[bufferSize];
 		int byteInBuffer = 0;
 		final MediaPacket packet = MediaPacket.make();
-		//List that collects the data that will be sent to the channels
+		// List that collects the data that will be sent to the channels
 		List<DoubleBuffer> channelData = new ArrayList<DoubleBuffer>();
 		for (int c = 0; c < channels.size(); c++) {
-			//Adds the container and notify the channel
+			// Adds the container and notify the channel
 			channelData.add(DoubleBuffer.allocate(sampleSize));
 			channels.get(c).analyseStart(sampleSize);
 		}
@@ -201,7 +268,7 @@ public class FileReader {
 			if (packet.getStreamIndex() == streamId) {
 				int offset = 0;
 				int bytesRead = 0;
-				do {					
+				do {
 					if (interrupted) {
 						for (AudioChannel channel : channels) {
 							channel.clearAnalysisData();
@@ -221,19 +288,19 @@ public class FileReader {
 							buffer.flip();
 							buffer.get(bufferData, 0, bufferSize);
 							double[] convertedData = doubleConverter.convert(bufferData);
-							//Sort the data for the different channel
+							// Sort the data for the different channel
 							counter = 0;
 							for (int i = 0; i < convertedData.length; i++) {
 								channelData.get(counter).put(convertedData[i]);
 								counter = (counter + 1) % channels.size();
 							}
-							//Send the data to the different channel
+							// Send the data to the different channel
 							for (int c = 0; c < channels.size(); c++) {
 								DoubleBuffer channelDataBuffer = channelData.get(c);
 								channels.get(c).analyzeData(channelDataBuffer.array());
 								channelDataBuffer.clear();
 							}
-							
+
 							buffer.position(bufferSize);
 							buffer.compact();
 							byteInBuffer -= bufferSize;
@@ -244,7 +311,7 @@ public class FileReader {
 				} while (offset < packet.getSize());
 			}
 		}
-		//Check if there is still data that is < sampleSize * bytesPerSample
+		// Check if there is still data that is < sampleSize * bytesPerSample
 		if (buffer.position() != 0) {
 			// The final frame has to be filled to get a power of 2.
 			int currentPos = buffer.position();
@@ -259,7 +326,7 @@ public class FileReader {
 				channelData.get(counter).put(convertedData[i]);
 				counter = (counter + 1) % channels.size();
 			}
-			//Send the data to the different channel
+			// Send the data to the different channel
 			for (int c = 0; c < channels.size(); c++) {
 				DoubleBuffer channelDataBuffer = channelData.get(c);
 				channels.get(c).analyzeData(channelDataBuffer.array());
@@ -270,5 +337,42 @@ public class FileReader {
 		for (AudioChannel channel : channels) {
 			channel.analyseEnd();
 		}
+	}
+
+	/**
+	 * @return True if there are running threads.
+	 */
+	public boolean isBussy() {
+		if (processCounter == 0) {
+			return false;
+		}
+		return true;
+	}
+
+	private void incrementCounter() {
+		counterLock.lock();
+		try {
+			processCounter++;
+		} finally {
+			counterLock.unlock();
+		}
+	}
+
+	private void decrementCounter() {
+		counterLock.lock();
+		try {
+			processCounter--;
+		} finally {
+			counterLock.unlock();
+		}
+	}
+	
+	/**
+	 * Ends all running threads used for analyzing data.
+	 */
+	public void shutdown() {
+		interrupted = true;
+		timer.cancel();
+		executors.shutdown();
 	}
 }
