@@ -57,38 +57,38 @@ public class Settings {
 		return instance;
 	}
 
-	public Settings getInstance() {
+	public static Settings getInstance() {
 		if (instance == null) {
 			instance = new Settings();
 		}
 		return instance;
 	}
 
-	public static int getFrameSize() {
+	public int getFrameSize() {
 		return frameSize;
 	}
 
-	public static void setFrameSize(int frameSize) {
+	public void setFrameSize(int frameSize) {
 		Settings.frameSize = frameSize;
 	}
 
-	public static double getVisualisationFactor() {
+	public double getVisualisationFactor() {
 		return visualisationFactor;
 	}
 
-	public static void setVisualisationFactor(double visualisationFactor) {
+	public void setVisualisationFactor(double visualisationFactor) {
 		Settings.visualisationFactor = visualisationFactor;
 	}
 
-	public static boolean isCreateSpectrogram() {
+	public boolean createSpectrogram() {
 		return createSpectrogram;
 	}
 
-	public static void setCreateSpectrogram(boolean createSpectrogram) {
+	public void setCreateSpectrogram(boolean createSpectrogram) {
 		Settings.createSpectrogram = createSpectrogram;
 	}
 
-	public static boolean isShowVisualisation() {
+	public boolean showVisualisation() {
 		return showVisualisation;
 	}
 

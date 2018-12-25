@@ -9,6 +9,7 @@ public class SettingData {
 	private Optional<Boolean> createSpectrogram = Optional.empty();
 	private Optional<Boolean> showVisualisation = Optional.empty();
 	private Optional<Integer> spectrogramContrast = Optional.empty();
+	private Optional<Double> spectrogramScale = Optional.empty();
 	
 	public Optional<Integer> getFrameSize() {
 		return frameSize;
@@ -39,6 +40,12 @@ public class SettingData {
 	}
 	public void setSpectrogramContrast(int spectrogramContrast) {
 		this.spectrogramContrast = Optional.of(spectrogramContrast);
+	}
+	public Optional<Double> getSpectrogramScale() {
+		return spectrogramScale;
+	}
+	public void setSpectrogramScale(double spectrogramScale) {
+		this.spectrogramScale = Optional.of(spectrogramScale);
 	}
 	
 }
