@@ -25,18 +25,4 @@ public class AudioVisualisation extends VBox {
 					channel));
 		}
 	}
-	
-	private Color getSeverityColor(double severity) {
-		if(severity < 0.3 && severity > 0.001) {
-			return Color.GREEN;
-		}
-		if(severity > 0.3 && severity < 0.6) {
-			return Color.YELLOW;
-		}
-		if(severity > 0.6) {
-			return Color.RED;
-		}
-		return Color.BLUE;
-	}
-
 }
