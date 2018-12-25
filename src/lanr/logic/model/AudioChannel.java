@@ -120,6 +120,10 @@ public class AudioChannel {
 	public void addChangeListener(PropertyChangeListener listener) {
 		this.state.addPropertyChangeListener(listener);
 	}
+	
+	public AudioData getParent() {
+		return parent;
+	}
 
 	public int getBitDepth() {
 		return bitRate;
