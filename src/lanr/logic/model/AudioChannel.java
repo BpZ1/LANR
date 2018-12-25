@@ -10,6 +10,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import lanr.logic.AudioAnalyzer;
+import lanr.model.Settings;
 
 /**
  * @author Nicolas Bruch
@@ -19,6 +20,7 @@ import lanr.logic.AudioAnalyzer;
  */
 public class AudioChannel {
 
+	private static final String OUTPUT_FOLDER = "spectrograms/";
 	/**
 	 * Percentage of the frame that will be visualized.
 	 */
@@ -26,9 +28,17 @@ public class AudioChannel {
 	public final static String DATA_ADDED_PROPERTY = "added";
 	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
 
+	private final AudioData parent;
 	private AudioAnalyzer analyzer;
-	private int index;
-	private long length;
+	private final long length;
+	/**
+	 * Id of the audio stream
+	 */
+	private final int id;
+	/**
+	 * Index of the channel.
+	 */
+	private final int index;
 	/**
 	 * Bit depth per sample.
 	 */
@@ -44,29 +54,36 @@ public class AudioChannel {
 	 */
 	private List<Noise> foundNoise = new ArrayList<Noise>();
 
-	public AudioChannel(int bitRate, int sampleRate, int index, long length) {
+	public AudioChannel(AudioData parent, int bitRate, int sampleRate, int id, int index, long length) {
+		this.parent = parent;
+		this.index = index;
 		this.bitRate = bitRate;
 		this.sampleRate = sampleRate;
-		this.index = index;
+		this.id = id;
 		this.length = length;
 		this.bytePerSample = bitRate / 8;
-		addNoise(new Noise(NoiseType.Clipping, 200, 10000, 0.5));
-		addNoise(new Noise(NoiseType.Hum, 5000, 20000, 0.92));
 	}
 
 	public void analyseStart(int frameSize) {
 		analyzer = new AudioAnalyzer(frameSize, sampleRate, true);
 	}
 
-	public void analyseEnd() {
+	public void analyseEnd() throws LANRException {
 		if (analyzer != null) {
-			File outputfile = new File("spectrograms/spectro.png");
-			try {
-				ImageIO.write(analyzer.getSpectrogram(), "PNG", outputfile);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			if(Settings.getInstance().createSpectrogram()) {
+				StringBuilder fileName = new StringBuilder();
+				fileName.append(OUTPUT_FOLDER);
+				fileName.append(parent.getName());
+				fileName.append("_");
+				fileName.append(index);
+				fileName.append(".png");
+				File outputfile = new File(fileName.toString());
+				try {
+					ImageIO.write(analyzer.getSpectrogram(), "PNG", outputfile);
+				} catch (IOException e) {
+					throw new LANRException("Could not create spectrogram!", e);
+				}
+			}		
 			analyzer = null;
 		}
 	}
@@ -112,6 +129,10 @@ public class AudioChannel {
 		return sampleRate;
 	}
 
+	public int getId() {
+		return id;
+	}
+	
 	public int getIndex() {
 		return index;
 	}
