@@ -26,6 +26,7 @@ import javafx.stage.Stage;
 import lanr.controller.AudioController;
 import lanr.controller.MainViewController;
 import lanr.logic.model.AudioData;
+import lanr.logic.model.LANRException;
 import lanr.model.MainModel;
 
 /**
@@ -103,8 +104,9 @@ public class MainView extends Stage {
 	private void openFileDialog() {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Open Lecture Recording");
-		fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Video Files", "*.mp4", "*.avi"),
-				new ExtensionFilter("Audio Files", "*.wav", "*.mp3", "*.aac"), new ExtensionFilter("All Files", "*.*"));
+		fileChooser.getExtensionFilters().addAll(
+				new ExtensionFilter("Media Files", "*.mp4", "*.avi", "*.mp3"),
+				new ExtensionFilter("All Files", "*.*"));
 		File selectedFile = fileChooser.showOpenDialog(this);
 		if (selectedFile != null) {
 			controller.addFile(selectedFile.getAbsolutePath());
@@ -157,32 +159,36 @@ public class MainView extends Stage {
 			public void propertyChange(PropertyChangeEvent evt) {
 				Platform.runLater(() -> {
 					switch (evt.getPropertyName()) {
-					// If a new audio file has been added
-					case MainModel.AUDIO_ADDED_PROPERTY:
-						if (evt.getNewValue() instanceof AudioData) {
-							AudioData data = (AudioData) evt.getNewValue();
-							audioList.add(new AudioDataContainer(
-									data,
-									new AudioController(MainModel.instance())));
+						// If a new audio file has been added
+						case MainModel.AUDIO_ADDED_PROPERTY:
+							if (evt.getNewValue() instanceof AudioData) {
+								AudioData data = (AudioData) evt.getNewValue();
+								audioList.add(new AudioDataContainer(
+										data,
+										new AudioController(MainModel.instance())));
+							}
+							break;
+	
+						case MainModel.AUDIO_REMOVED_PROPERTY:
+							if (evt.getNewValue() instanceof AudioData) {
+								AudioData data = (AudioData) evt.getNewValue();
+								removeAudioData(data);
+							}
+							break;
+	
+						case MainModel.PROGRESS_UPDATE_PROPERTY:
+							if (evt.getNewValue() instanceof Integer) {
+								progressBar.setProgress((int) evt.getNewValue());
+								System.out.println((int) evt.getNewValue());
+							}else if(evt.getNewValue() instanceof Boolean) {
+								progressBar.setVisible((boolean)evt.getNewValue());
+							}
+							break;
+						case MainModel.ERROR_PROPERTY:
+							LANRException e = (LANRException) evt.getNewValue();
+							showErrorDialog(e.getMessage(), e.getCause().getMessage());
+							break;
 						}
-						break;
-
-					case MainModel.AUDIO_REMOVED_PROPERTY:
-						if (evt.getNewValue() instanceof AudioData) {
-							AudioData data = (AudioData) evt.getNewValue();
-							removeAudioData(data);
-						}
-						break;
-
-					case MainModel.PROGRESS_UPDATE_PROPERTY:
-						if (evt.getNewValue() instanceof Integer) {
-							progressBar.setProgress((int) evt.getNewValue());
-							System.out.println((int) evt.getNewValue());
-						}else if(evt.getNewValue() instanceof Boolean) {
-							progressBar.setVisible((boolean)evt.getNewValue());
-						}
-						break;
-					}
 				});
 			}
 
