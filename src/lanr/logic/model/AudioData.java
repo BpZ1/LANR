@@ -66,7 +66,7 @@ public class AudioData {
 		}
 	}
 
-	public List<AudioChannel> getAllChannel() {
+	public List<AudioChannel> getChannel() {
 		return audioChannels;
 	}
 
