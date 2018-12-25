@@ -5,13 +5,15 @@ import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import io.humble.video.AudioFormat.Type;
 import io.humble.video.Decoder;
 import io.humble.video.Demuxer;
 import io.humble.video.DemuxerStream;
@@ -19,7 +21,6 @@ import io.humble.video.MediaAudio;
 import io.humble.video.MediaDescriptor;
 import io.humble.video.MediaPacket;
 import io.humble.video.Rational;
-import io.humble.video.javaxsound.AudioFrame;
 import io.humble.video.javaxsound.MediaAudioConverter;
 import io.humble.video.javaxsound.MediaAudioConverterFactory;
 import lanr.logic.model.AudioChannel;
@@ -28,6 +29,7 @@ import lanr.logic.model.LANRException;
 import lanr.logic.model.LANRFileException;
 import lanr.logic.utils.Converter;
 import lanr.logic.utils.DoubleConverter;
+import lanr.model.Settings;
 
 public class FileReader {
 
@@ -38,8 +40,7 @@ public class FileReader {
 	public static final String DECODING_STARTED_PROPERTY = "dStart";
 	public static final String DECODING_ENDED_PROPERTY = "dEnd";
 
-	private static int sampleSize = 1024;
-	private final static int BUFFER_PUFFER = 50000; //50kb Puffer
+	private final static int BUFFER_PUFFER = 50000; // 50kb Puffer
 
 	/**
 	 * Creates a {@link AudioData} object containing data about the
@@ -87,8 +88,10 @@ public class FileReader {
 				// Calculate the time of the stream in seconds
 				Rational r = stream.getTimeBase();
 				long length = stream.getDuration() / r.getDenominator();
-				AudioChannel channel = new AudioChannel(bitDepth, sampleRate, i, length);
-				audioChannels.add(channel);
+				for (int c = 1; c <= samples.getChannels(); c++) {
+					AudioChannel channel = new AudioChannel(data, bitDepth, sampleRate, i, c, length);
+					audioChannels.add(channel);
+				}
 			}
 		}
 		if (audioChannels.isEmpty()) {
@@ -104,9 +107,10 @@ public class FileReader {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 * @throws LANRFileException
+	 * @throws LANRException 
 	 */
 	public static void analyseFile(AudioData data, PropertyChangeListener listener)
-			throws InterruptedException, IOException, LANRFileException {
+			throws InterruptedException, IOException, LANRFileException, LANRException {
 		if (data == null) {
 			throw new IllegalArgumentException("Audio data musn't be null");
 		}
@@ -120,13 +124,24 @@ public class FileReader {
 		Demuxer demuxer = Demuxer.make();
 		demuxer.open(data.getPath(), null, false, true, null, null);
 
-		// Read the data for all channel
-		for (AudioChannel channel : data.getAllChannel()) {
-			final DemuxerStream stream = demuxer.getStream(channel.getIndex());
-			final Decoder decoder = stream.getDecoder();
-			readAudioChannelData(channel, demuxer, decoder);
+		Map<Integer, List<AudioChannel>> audioStreams = new HashMap<Integer, List<AudioChannel>>();
 
+		// Sort the channels by their audio stream
+		for (AudioChannel channel : data.getChannel()) {
+			List<AudioChannel> stream = audioStreams.get(channel.getId());
+			if (stream == null) {
+				LinkedList<AudioChannel> value = new LinkedList<AudioChannel>();
+				value.add(channel);
+				audioStreams.put(channel.getId(), value);
+			} else {
+				stream.add(channel);
+			}
 		}
+		// Read the data for all channel in a given stream
+		for (Map.Entry<Integer, List<AudioChannel>> audioStream : audioStreams.entrySet()) {
+			readAudioStreamData(audioStream.getKey(), audioStream.getValue(), demuxer);
+		}
+
 		data.setAnalyzed(true);
 		demuxer.close();
 		state.firePropertyChange(DECODING_ENDED_PROPERTY, null, null);
@@ -134,77 +149,91 @@ public class FileReader {
 
 	private static String path2 = null;
 
-	private static void readAudioChannelData(AudioChannel channel, Demuxer demuxer, Decoder audioDecoder)
-			throws InterruptedException, IOException, LANRFileException {
+	private static void readAudioStreamData(int streamId, List<AudioChannel> channels, Demuxer demuxer)
+			throws InterruptedException, IOException, LANRFileException, LANRException {
 
+		final DemuxerStream stream = demuxer.getStream(streamId);
+		final Decoder decoder = stream.getDecoder();
 		/*
 		 * Based on code from
 		 * https://github.com/artclarke/humble-video/blob/master/humble-video-demos/src
 		 * /main/java/io/humble/video/demos/DecodeAndPlayAudio.java
 		 * 
 		 */
-		audioDecoder.open(null, null);
-		final MediaAudio samples = MediaAudio.make(audioDecoder.getFrameSize(), audioDecoder.getSampleRate(),
-				audioDecoder.getChannels(), audioDecoder.getChannelLayout(), audioDecoder.getSampleFormat());
-
+		decoder.open(null, null);
+		final MediaAudio samples = MediaAudio.make(decoder.getFrameSize(), decoder.getSampleRate(),
+				decoder.getChannels(), decoder.getChannelLayout(), decoder.getSampleFormat());
+		
 		MediaAudioConverter converter = null;
 		try {
-			converter = MediaAudioConverterFactory
-					.createConverter(MediaAudioConverterFactory.DEFAULT_JAVA_AUDIO,
-							samples);
+			converter = MediaAudioConverterFactory.createConverter(MediaAudioConverterFactory.DEFAULT_JAVA_AUDIO,
+					samples);
 		} catch (IllegalArgumentException e) {
-			WAV w = new WAV();
-			File f = new File(path2);
-			try {
-				w.createWAV(channel, f);
-			} catch (UnsupportedAudioFileException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
 			throw new LANRFileException("File format not supported", e);
 		}
-
+		int sampleSize = Settings.getInstance().getFrameSize();
 		int bytePerSample = samples.getBytesPerSample();
-		int bufferSize = sampleSize * bytePerSample;
+		int bufferSize = sampleSize * bytePerSample * channels.size();
 		ByteBuffer rawAudio = null;
-		
+
 		ByteBuffer buffer = ByteBuffer.allocate(bufferSize + BUFFER_PUFFER); // Added extra buffer to prevent overflow
 		// Data that will be processed
 		byte[] bufferData = new byte[bufferSize];
 		int byteInBuffer = 0;
 		final MediaPacket packet = MediaPacket.make();
-		channel.analyseStart(sampleSize);
+		//List that collects the data that will be sent to the channels
+		List<DoubleBuffer> channelData = new ArrayList<DoubleBuffer>();
+		for (int c = 0; c < channels.size(); c++) {
+			//Adds the container and notify the channel
+			channelData.add(DoubleBuffer.allocate(sampleSize));
+			channels.get(c).analyseStart(sampleSize);
+		}
 		DoubleConverter doubleConverter;
 		try {
 			doubleConverter = Converter.getConverter(samples.getFormat());
 		} catch (LANRException e) {
 			throw new LANRFileException(e.getMessage());
 		}
-		
+		int counter = 0;
 		// Read the packets
 		while (demuxer.read(packet) >= 0) {
 			// Check if the packet is part of the current stream
-			if (packet.getStreamIndex() == channel.getIndex()) {
+			if (packet.getStreamIndex() == streamId) {
 				int offset = 0;
 				int bytesRead = 0;
-				do {
+				do {					
 					if (interrupted) {
-						channel.clearAnalysisData();
+						for (AudioChannel channel : channels) {
+							channel.clearAnalysisData();
+						}
 						return;
-					}				
-
-					bytesRead += audioDecoder.decode(samples, packet, offset);
+					}
+					bytesRead += decoder.decode(samples, packet, offset);
 					if (samples.isComplete()) {
 						// Send the packet data to listeners
+						rawAudio = null;
 						rawAudio = converter.toJavaAudio(rawAudio, samples);
 						// Count number of bytes in buffer
 						byteInBuffer += rawAudio.capacity();
 						buffer.put(rawAudio);
 						// If enough bytes are in the buffer send data to channel
-						while(buffer.position() >= bufferSize) {
+						while (buffer.position() >= bufferSize) {
 							buffer.flip();
 							buffer.get(bufferData, 0, bufferSize);
-							channel.analyzeData(doubleConverter.convert(bufferData));
+							double[] convertedData = doubleConverter.convert(bufferData);
+							//Sort the data for the different channel
+							counter = 0;
+							for (int i = 0; i < convertedData.length; i++) {
+								channelData.get(counter).put(convertedData[i]);
+								counter = (counter + 1) % channels.size();
+							}
+							//Send the data to the different channel
+							for (int c = 0; c < channels.size(); c++) {
+								DoubleBuffer channelDataBuffer = channelData.get(c);
+								channels.get(c).analyzeData(channelDataBuffer.array());
+								channelDataBuffer.clear();
+							}
+							
 							buffer.position(bufferSize);
 							buffer.compact();
 							byteInBuffer -= bufferSize;
@@ -215,6 +244,7 @@ public class FileReader {
 				} while (offset < packet.getSize());
 			}
 		}
+		//Check if there is still data that is < sampleSize * bytesPerSample
 		if (buffer.position() != 0) {
 			// The final frame has to be filled to get a power of 2.
 			int currentPos = buffer.position();
@@ -223,9 +253,22 @@ public class FileReader {
 			}
 			buffer.flip();
 			buffer.get(bufferData, 0, bufferSize);
-			channel.analyzeData(doubleConverter.convert(bufferData));
+			double[] convertedData = doubleConverter.convert(bufferData);
+			counter = 0;
+			for (int i = 0; i < convertedData.length; i++) {
+				channelData.get(counter).put(convertedData[i]);
+				counter = (counter + 1) % channels.size();
+			}
+			//Send the data to the different channel
+			for (int c = 0; c < channels.size(); c++) {
+				DoubleBuffer channelDataBuffer = channelData.get(c);
+				channels.get(c).analyzeData(channelDataBuffer.array());
+				channelDataBuffer.clear();
+			}
 		}
 		buffer.clear();
-		channel.analyseEnd();
+		for (AudioChannel channel : channels) {
+			channel.analyseEnd();
+		}
 	}
 }
