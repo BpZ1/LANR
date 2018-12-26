@@ -11,7 +11,6 @@ import javax.imageio.ImageIO;
 
 import lanr.logic.AudioAnalyzer;
 import lanr.logic.frequency.FrequencyConversion;
-import lanr.model.Settings;
 
 /**
  * @author Nicolas Bruch
@@ -81,7 +80,7 @@ public class AudioChannel {
 
 	public void analyseEnd() throws LANRException {
 		if (analyzer != null) {
-			if(Settings.getInstance().createSpectrogram()) {
+			if(createSpectrogram) {
 				StringBuilder fileName = new StringBuilder();
 				fileName.append(OUTPUT_FOLDER);
 				fileName.append(parent.getName());
