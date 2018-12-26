@@ -14,8 +14,7 @@ import lanr.logic.model.AudioChannel;
  * @author Nicolas Bruch
  * 
  */
-public class ChannelVisualisation extends Canvas {
-
+public class ChannelVisualisation extends Canvas {	
 	private final double width;
 	private final AudioChannel channel;
 	private final long sampleCount;
@@ -23,6 +22,10 @@ public class ChannelVisualisation extends Canvas {
 	private final double maxSampleValue;
 	private final double heightValue;
 	private final double halfValue;
+	/**
+	 * Percentage of the frame that will be visualized.
+	 */
+	public static double visualisationReductionFactor = 0.1;
 	private double currentXPosition = 0;
 	private double lastYPosition = 0;
 
@@ -34,7 +37,7 @@ public class ChannelVisualisation extends Canvas {
 		channel.addChangeListener(createChangeListener());
 		this.sampleCount = (long) ((channel.getLength() * channel.getSampleRate()) 
 				/ channel.getParent().getChannel().size()
-				* AudioChannel.visualisationReductionFactor);
+				* visualisationReductionFactor);
 
 		if (channel.getLength() / 3 < parentWidth) {
 			this.width = parentWidth;
@@ -53,8 +56,8 @@ public class ChannelVisualisation extends Canvas {
 		Platform.runLater(()->{
 			// Take every Xth element
 			int sampleSize = (int) (data.length 
-					* AudioChannel.visualisationReductionFactor);
-			int skipDistance = (int) (AudioChannel.visualisationReductionFactor * 100);
+					* visualisationReductionFactor);
+			int skipDistance = (int) (visualisationReductionFactor * 100);
 			double[] samples = new double[sampleSize];
 			int counter = 0;
 			for (int i = 0; i < samples.length; i++) {	
@@ -90,6 +93,14 @@ public class ChannelVisualisation extends Canvas {
 			}
 		};
 		return listener;
+	}
+	
+	public static void setVisualisationReductionFactor(double value) {
+		visualisationReductionFactor = value;
+	}
+	
+	public static double getVisualisationReductionFactor() {
+		return visualisationReductionFactor;
 	}
 
 	public AudioChannel getAudioChannel() {

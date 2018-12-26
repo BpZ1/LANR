@@ -31,7 +31,7 @@ public class AudioAnalyzer {
 			// Add new sample analyting methods here
 		}
 	};
-
+	
 	@SuppressWarnings("serial")
 	private List<NoiseSearch> frequencyAnalyzer = new ArrayList<NoiseSearch>() {
 		{
@@ -84,7 +84,6 @@ public class AudioAnalyzer {
 	public void anazlyze(double[] data) {
 		// Analyzing the samples
 		sampleAnalysis(data);
-
 		if (useWindowFunction && conversion != FrequencyConversion.FWT) {
 			WindowFunction wf = new WindowFunction(data.length, conversion);
 			wf.apply(data);

@@ -38,7 +38,7 @@ public class AudioDataContainer extends TitledPane {
 	private static final String LABEL_CSS_ID = "labelText";
 	private static final String PLACEHOLDER_CSS_ID = "placeHolder";
 	private static final String DATA_BOX_CSS_ID = "dataBox";
-	
+	private static boolean showVisualization = true;
 	private final AudioController controller;
 	private final AudioData data;
 	private VBox content;
@@ -254,6 +254,14 @@ public class AudioDataContainer extends TitledPane {
 		LocalTime timeOfDay = LocalTime.ofSecondOfDay(durationInSeconds);
 		String time = timeOfDay.toString();
 		return time;
+	}
+
+	public static boolean isShowVisualization() {
+		return showVisualization;
+	}
+
+	public static void setShowVisualization(boolean showVisualization) {
+		AudioDataContainer.showVisualization = showVisualization;
 	}
 
 }

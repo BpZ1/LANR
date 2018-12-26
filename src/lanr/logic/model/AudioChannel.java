@@ -21,10 +21,7 @@ import lanr.logic.frequency.FrequencyConversion;
 public class AudioChannel {
 
 	private static final String OUTPUT_FOLDER = "spectrograms/";
-	/**
-	 * Percentage of the frame that will be visualized.
-	 */
-	public static double visualisationReductionFactor = 0.1;
+	
 	public final static String DATA_ADDED_PROPERTY = "added";	
 	
 	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
@@ -48,7 +45,7 @@ public class AudioChannel {
 	/**
 	 * Converter for the conversion from time to frequency domain.
 	 */
-	private static FrequencyConversion converter = FrequencyConversion.FWT;
+	private static FrequencyConversion converter = FrequencyConversion.FFT;
 	private static boolean usingWindowFunction = false;
 	private static boolean createSpectrogram = true;
 	
