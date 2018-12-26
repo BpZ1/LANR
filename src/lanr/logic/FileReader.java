@@ -87,7 +87,9 @@ public class FileReader  {
 	public void getFileContainer(String path) {
 		incrementCounter();
 		runningTasks.add(executors.submit(() -> {
-			return createFileContainer(path);
+			AudioData data = createFileContainer(path);
+			decrementCounter();
+			return data;
 		}));
 	}
 
