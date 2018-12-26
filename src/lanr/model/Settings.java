@@ -57,8 +57,8 @@ public class Settings {
 		if (data.getCreateSpectrogram().isPresent()) {
 			createSpectrogram = data.getCreateSpectrogram().get();
 		}
-		if (data.getFrameSize().isPresent()) {
-			windowSize = data.getFrameSize().get();
+		if (data.getWindowSize().isPresent()) {
+			windowSize = data.getWindowSize().get();
 		}
 		if (data.getVisualisationFactor().isPresent()) {
 			visualisationFactor = data.getVisualisationFactor().get();
@@ -86,6 +86,10 @@ public class Settings {
 			instance = new Settings();
 		}
 		return instance;
+	}
+	
+	public void save() {
+		System.out.println("NOT IMPLEMENTED");
 	}
 
 	public int getWindowSize() {

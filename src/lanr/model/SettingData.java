@@ -13,7 +13,7 @@ import lanr.logic.frequency.FrequencyConversion;
  */
 public class SettingData {
 
-	private Optional<Integer> frameSize = Optional.empty();
+	private Optional<Integer> windowSize = Optional.empty();
 	private Optional<Double> visualisationFactor = Optional.empty();
 	private Optional<Boolean> createSpectrogram = Optional.empty();
 	private Optional<Boolean> showVisualisation = Optional.empty();
@@ -23,11 +23,11 @@ public class SettingData {
 	private Optional<Boolean> usingWindowFunction = Optional.empty();
 	private Optional<FrequencyConversion> frequencyConverter = Optional.empty();
 	
-	public Optional<Integer> getFrameSize() {
-		return frameSize;
+	public Optional<Integer> getWindowSize() {
+		return windowSize;
 	}
-	public void setFrameSize(int frameSize) {
-		this.frameSize = Optional.of(frameSize);
+	public void setWindowSize(int frameSize) {
+		this.windowSize = Optional.of(frameSize);
 	}
 	public Optional<Double> getVisualisationFactor() {
 		return visualisationFactor;
