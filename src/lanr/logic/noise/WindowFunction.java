@@ -2,6 +2,10 @@ package lanr.logic.noise;
 
 import lanr.logic.frequency.FrequencyConversion;
 
+/**
+ * Based on a version from
+ * https://code.google.com/archive/p/spectro-edit/
+ */
 public class WindowFunction {
 
 	private final double[] scalars;
