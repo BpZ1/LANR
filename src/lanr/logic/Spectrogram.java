@@ -23,7 +23,7 @@ public class Spectrogram {
 	 * Contrast for the spectrogram.
 	 * Default = 300
 	 */
-	private int contrast = 300;
+	private static int contrast = 300;
 	private int maxFrames = ARRAY_MULTIPLICATOR;
 	private int currentFrame = 0;
 	private BufferedImage image;
@@ -124,5 +124,13 @@ public class Spectrogram {
 		}else {
 			return image;
 		}		
+	}
+	
+	public static void setContrast(int value) {
+		contrast = value;
+	}
+	
+	public static int getContrast() {
+		return contrast;
 	}
 }
