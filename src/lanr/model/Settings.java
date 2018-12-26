@@ -7,7 +7,12 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
 
+import lanr.logic.FileReader;
+import lanr.logic.Spectrogram;
 import lanr.logic.frequency.FrequencyConversion;
+import lanr.logic.model.AudioChannel;
+import lanr.view.AudioDataContainer;
+import lanr.view.ChannelVisualisation;
 
 /**
  * Contains variable settings that are saved and used to change the received
@@ -130,7 +135,7 @@ public class Settings {
 		p.put(conversionMethod.x, String.valueOf(conversionMethod.y));
 		
 		Date date = new Date();
-		p.store(new FileOutputStream(SETTINGS_FILE_NAME), "Created at: " + date.toString());
+		p.store(new FileOutputStream(SETTINGS_FILE_NAME), "LANR - Settings");
 	}
 
 	/**
@@ -213,7 +218,7 @@ public class Settings {
 		if (threads != null) {
 			try {
 				int threadN = Integer.parseInt(threads);
-				data.setSpectrogramContrast(threadN);
+				data.setThreadCount(threadN);
 			} catch (NumberFormatException e) {
 				throw new IOException("Invalid value for property '" 
 						+ THREAD_COUNT_PROPERTY_NAME + "'. Could not read ini file");
@@ -249,8 +254,9 @@ public class Settings {
 		return windowSize.y;
 	}
 
-	public void setWindowSize(int frameSize) {
-		this.windowSize.y = frameSize;
+	public void setWindowSize(int windowSize) {
+		FileReader.setWindowSize(windowSize);
+		this.windowSize.y = windowSize;
 	}
 
 	public double getVisualisationFactor() {
@@ -258,6 +264,7 @@ public class Settings {
 	}
 
 	public void setVisualisationFactor(double visualisationFactor) {
+		ChannelVisualisation.setVisualisationReductionFactor(visualisationFactor);
 		this.visualisationFactor.y = visualisationFactor;
 	}
 
@@ -266,6 +273,7 @@ public class Settings {
 	}
 
 	public void setCreateSpectrogram(boolean createSpectrogram) {
+		AudioChannel.setCreateSpectrogram(createSpectrogram);
 		this.createSpectrogram.y = createSpectrogram;
 	}
 
@@ -274,6 +282,7 @@ public class Settings {
 	}
 
 	public void setShowVisualisation(boolean showVisualisation) {
+		AudioDataContainer.setShowVisualization(showVisualisation);
 		this.showVisualisation.y = showVisualisation;
 	}
 
@@ -282,6 +291,7 @@ public class Settings {
 	}
 
 	public void setSpectrogramContrast(int spectrogramContrast) {
+		Spectrogram.setContrast(spectrogramContrast);
 		this.spectrogramContrast.y = spectrogramContrast;
 	}
 
@@ -298,6 +308,7 @@ public class Settings {
 	}
 
 	public void setConversionMethod(FrequencyConversion conversionMethod) {
+		AudioChannel.setConverter(conversionMethod);
 		this.conversionMethod.y = conversionMethod;
 	}
 
@@ -306,6 +317,7 @@ public class Settings {
 	}
 
 	public void setUsingWindowFunction(boolean usingWindowFunction) {
+		AudioChannel.setUsingWindowFunction(usingWindowFunction);
 		this.usingWindowFunction.y = usingWindowFunction;
 	}
 }
