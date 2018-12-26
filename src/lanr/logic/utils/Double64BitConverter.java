@@ -4,10 +4,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
+ * Converter for 64 bit doubles from byte array.
+ * 
  * @author Nicolas Bruch
  * 
- * 	Converter for 64 bit doubles from byte array.
- *
  */
 public class Double64BitConverter extends DoubleConverter{
 

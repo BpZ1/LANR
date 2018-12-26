@@ -4,9 +4,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * @author Nicolas Bruch
- *
- *         Converter for 32 bit unsigned int from byte array.
+ * Converter for 32 bit unsigned int from byte array.
+ * 
+ * @author Nicolas Bruch      
  *
  */
 public class IntUnsigned32BitConverter extends DoubleConverter {

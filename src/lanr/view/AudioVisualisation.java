@@ -1,7 +1,6 @@
 package lanr.view;
 
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import lanr.logic.model.AudioChannel;
 import lanr.logic.model.AudioData;
 

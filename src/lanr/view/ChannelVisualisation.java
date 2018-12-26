@@ -9,15 +9,14 @@ import javafx.scene.paint.Color;
 import lanr.logic.model.AudioChannel;
 
 /**
+ * Contains methods for the visual representation of an audio channel
+ * 
  * @author Nicolas Bruch
  * 
- *         Contains methods for the visual representation of an audio channel
- *
  */
 public class ChannelVisualisation extends Canvas {
 
 	private final double width;
-	private final double height;
 	private final AudioChannel channel;
 	private final long sampleCount;
 	private final double sampleDistance;
@@ -28,7 +27,6 @@ public class ChannelVisualisation extends Canvas {
 	private double lastYPosition = 0;
 
 	public ChannelVisualisation(double parentWidth, double height, AudioChannel channel) {
-		this.height = height;
 		this.setHeight(height);
 		this.channel = channel;
 		this.getGraphicsContext2D().setStroke(Color.BLUE);

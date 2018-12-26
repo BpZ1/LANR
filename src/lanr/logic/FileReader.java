@@ -34,6 +34,14 @@ import lanr.logic.model.LANRFileException;
 import lanr.logic.utils.Converter;
 import lanr.logic.utils.DoubleConverter;
 
+/**
+ * Contains all the logic for reading audio or video files.
+ * Also contains a thread pool that will be used every time an audio file
+ * is being read or analyzed.
+ * 
+ * @author Nicolas Bruch
+ *
+ */
 public class FileReader  {
 
 	private volatile boolean interrupted = false;

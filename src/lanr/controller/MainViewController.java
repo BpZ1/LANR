@@ -1,7 +1,6 @@
 package lanr.controller;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import javafx.stage.Modality;
 import lanr.logic.model.LANRException;
@@ -12,9 +11,10 @@ import lanr.view.MainView;
 import lanr.view.SettingsView;
 
 /**
+ * Main controller.
+ * 
  * @author Nicolas Bruch
  *
- *	Main controller.
  */
 public class MainViewController {
 

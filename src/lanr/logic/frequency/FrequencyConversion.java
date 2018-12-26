@@ -1,10 +1,9 @@
 package lanr.logic.frequency;
 
 /**
- * @author Nicolas Bruch
+ * Different converter for samples into frequency domain.
  * 
- *         Different converter for samples into frequency domain.
- *
+ * @author Nicolas Bruch
  */
 public enum FrequencyConversion {
 	/**
@@ -22,6 +21,7 @@ public enum FrequencyConversion {
 
 	private final SampleConverter converter;
 	private boolean halfSamples;
+
 	private FrequencyConversion(SampleConverter converter, boolean halfSamples) {
 		this.converter = converter;
 		this.halfSamples = halfSamples;
@@ -30,7 +30,7 @@ public enum FrequencyConversion {
 	public SampleConverter getConverter() {
 		return converter;
 	}
-	
+
 	public boolean getHalfSamples() {
 		return halfSamples;
 	}

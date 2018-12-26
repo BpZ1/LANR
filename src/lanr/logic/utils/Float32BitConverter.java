@@ -4,9 +4,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
+ * Converter for 32 bit floats from byte array.
+ * 
  * @author Nicolas Bruch
- *
- *         Converter for 32 bit floats from byte array.
  *
  */
 public class Float32BitConverter extends DoubleConverter {

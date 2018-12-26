@@ -4,9 +4,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * @author Nicolas Bruch
+ * Converter for 16 bit shorts from byte array.
  * 
- *         Converter for 16 bit shorts from byte array.
+ * @author Nicolas Bruch        
  *
  */
 public class Short16BitConverter extends DoubleConverter {

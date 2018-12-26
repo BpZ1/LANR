@@ -14,12 +14,11 @@ import lanr.logic.noise.VolumeSearch;
 import lanr.logic.noise.WindowFunction;
 
 /**
+ * Analyzer and the main part of the analyzing process. All analyzing
+ * classes have to be added here.
+ * 
  * @author Nicolas Bruch
  * 
- *         Analyzer and the main part of the analyzing process. All analyzing
- *         classes have to be added here.
- * 
- *
  */
 public class AudioAnalyzer {
 

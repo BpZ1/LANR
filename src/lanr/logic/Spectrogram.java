@@ -7,12 +7,12 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
 /**
- * @author Nicolas Bruch
+ * Class for creating a spectrogram. After a window size has been
+ * defined, windows can be added without limits. The
+ * {@link BufferedImage} will be generated when the getImage() method is
+ * called.
  * 
- *         Class for creating a spectrogram. After a window size has been
- *         defined, windows can be added without limits. The
- *         {@link BufferedImage} will be generated when the getImage() method is
- *         called.
+ * @author Nicolas Bruch 
  *
  */
 public class Spectrogram {

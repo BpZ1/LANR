@@ -2,23 +2,14 @@ package lanr.model;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.io.IOException;
+
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.locks.ReentrantLock;
 
 import lanr.logic.FileReader;
 import lanr.logic.model.AudioData;
 import lanr.logic.model.LANRException;
-import lanr.logic.model.LANRFileException;
+
 
 public class MainModel extends Model {
 	

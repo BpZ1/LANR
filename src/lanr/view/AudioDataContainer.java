@@ -26,6 +26,12 @@ import lanr.logic.model.AudioChannel;
 import lanr.logic.model.AudioData;
 import lanr.logic.model.Noise;
 
+/**
+ * Container for an audio file and its channel.
+ * 
+ * @author Nicolas Bruch
+ *
+ */
 public class AudioDataContainer extends TitledPane {
 
 	private static final String AUDIO_CONTAINER_CSS_ID = "audioContainer";
