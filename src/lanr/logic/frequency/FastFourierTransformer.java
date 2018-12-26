@@ -20,10 +20,10 @@ public class FastFourierTransformer implements SampleConverter {
 		fft.complexForward(result);
 				
 		double[] finalResult = new double[samples.length / 2 + 1];
-		for (int i = 0; i < finalResult.length / 2 +1; i++) {
+		for (int i = 0; i < finalResult.length; i++) {
 			double real = result[i * 2];
 			double imag = result[i * 2 + 1];
-			double magnitude = Math.hypot(real, imag);
+			double magnitude = Math.hypot(real, imag) / 100;
 			finalResult[i] = magnitude;
 		}	
 		return finalResult;
