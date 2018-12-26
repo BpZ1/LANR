@@ -18,6 +18,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantLock;
 
+import io.humble.ferry.Buffer;
+import io.humble.video.AudioFormat;
 import io.humble.video.Decoder;
 import io.humble.video.Demuxer;
 import io.humble.video.DemuxerStream;
@@ -27,7 +29,6 @@ import io.humble.video.MediaPacket;
 import io.humble.video.Rational;
 import io.humble.video.javaxsound.MediaAudioConverter;
 import io.humble.video.javaxsound.MediaAudioConverterFactory;
-import javafx.beans.property.SimpleDoubleProperty;
 import lanr.logic.model.AudioChannel;
 import lanr.logic.model.AudioData;
 import lanr.logic.model.LANRException;
@@ -216,21 +217,28 @@ public class FileReader  {
 		demuxer.close();
 	}
 
+	/**
+	 * Based on code from
+	 * https://github.com/artclarke/humble-video/blob/master/humble-video-demos/src
+	 * /main/java/io/humble/video/demos/DecodeAndPlayAudio.java
+	 * @param streamId
+	 * @param channels
+	 * @param demuxer
+	 * @throws InterruptedException
+	 * @throws IOException
+	 * @throws LANRFileException
+	 * @throws LANRException
+	 */
 	private void readAudioStreamData(int streamId, List<AudioChannel> channels, Demuxer demuxer)
 			throws InterruptedException, IOException, LANRFileException, LANRException {
 
 		final DemuxerStream stream = demuxer.getStream(streamId);
 		final Decoder decoder = stream.getDecoder();
-		/*
-		 * Based on code from
-		 * https://github.com/artclarke/humble-video/blob/master/humble-video-demos/src
-		 * /main/java/io/humble/video/demos/DecodeAndPlayAudio.java
-		 * 
-		 */
+
 		decoder.open(null, null);
 		final MediaAudio samples = MediaAudio.make(decoder.getFrameSize(), decoder.getSampleRate(),
 				decoder.getChannels(), decoder.getChannelLayout(), decoder.getSampleFormat());
-
+		
 		MediaAudioConverter converter = null;
 		try {
 			converter = MediaAudioConverterFactory.createConverter(MediaAudioConverterFactory.DEFAULT_JAVA_AUDIO,
@@ -279,7 +287,10 @@ public class FileReader  {
 					if (samples.isComplete()) {
 						// Send the packet data to listeners
 						rawAudio = null;
-						rawAudio = converter.toJavaAudio(rawAudio, samples);
+						//If the data has to be converted to java audio for playback
+						//this has to be used instead of getSamples()
+						//rawAudio = converter.toJavaAudio(rawAudio, samples);
+						rawAudio = getSamples(rawAudio, samples, channels.size());
 						// Count number of bytes in buffer
 						byteInBuffer += rawAudio.capacity();
 						buffer.put(rawAudio);
@@ -320,7 +331,7 @@ public class FileReader  {
 			}
 			buffer.flip();
 			buffer.get(bufferData, 0, bufferSize);
-			double[] convertedData = doubleConverter.convert(bufferData);
+			double[] convertedData = doubleConverter.convert(bufferData);	
 			counter = 0;
 			for (int i = 0; i < convertedData.length; i++) {
 				channelData.get(counter).put(convertedData[i]);
@@ -338,7 +349,20 @@ public class FileReader  {
 			channel.analyseEnd();
 		}
 	}
-
+	
+	private ByteBuffer getSamples(ByteBuffer output, MediaAudio samples, int channels) {
+		int size = AudioFormat.getBufferSizeNeeded(samples.getNumSamples(), channels, samples.getFormat());
+		output = ByteBuffer.allocate(size);
+		final Buffer buffer = samples.getData(0);
+	    int bufferSize = samples.getDataPlaneSize(0);
+	    byte[] bytes = output.array();
+	    buffer.get(0, bytes, 0, bufferSize);
+	    output.limit(size);
+	    output.position(0);
+	    buffer.delete();
+	    return output;
+	}
+	
 	/**
 	 * @return True if there are running threads.
 	 */
