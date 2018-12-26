@@ -10,6 +10,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import lanr.logic.AudioAnalyzer;
+import lanr.logic.frequency.FrequencyConversion;
 import lanr.model.Settings;
 
 /**
@@ -25,7 +26,8 @@ public class AudioChannel {
 	 * Percentage of the frame that will be visualized.
 	 */
 	public static double visualisationReductionFactor = 0.1;
-	public final static String DATA_ADDED_PROPERTY = "added";
+	public final static String DATA_ADDED_PROPERTY = "added";	
+	
 	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
 
 	private final AudioData parent;
@@ -43,6 +45,14 @@ public class AudioChannel {
 	 * Bit depth per sample.
 	 */
 	private final int bitRate;
+	
+	/**
+	 * Converter for the conversion from time to frequency domain.
+	 */
+	private static FrequencyConversion converter = FrequencyConversion.FWT;
+	private static boolean usingWindowFunction = false;
+	private static boolean createSpectrogram = true;
+	
 	private final int bytePerSample;
 	/**
 	 * Samples per second.
@@ -65,7 +75,8 @@ public class AudioChannel {
 	}
 
 	public void analyseStart(int frameSize) {
-		analyzer = new AudioAnalyzer(frameSize, sampleRate, true);
+		analyzer = new AudioAnalyzer(frameSize, sampleRate,
+				createSpectrogram, usingWindowFunction, converter);
 	}
 
 	public void analyseEnd() throws LANRException {
@@ -143,5 +154,29 @@ public class AudioChannel {
 
 	public long getLength() {
 		return length;
+	}
+	
+	public static boolean getCreateSpectrogram() {
+		return createSpectrogram;
+	}
+	
+	public static void setCreateSpectrogram(boolean value) {
+		createSpectrogram = value;
+	}
+	
+	public static boolean getUsingWindowFunction() {
+		return usingWindowFunction;
+	}
+	
+	public static void setUsingWindowFunction(boolean value) {
+		usingWindowFunction = value;
+	}
+	
+	public static FrequencyConversion getConverter() {
+		return converter;
+	}
+
+	public static void setConverter(FrequencyConversion converter) {
+		AudioChannel.converter = converter;
 	}
 }

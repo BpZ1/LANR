@@ -5,9 +5,9 @@ import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import lanr.logic.frequency.FrequencyConversion;
 import lanr.logic.noise.BackgroundNoiseSearch;
 import lanr.logic.noise.ClippingSearch;
-import lanr.logic.noise.FrequencyConversion;
 import lanr.logic.noise.NoiseSearch;
 import lanr.logic.noise.SilenceSearch;
 import lanr.logic.noise.VolumeSearch;
@@ -42,8 +42,8 @@ public class AudioAnalyzer {
 		this.useWindowFunction = useWindowFunction;
 		if (createSpectorgam) {
 			//FFT method used only uses half of the output data
-			if(conversion == FrequencyConversion.FFT) {
-				spectro = new Spectrogram(frameSize / 2);
+			if(conversion.getHalfSamples()) {
+				spectro = new Spectrogram(frameSize / 2 + 1);
 			}else {
 				spectro = new Spectrogram(frameSize);
 			}			
@@ -58,7 +58,7 @@ public class AudioAnalyzer {
 		//Analyzing the samples
 		sampleAnalysis(data);
 		
-		if(useWindowFunction) {
+		if(useWindowFunction && conversion != FrequencyConversion.FWT) {
 			WindowFunction wf = new WindowFunction(data.length, conversion);
 			wf.apply(data);
 		}
