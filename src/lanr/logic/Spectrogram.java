@@ -6,57 +6,66 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 
+/**
+ * @author Nicolas Bruch
+ * 
+ *         Class for creating a spectrogram. After a window size has been
+ *         defined, windows can be added without limits. The
+ *         {@link BufferedImage} will be generated when the getImage() method is
+ *         called.
+ *
+ */
 public class Spectrogram {
 
 	/**
-	 * Defines how many columns will be added to the picture 
-	 * if the size goes over the current maximum.
+	 * Defines how many columns will be added to the picture if the size goes over
+	 * the current maximum.
 	 */
 	private static final int ARRAY_MULTIPLICATOR = 1000;
 	private static final double COLOR_MULTIPLIER = 0.0001;
-	private final int frameSize;
+	private final int windowSize;
 	/**
 	 * Array containing the pixel informations.
 	 */
 	private int[] pixel;
 	/**
-	 * Contrast for the spectrogram.
-	 * Default = 300
+	 * Contrast for the spectrogram. Default = 300
 	 */
 	private static int contrast = 300;
 	private int maxFrames = ARRAY_MULTIPLICATOR;
 	private int currentFrame = 0;
 	private BufferedImage image;
 
-	public Spectrogram(int frameSize) {
-		this.frameSize = frameSize;
-		pixel = new int[frameSize * ARRAY_MULTIPLICATOR];
+	public Spectrogram(int windowSize) {
+		this.windowSize = windowSize;
+		pixel = new int[windowSize * ARRAY_MULTIPLICATOR];
 	}
-	
+
 	/**
 	 * Doubles the size of the pixel array.
 	 */
 	private void resize() {
 		int[] resultArray = new int[pixel.length * 2];
-		for(int column = 0; column < maxFrames; column ++) {
-			for(int row = 0; row < frameSize; row++) {
+		for (int column = 0; column < maxFrames; column++) {
+			for (int row = 0; row < windowSize; row++) {
 				resultArray[column + row * maxFrames * 2] = pixel[column + row * maxFrames];
 			}
-		}	
+		}
 		pixel = resultArray;
 		maxFrames *= 2;
 	}
 
 	/**
 	 * Adds one vertical line to the spectrogram.
-	 * @param frame - FFT data.
+	 * 
+	 * @param window - FFT data.
 	 */
-	public void addFrame(double[] frame) {
-		if(currentFrame > maxFrames) {
-			resize();			
+	public void addWindow(double[] window) {
+		if (currentFrame > maxFrames) {
+			resize();
 		}
-		for (int i = 0; i < frame.length; i++) {
-			int color = colorFor(frame[i]);
+		for (int i = 0; i < window.length; i++) {
+			int color = colorFor(window[i]);
 			int index = currentFrame + i * maxFrames;
 			if (pixel.length > index) {
 				pixel[index] = color;
@@ -67,6 +76,7 @@ public class Spectrogram {
 
 	/**
 	 * Returns the color for a given value.
+	 * 
 	 * @param val
 	 * @return
 	 */
@@ -78,6 +88,7 @@ public class Spectrogram {
 
 	/**
 	 * Transforms the image.
+	 * 
 	 * @param image
 	 * @param at
 	 * @return
@@ -93,6 +104,7 @@ public class Spectrogram {
 
 	/**
 	 * Changes the size of the image.
+	 * 
 	 * @param img
 	 * @param newW
 	 * @param newH
@@ -109,27 +121,27 @@ public class Spectrogram {
 	}
 
 	public BufferedImage getImage() {
-		if(this.image == null) {
-			this.image = new BufferedImage(currentFrame-1, frameSize, BufferedImage.TYPE_INT_RGB);
-			int[] pixelData = ( (DataBufferInt) image.getRaster().getDataBuffer() ).getData();
-			for(int column = 0; column < image.getWidth(); column ++) {
-				for(int row = 0; row < image.getHeight(); row++) {
+		if (this.image == null) {
+			this.image = new BufferedImage(currentFrame - 1, windowSize, BufferedImage.TYPE_INT_RGB);
+			int[] pixelData = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+			for (int column = 0; column < image.getWidth(); column++) {
+				for (int row = 0; row < image.getHeight(); row++) {
 					pixelData[column + row * image.getWidth()] = pixel[column + row * maxFrames];
 				}
-			}				
+			}
 			AffineTransform at = new AffineTransform();
 			at.concatenate(AffineTransform.getScaleInstance(1, -1));
 			at.concatenate(AffineTransform.getTranslateInstance(0, -image.getHeight()));
 			return createTransformed(image, at);
-		}else {
+		} else {
 			return image;
-		}		
+		}
 	}
-	
+
 	public static void setContrast(int value) {
 		contrast = value;
 	}
-	
+
 	public static int getContrast() {
 		return contrast;
 	}

@@ -92,7 +92,7 @@ public class AudioAnalyzer {
 		}
 		double[] magnitudes = conversion.getConverter().convert(data);
 		if (spectro != null) {
-			spectro.addFrame(magnitudes);
+			spectro.addWindow(magnitudes);
 		}
 		// Analyzing the frequencies
 		frequencyAnalysis(magnitudes);
