@@ -239,13 +239,6 @@ public class FileReader  {
 		final MediaAudio samples = MediaAudio.make(decoder.getFrameSize(), decoder.getSampleRate(),
 				decoder.getChannels(), decoder.getChannelLayout(), decoder.getSampleFormat());
 		
-		MediaAudioConverter converter = null;
-		try {
-			converter = MediaAudioConverterFactory.createConverter(MediaAudioConverterFactory.DEFAULT_JAVA_AUDIO,
-					samples);
-		} catch (IllegalArgumentException e) {
-			throw new LANRFileException("File format not supported", e);
-		}
 		int sampleSize = Settings.getInstance().getFrameSize();
 		int bytePerSample = samples.getBytesPerSample();
 		int bufferSize = sampleSize * bytePerSample * channels.size();
