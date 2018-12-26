@@ -1,12 +1,18 @@
-package lanr.logic;
+package lanr.logic.noise;
 
-import lanr.logic.model.AudioData;
+import java.util.List;
+
 import lanr.logic.model.Noise;
 
-public class HumSearch implements NoiseSearch {
+public class BackgroundNoiseSearch implements NoiseSearch {
 
 	@Override
-	public Noise search(AudioData data) {
+	public void search(double[] frequencySamples) {
+
+	}
+
+	@Override
+	public List<Noise> getNoise() {
 		// TODO Auto-generated method stub
 		return null;
 	}

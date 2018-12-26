@@ -1,9 +1,12 @@
-package lanr.logic;
+package lanr.logic.noise;
 
-import lanr.logic.model.AudioData;
+import java.util.List;
+
 import lanr.logic.model.Noise;
 
 public interface NoiseSearch {
-
-	Noise search(AudioData data);
+	
+	public void search(double[] samples);
+	
+	public List<Noise> getNoise();
 }

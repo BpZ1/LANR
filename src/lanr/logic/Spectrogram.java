@@ -8,10 +8,21 @@ import java.awt.image.DataBufferInt;
 
 public class Spectrogram {
 
+	/**
+	 * Defines how many columns will be added to the picture 
+	 * if the size goes over the current maximum.
+	 */
 	private static final int ARRAY_MULTIPLICATOR = 1000;
-	private static final double COLOR_MULTIPLIER = 0.08;
+	private static final double COLOR_MULTIPLIER = 0.0001;
 	private final int frameSize;
+	/**
+	 * Array containing the pixel informations.
+	 */
 	private int[] pixel;
+	/**
+	 * Contrast for the spectrogram.
+	 * Default = 300
+	 */
 	private int contrast = 300;
 	private int maxFrames = ARRAY_MULTIPLICATOR;
 	private int currentFrame = 0;
