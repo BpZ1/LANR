@@ -1,5 +1,6 @@
 package lanr.view;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import javafx.beans.property.SimpleBooleanProperty;
@@ -20,6 +21,10 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import lanr.model.Settings;
 
+/**
+ * @author Nicolas Bruch
+ *
+ */
 public class SettingsView extends Stage {
 	
 	private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
@@ -97,7 +102,12 @@ public class SettingsView extends Stage {
 		s.setConversionMethod(parameterView.getConversionMethod());
 		s.setUsingWindowFunction(parameterView.getWindowFunctionSetting());
 		s.setWindowSize(parameterView.getWindowSize());
-		
-		s.save();
+		s.setConversionMethod(parameterView.getConversionMethod());
+		try {
+			s.save();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

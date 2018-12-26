@@ -1,8 +1,13 @@
 package lanr.controller;
 
+import java.io.IOException;
+import java.util.Optional;
+
 import javafx.stage.Modality;
 import lanr.logic.model.LANRException;
 import lanr.model.MainModel;
+import lanr.model.SettingData;
+import lanr.model.Settings;
 import lanr.view.MainView;
 import lanr.view.SettingsView;
 
@@ -15,14 +20,30 @@ public class MainViewController {
 
 	private MainModel model;
 	private MainView mainView;
+	private boolean settingsLoaded = true;
 	
-	public MainViewController(MainModel model) {
-		this.model = model;
+	public MainViewController() {
+		SettingData data = null;
+		try {
+			data = Settings.load();		
+		} catch (IOException e) {
+			settingsLoaded = false;
+		}
+		if(data == null) {
+			data = new SettingData();
+		}
+		Settings.createSettings(data);
+		this.model = MainModel.instance();
 		mainView = new MainView(model, this);
 	}
 	
 	public void start() {		
-		mainView.showAndWait();
+		if(!settingsLoaded) {
+			mainView.showErrorDialog(
+					"Could not load settings.ini",
+					"Default settings will be used instead.");
+		}
+		mainView.showAndWait();	
 	}
 	
 	/**

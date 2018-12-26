@@ -15,17 +15,16 @@ import lanr.logic.frequency.FrequencyConversion;
 import lanr.model.Settings;
 
 /**
- * @author Nicolas Bruch
+ * Pane containing the controls for changes to the parameter.
  * 
- *         Pane containing the controls for changes to the parameter.
+ * @author Nicolas Bruch
  *
  */
 public class ParameterSettingsView extends GridPane {
 
 	private SimpleIntegerProperty windowSize = new SimpleIntegerProperty();
 	private SimpleBooleanProperty windowFunctionSetting = new SimpleBooleanProperty();
-	private SimpleObjectProperty<FrequencyConversion> conversionMethod =
-			new SimpleObjectProperty<FrequencyConversion>();
+	private SimpleObjectProperty<FrequencyConversion> conversionMethod = new SimpleObjectProperty<FrequencyConversion>();
 
 	SimpleBooleanProperty changed;
 
@@ -47,8 +46,7 @@ public class ParameterSettingsView extends GridPane {
 
 	private void createWindowSizeControl() {
 		Label windowValueLabel = new Label();
-		windowSize.addListener((obs, oldval, newVal) -> 
-			windowValueLabel.setText(String.valueOf(newVal.intValue())));
+		windowSize.addListener((obs, oldval, newVal) -> windowValueLabel.setText(String.valueOf(newVal.intValue())));
 		windowSize.setValue(Settings.getInstance().getWindowSize());
 		Label windowSliderLabel = new Label("Window size");
 		Slider windowSizeSlider = new Slider();
