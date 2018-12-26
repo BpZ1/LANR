@@ -61,6 +61,7 @@ public class SettingsView extends Stage {
 		Button applyButton = new Button("Apply");
 		applyButton.setOnAction(event ->{
 			saveSettings();
+			this.changed.setValue(false);
 		});
 		Button cancelButton = new Button("Cancel");
 		cancelButton.setOnAction(event ->{
