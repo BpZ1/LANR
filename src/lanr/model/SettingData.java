@@ -2,6 +2,15 @@ package lanr.model;
 
 import java.util.Optional;
 
+import lanr.logic.noise.FrequencyConversion;
+
+/**
+ * @author Nicolas Bruch
+ * 	
+ * Contains the loaded settings data.
+ * For more information about the different parameter take a look at {@link Settings}
+ *
+ */
 public class SettingData {
 
 	private Optional<Integer> frameSize = Optional.empty();
@@ -11,6 +20,8 @@ public class SettingData {
 	private Optional<Integer> spectrogramContrast = Optional.empty();
 	private Optional<Double> spectrogramScale = Optional.empty();
 	private Optional<Integer> threadCount = Optional.empty();
+	private Optional<Boolean> useWindowFunction = Optional.empty();
+	private Optional<FrequencyConversion> frequencyConverter = Optional.empty();
 	
 	public Optional<Integer> getFrameSize() {
 		return frameSize;
@@ -53,5 +64,17 @@ public class SettingData {
 	}
 	public void setThreadCount(int threadCount) {
 		this.threadCount = Optional.of(threadCount);
+	}
+	public void setUseWindowFunction(boolean useWindowFunction) {
+		this.useWindowFunction = Optional.of(useWindowFunction);
+	}
+	public Optional<Boolean> getUseWindowFunction(){
+		return useWindowFunction;
+	}
+	public Optional<FrequencyConversion> getFrequencyConverter() {
+		return frequencyConverter;
+	}
+	public void setFrequencyConverter(FrequencyConversion frequencyConverter) {
+		this.frequencyConverter = Optional.of(frequencyConverter);
 	}
 }

@@ -1,5 +1,7 @@
 package lanr.model;
 
+import lanr.logic.noise.FrequencyConversion;
+
 /**
  * @author Nicolas Bruch
  * 
@@ -35,7 +37,15 @@ public class Settings {
 	/**
 	 * Number of threads used for analyzing and reading files.
 	 */
-	private int threadCount = 10;
+	private int threadCount = 10;	
+	/**
+	 * Defines if a window function is used for the frequency data.
+	 */
+	private boolean useWindowFunction = true;
+	/**
+	 * The conversion method to convert the samples into frequency domain.
+	 */
+	private FrequencyConversion conversionMethod = FrequencyConversion.DCT;
 
 	private Settings() {
 	};
@@ -61,6 +71,12 @@ public class Settings {
 		}
 		if(data.getThreadCount().isPresent()) {
 			threadCount = data.getThreadCount().get();
+		}
+		if(data.getUseWindowFunction().isPresent()) {
+			this.useWindowFunction = data.getUseWindowFunction().get();
+		}
+		if(data.getFrequencyConverter().isPresent()) {
+			this.conversionMethod = data.getFrequencyConverter().get();
 		}
 		return instance;
 	}
