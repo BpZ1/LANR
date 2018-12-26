@@ -280,9 +280,6 @@ public class FileReader  {
 					if (samples.isComplete()) {
 						// Send the packet data to listeners
 						rawAudio = null;
-						//If the data has to be converted to java audio for playback
-						//this has to be used instead of getSamples()
-						//rawAudio = converter.toJavaAudio(rawAudio, samples);
 						rawAudio = getSamples(rawAudio, samples, channels.size());
 						// Count number of bytes in buffer
 						byteInBuffer += rawAudio.capacity();
