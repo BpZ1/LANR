@@ -40,7 +40,7 @@ public class SettingsView extends Stage {
 	}
 	
 	private GridPane createParamterView() {
-		GridPane pane = new GridPane();
+		GridPane pane = new ParameterSettingsView();
 		return pane;
 	}
 }
