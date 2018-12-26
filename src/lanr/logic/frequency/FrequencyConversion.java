@@ -1,9 +1,4 @@
-package lanr.logic.noise;
-
-import lanr.logic.frequency.SampleConverter;
-import lanr.logic.frequency.FastFourierTransformer;
-import lanr.logic.frequency.DiscreteConsineTransformer;
-import lanr.logic.frequency.FastWaveletTransformer;
+package lanr.logic.frequency;
 
 /**
  * @author Nicolas Bruch
@@ -15,23 +10,28 @@ public enum FrequencyConversion {
 	/**
 	 * Discrete Consine Transform
 	 */
-	DCT(new DiscreteConsineTransformer()),
+	DCT(new DiscreteConsineTransformer(), false),
 	/**
 	 * Fast Fourier Transform
 	 */
-	FFT(new FastFourierTransformer()),
+	FFT(new FastFourierTransformer(), true),
 	/**
 	 * Fast Wavelet Transform
 	 */
-	FWT(new FastWaveletTransformer());
+	FWT(new FastWaveletTransformer(), true);
 
 	private final SampleConverter converter;
-
-	private FrequencyConversion(SampleConverter converter) {
+	private boolean halfSamples;
+	private FrequencyConversion(SampleConverter converter, boolean halfSamples) {
 		this.converter = converter;
+		this.halfSamples = halfSamples;
 	}
 
 	public SampleConverter getConverter() {
 		return converter;
+	}
+	
+	public boolean getHalfSamples() {
+		return halfSamples;
 	}
 }
