@@ -27,8 +27,6 @@ import io.humble.video.MediaAudio;
 import io.humble.video.MediaDescriptor;
 import io.humble.video.MediaPacket;
 import io.humble.video.Rational;
-import io.humble.video.javaxsound.MediaAudioConverter;
-import io.humble.video.javaxsound.MediaAudioConverterFactory;
 import lanr.logic.model.AudioChannel;
 import lanr.logic.model.AudioData;
 import lanr.logic.model.LANRException;
@@ -49,7 +47,7 @@ public class FileReader  {
 	public static final String ERROR_PROPERTY = "error";
 	private static final int TASK_DELAY = 1000;
 	private final static int BUFFER_PUFFER = 50000; // 50kb Puffer
-	
+	private static int windowSize = 1024;
 	private Timer timer = new Timer();
 	
 	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
@@ -239,9 +237,8 @@ public class FileReader  {
 		final MediaAudio samples = MediaAudio.make(decoder.getFrameSize(), decoder.getSampleRate(),
 				decoder.getChannels(), decoder.getChannelLayout(), decoder.getSampleFormat());
 		
-		int sampleSize = Settings.getInstance().getFrameSize();
 		int bytePerSample = samples.getBytesPerSample();
-		int bufferSize = sampleSize * bytePerSample * channels.size();
+		int bufferSize = windowSize * bytePerSample * channels.size();
 		ByteBuffer rawAudio = null;
 
 		ByteBuffer buffer = ByteBuffer.allocate(bufferSize + BUFFER_PUFFER); // Added extra buffer to prevent overflow
@@ -253,8 +250,8 @@ public class FileReader  {
 		List<DoubleBuffer> channelData = new ArrayList<DoubleBuffer>();
 		for (int c = 0; c < channels.size(); c++) {
 			// Adds the container and notify the channel
-			channelData.add(DoubleBuffer.allocate(sampleSize));
-			channels.get(c).analyseStart(sampleSize);
+			channelData.add(DoubleBuffer.allocate(windowSize));
+			channels.get(c).analyseStart(windowSize);
 		}
 		DoubleConverter doubleConverter;
 		try {
@@ -388,5 +385,13 @@ public class FileReader  {
 		interrupted = true;
 		timer.cancel();
 		executors.shutdown();
+	}
+	
+	public static void setWindowSize(int size) {
+		windowSize = size;
+	}
+	
+	public static int getWindowSize() {
+		return windowSize;
 	}
 }
