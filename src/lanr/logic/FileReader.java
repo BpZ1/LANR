@@ -33,7 +33,6 @@ import lanr.logic.model.LANRException;
 import lanr.logic.model.LANRFileException;
 import lanr.logic.utils.Converter;
 import lanr.logic.utils.DoubleConverter;
-import lanr.model.Settings;
 
 public class FileReader  {
 
