@@ -1,6 +1,6 @@
 package lanr.model;
 
-import lanr.logic.noise.FrequencyConversion;
+import lanr.logic.frequency.FrequencyConversion;
 
 /**
  * @author Nicolas Bruch
@@ -41,11 +41,11 @@ public class Settings {
 	/**
 	 * Defines if a window function is used for the frequency data.
 	 */
-	private boolean useWindowFunction = true;
+	private boolean usingWindowFunction = true;
 	/**
 	 * The conversion method to convert the samples into frequency domain.
 	 */
-	private FrequencyConversion conversionMethod = FrequencyConversion.DCT;
+	private FrequencyConversion conversionMethod = FrequencyConversion.FFT;
 
 	private Settings() {
 	};
@@ -72,8 +72,8 @@ public class Settings {
 		if(data.getThreadCount().isPresent()) {
 			threadCount = data.getThreadCount().get();
 		}
-		if(data.getUseWindowFunction().isPresent()) {
-			this.useWindowFunction = data.getUseWindowFunction().get();
+		if(data.getUsingWindowFunction().isPresent()) {
+			this.usingWindowFunction = data.getUsingWindowFunction().get();
 		}
 		if(data.getFrequencyConverter().isPresent()) {
 			this.conversionMethod = data.getFrequencyConverter().get();
@@ -134,5 +134,21 @@ public class Settings {
 
 	public void setThreadCount(int threadCount) {
 		this.threadCount = threadCount;
+	}
+
+	public FrequencyConversion getConversionMethod() {
+		return conversionMethod;
+	}
+
+	public void setConversionMethod(FrequencyConversion conversionMethod) {
+		this.conversionMethod = conversionMethod;
+	}
+
+	public boolean isUsingWindowFunction() {
+		return usingWindowFunction;
+	}
+
+	public void setUsingWindowFunction(boolean usingWindowFunction) {
+		this.usingWindowFunction = usingWindowFunction;
 	}
 }
