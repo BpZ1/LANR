@@ -15,7 +15,7 @@ public class Settings {
 	/**
 	 * Size of samples that are analyzed of a given signal.
 	 */
-	private int frameSize = 1024;
+	private int windowSize = 1024;
 	/**
 	 * Reduction factor of the visualization of the signal.<br>
 	 * 0.01 = 10% of the signals sample content will be displayed.
@@ -58,7 +58,7 @@ public class Settings {
 			createSpectrogram = data.getCreateSpectrogram().get();
 		}
 		if (data.getFrameSize().isPresent()) {
-			frameSize = data.getFrameSize().get();
+			windowSize = data.getFrameSize().get();
 		}
 		if (data.getVisualisationFactor().isPresent()) {
 			visualisationFactor = data.getVisualisationFactor().get();
@@ -88,12 +88,12 @@ public class Settings {
 		return instance;
 	}
 
-	public int getFrameSize() {
-		return frameSize;
+	public int getWindowSize() {
+		return windowSize;
 	}
 
-	public void setFrameSize(int frameSize) {
-		this.frameSize = frameSize;
+	public void setWindowSize(int frameSize) {
+		this.windowSize = frameSize;
 	}
 
 	public double getVisualisationFactor() {
