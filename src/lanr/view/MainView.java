@@ -194,6 +194,7 @@ public class MainView extends Stage {
 			public void propertyChange(PropertyChangeEvent evt) {
 				Platform.runLater(() -> {
 					switch (evt.getPropertyName()) {
+						//Update the memory usage bar
 						case MainModel.MEMORY_USAGE_PROPERTY:
 							updateMemoryUsage((double)evt.getNewValue());
 							break;
@@ -204,20 +205,24 @@ public class MainView extends Stage {
 									addedData,
 										new AudioController(MainModel.instance())));							
 							break;
-	
+						//Audio file has been removed
 						case MainModel.AUDIO_REMOVED_PROPERTY:
 							AudioData removedData = (AudioData) evt.getNewValue();
 							removeAudioData(removedData);
 							break;
-	
-						case MainModel.PROGRESS_UPDATE_PROPERTY:
-							if (evt.getNewValue() instanceof Integer) {
-								progressBar.setProgress((int) evt.getNewValue());
-								System.out.println((int) evt.getNewValue());
-							}else if(evt.getNewValue() instanceof Boolean) {
-								progressBar.setVisible((boolean)evt.getNewValue());
-							}
+						
+						case MainModel.IS_WORKING_PROPERTY:
+							progressBar.setVisible(true);
 							break;
+						
+						case MainModel.PROGRESS_UPDATE_PROPERTY:
+							progressBar.setProgress((double)evt.getNewValue());
+							break;
+							
+						case MainModel.IS_IDLE_PROPERTY:
+							progressBar.setVisible(false);
+							break;
+							
 						case MainModel.ERROR_PROPERTY:
 							LANRException e = (LANRException) evt.getNewValue();
 							showErrorDialog(e.getMessage(), e.getCause().getMessage());

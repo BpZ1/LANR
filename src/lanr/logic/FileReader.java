@@ -46,12 +46,12 @@ public class FileReader  {
 
 	private volatile boolean interrupted = false;
 
-	public static final String LOADING_STARTED_PROPERTY = "start";
-	public static final String LOADING_ENDED_PROPERTY = "end";
+	public static final String WORK_STARTED_PROPERTY = "start";
+	public static final String WORK_ENDED_PROPERTY = "end";
 	public static final String MEMORY_USAGE_PROPERTY = "memory";
-	public static final String ANALYSIS_STARTED_PROPERTY = "dStart";
-	public static final String ANALYSIS_ENDED_PROPERTY = "dEnd";
+	public static final String PROGRESS_PROPERTY = "progress";
 	public static final String ERROR_PROPERTY = "error";
+	public static final String ALL_TASKS_COMPLETE = "complete";
 	private static final int TASK_DELAY = 1000;
 	private final static int BUFFER_PUFFER = 50000; // 50kb Puffer
 	private static int windowSize = 1024;
@@ -63,6 +63,15 @@ public class FileReader  {
 	 */
 	private int processCounter = 0;
 	private ReentrantLock counterLock = new ReentrantLock(true);
+	
+	/**
+	 * Counter for the number of data that was given 
+	 * to calculate to progress
+	 */
+	private int progressCounter = 0;
+	private ReentrantLock counterLock2 = new ReentrantLock(true);
+	
+	
 	private List<Future<AudioData>> runningTasks = new LinkedList<Future<AudioData>>();
 	private List<Future<AudioData>> completedTasks = new LinkedList<Future<AudioData>>();
 	
@@ -80,32 +89,80 @@ public class FileReader  {
 					public void run() {
 						checkTasks();
 						updateMemoryUsage();
+						updateProgress();
 					}			
 				}, 1000, TASK_DELAY);
 	}
 
+	/**
+	 * Reads an audio file and returns its information.
+	 * Registered listeners will be notified about:<br>
+	 * <ul>
+	 * <li>Memory usage</li>
+	 * <li>Progress</li>
+	 * <li>Start of workload</li>
+	 * <li>End of workload</li>
+	 * <li>End of all workloads</li>
+	 * <li>Occurring errors</li>
+	 * </ul>
+	 * @param path
+	 */
 	public void getFileContainer(String path) {
-		incrementCounter();
+		incrementProcessCounter();
+		incrementProgressCounter();
 		runningTasks.add(executors.submit(() -> {
-			AudioData data = createFileContainer(path);
-			decrementCounter();
+			state.firePropertyChange(WORK_STARTED_PROPERTY, null, null);
+			AudioData data = null;
+			try {
+				data = createFileContainer(path);
+			} catch (InterruptedException | IOException | LANRFileException e) {
+				state.firePropertyChange(ERROR_PROPERTY, null, new LANRException(e));
+			}			
+			decrementProcessCounter();		
+			checkTasksFinised();
 			return data;
 		}));
 	}
 
+	/**
+	 * Starts the analying process of an audio file.<br>
+	 * Registered listeners will be notified about:<br>
+	 * <ul>
+	 * <li>Memory usage</li>
+	 * <li>Progress</li>
+	 * <li>Start of workload</li>
+	 * <li>End of workload</li>
+	 * <li>End of all workloads</li>
+	 * <li>Occurring errors</li>
+	 * </ul>
+	 * @param data - Data to be analyzed.
+	 */
 	public void analyze(AudioData data) {
 		interrupted = false;
 		Runnable algorithmRunnable = () -> {
 			try {
-				state.firePropertyChange(LOADING_STARTED_PROPERTY, null, null);
+				state.firePropertyChange(WORK_STARTED_PROPERTY, null, null);
 				analyseFile(data);
-				decrementCounter();
+				decrementProcessCounter();
+				checkTasksFinised();
 			} catch (InterruptedException | IOException | LANRFileException | LANRException e) {
 				state.firePropertyChange(ERROR_PROPERTY, null, new LANRException(e));
 			}
 		};
-		incrementCounter();
+		incrementProcessCounter();
+		incrementProgressCounter();
 		executors.execute(algorithmRunnable);
+	}
+	
+	/**
+	 * Checks if all tasks are finished and if yes notifies
+	 * the listener.
+	 */
+	private void checkTasksFinised() {
+		if(processCounter == 0) {
+			resetProgressCounter();
+			state.firePropertyChange(ALL_TASKS_COMPLETE, null, null);
+		}
 	}
 	
 	private void updateMemoryUsage() {
@@ -115,13 +172,18 @@ public class FileReader  {
 		state.firePropertyChange(MEMORY_USAGE_PROPERTY, null, memoryUsage);
 	}
 	
+	private void updateProgress() {
+		double progress = (double)processCounter / (double) progressCounter;
+		state.firePropertyChange(PROGRESS_PROPERTY, null, progress);
+	}
+	
 	private void checkTasks() {
 		for(int i = 0; i < runningTasks.size(); i++) {
 			Future<AudioData> task = runningTasks.get(i);
 			if(task.isDone()) {
 				try {
 					AudioData data = task.get();
-					state.firePropertyChange(LOADING_ENDED_PROPERTY, null, data);
+					state.firePropertyChange(WORK_ENDED_PROPERTY, null, data);
 					completedTasks.add(task);
 				} catch (InterruptedException | ExecutionException e) {
 					state.firePropertyChange(ERROR_PROPERTY, null, e);
@@ -368,7 +430,7 @@ public class FileReader  {
 		return true;
 	}
 
-	private void incrementCounter() {
+	private void incrementProcessCounter() {
 		counterLock.lock();
 		try {
 			processCounter++;
@@ -377,12 +439,30 @@ public class FileReader  {
 		}
 	}
 
-	private void decrementCounter() {
+	private void decrementProcessCounter() {
 		counterLock.lock();
 		try {
 			processCounter--;
 		} finally {
 			counterLock.unlock();
+		}
+	}
+	
+	private void incrementProgressCounter() {
+		counterLock2.lock();
+		try {
+			progressCounter++;
+		} finally {
+			counterLock2.unlock();
+		}
+	}
+
+	private void resetProgressCounter() {
+		counterLock2.lock();
+		try {
+			progressCounter = 0;
+		} finally {
+			counterLock2.unlock();
 		}
 	}
 	

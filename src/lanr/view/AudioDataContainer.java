@@ -57,6 +57,10 @@ public class AudioDataContainer extends TitledPane {
 		this.setText(data.getPath() + " - Not analyzed");
 		data.addChangeListener(createDataChangeListener());
 		createNodeElements();
+		placeHolderText = new Text("In Progress..."); 
+		placeHolderText.setId("placeHolderText");
+		content.getChildren().add(placeHolderText);
+		placeHolderText.setVisible(false);
 	}
 	
 	private void createNodeElements() {
@@ -76,6 +80,7 @@ public class AudioDataContainer extends TitledPane {
 	 */
 	private VBox createContent() {
 		VBox content = new VBox();
+		content.setSpacing(4);
 		GridPane infoBox = new GridPane();
 		infoBox.setId(DATA_BOX_CSS_ID);
 		infoBox.setPadding(new Insets(2,2,2,2));
@@ -164,23 +169,24 @@ public class AudioDataContainer extends TitledPane {
 				Platform.runLater(()->{
 					if(evt.getPropertyName().equals(AudioData.DATA_ANALYSIS_STARTED)){
 						if(showVisualization) {
+							//Remove old data if it exists
 							if(audioVisualisation != null) {
 								content.getChildren().remove(audioVisualisation);								
 							}
 							analyzeButton.setVisible(false);
-							placeHolderText = new Text("In Progress..."); 
-							placeHolderText.setId("placeHolderText");
+							placeHolderText.setVisible(true);
 							setText(data.getPath() + " - Is being analyzed...");
-							content.getChildren().add(placeHolderText);
 							audioVisualisation = new AudioVisualisation(200, 600, data);
 							content.getChildren().add(audioVisualisation);
 						}
+						//Remove old data if it exists
 						if(noiseData != null) {
 							content.getChildren().remove(noiseData);
 						}
 						//When the file has finished analyzing the table with the found noise will be added
 					}else if(evt.getPropertyName().equals(AudioData.DATA_ANALYZED_PROPERTY)) {
 						analyzeButton.setVisible(true);
+						placeHolderText.setVisible(false);
 						//Add the visualisation
 						content.getChildren().remove(placeHolderText);
 						//Add the table

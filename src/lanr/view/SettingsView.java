@@ -66,7 +66,10 @@ public class SettingsView extends Stage {
 		Button cancelButton = new Button("Cancel");
 		cancelButton.setOnAction(event ->{
 			if(changed.getValue()) {
-				if(confirmationDialog()) {
+				if(Utils.confirmationDialog(
+						"Unsaved changes",
+						"Do you still want to close?",
+						"If yes the changes will be reverted.")) {
 					this.close();
 				}
 			}else {
@@ -82,20 +85,6 @@ public class SettingsView extends Stage {
 		mainPane.setCenter(pane);
 		mainPane.setBottom(buttonPane);
 		return mainPane;
-	}
-	
-	private boolean confirmationDialog() {
-		Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.setTitle("Unsaved changes");
-		alert.setHeaderText("Do you still want to close?");
-		alert.setContentText("If yes the changes will be reverted.");
-
-		Optional<ButtonType> result = alert.showAndWait();
-		if (result.get() == ButtonType.OK){
-		    return true;
-		} else {
-		    return false;
-		}
 	}
 	
 	private void saveSettings() {
