@@ -29,7 +29,7 @@ public class SettingsView extends Stage {
 	
 	private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
 	private ParameterSettingsView parameterView;
-	private PerformanceSettingsView performanceView;
+	private GeneralSettingsView performanceView;
 	
 	public SettingsView() {
 		Pane root = createRootPane();
@@ -45,9 +45,9 @@ public class SettingsView extends Stage {
 		pane.setSide(Side.LEFT);
 		pane.setTabDragPolicy(TabDragPolicy.FIXED);
 		//Performance tab
-		Tab performanceTab = new Tab("Performance");
+		Tab performanceTab = new Tab("General");
 		performanceTab.setClosable(false);
-		performanceView = new PerformanceSettingsView(changed);
+		performanceView = new GeneralSettingsView(changed);
 		performanceTab.setContent(performanceView);		
 		//Parameter tab
 		Tab parametersTab = new Tab("Parameter");
