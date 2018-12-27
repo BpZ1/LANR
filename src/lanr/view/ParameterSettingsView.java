@@ -26,8 +26,6 @@ public class ParameterSettingsView extends GridPane {
 	private SimpleBooleanProperty windowFunctionSetting = new SimpleBooleanProperty();
 	private SimpleObjectProperty<FrequencyConversion> conversionMethod = new SimpleObjectProperty<FrequencyConversion>();
 
-	SimpleBooleanProperty changed;
-
 	public ParameterSettingsView(SimpleBooleanProperty changed) {
 		this.setPadding(new Insets(8, 8, 8, 8));
 		this.setHgap(10);
@@ -41,7 +39,6 @@ public class ParameterSettingsView extends GridPane {
 		windowSize.addListener((obs, oldval, newVal) -> changed.setValue(true));
 		windowFunctionSetting.addListener((obs, oldval, newVal) -> changed.setValue(true));
 		conversionMethod.addListener((obs, oldval, newVal) -> changed.setValue(true));
-		this.changed = changed;
 	}
 
 	private void createWindowSizeControl() {

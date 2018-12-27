@@ -147,30 +147,6 @@ public class MainView extends Stage {
 		}
 	}
 
-	public void showInfoDialog(String header, String message) {
-		if (header == null || message == null) {
-			throw new IllegalArgumentException("Cant show a message with without arguments");
-		}
-		Alert alert = new Alert(AlertType.INFORMATION);
-		alert.setTitle("Information");
-		alert.setHeaderText(header);
-		alert.setContentText(message);
-
-		alert.showAndWait();
-	}
-
-	public void showErrorDialog(String header, String message) {
-		if (header == null || message == null) {
-			throw new IllegalArgumentException("Cant show a message with without arguments");
-		}
-		Alert alert = new Alert(AlertType.ERROR);
-		alert.setTitle("Error");
-		alert.setHeaderText(header);
-		alert.setContentText(message);
-
-		alert.showAndWait();
-	}
-
 	private Accordion createCenterPane() {
 		Accordion center = new Accordion();
 		audioList = center.getPanes();
@@ -236,7 +212,7 @@ public class MainView extends Stage {
 							
 						case MainModel.ERROR_PROPERTY:
 							LANRException e = (LANRException) evt.getNewValue();
-							showErrorDialog(e.getMessage(), e.getCause().getMessage());
+							Utils.showErrorDialog(e.getMessage(), e.getCause().getMessage());
 							break;
 						}
 				});

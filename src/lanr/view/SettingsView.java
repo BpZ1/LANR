@@ -1,17 +1,13 @@
 package lanr.view;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabDragPolicy;
@@ -29,7 +25,8 @@ public class SettingsView extends Stage {
 	
 	private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
 	private ParameterSettingsView parameterView;
-	private GeneralSettingsView performanceView;
+	private GeneralSettingsView generalView;
+	private SpectrogramSettingsView spectroView;
 	
 	public SettingsView() {
 		Pane root = createRootPane();
@@ -47,16 +44,23 @@ public class SettingsView extends Stage {
 		//Performance tab
 		Tab performanceTab = new Tab("General");
 		performanceTab.setClosable(false);
-		performanceView = new GeneralSettingsView(changed);
-		performanceTab.setContent(performanceView);		
+		generalView = new GeneralSettingsView(changed);
+		performanceTab.setContent(generalView);		
 		//Parameter tab
 		Tab parametersTab = new Tab("Parameter");
 		parametersTab.setClosable(false);
 		this.parameterView = new ParameterSettingsView(changed);
 		parametersTab.setContent(parameterView);
 		
+		//Parameter tab
+		Tab spectroTab = new Tab("Spectrogram");
+		spectroTab.setClosable(false);
+		this.spectroView = new SpectrogramSettingsView(changed);
+		spectroTab.setContent(spectroView);
+		
 		pane.getTabs().add(performanceTab);
 		pane.getTabs().add(parametersTab);
+		pane.getTabs().add(spectroTab);
 		//Buttons
 		Button applyButton = new Button("Apply");
 		applyButton.setOnAction(event ->{
@@ -93,11 +97,14 @@ public class SettingsView extends Stage {
 		s.setUsingWindowFunction(parameterView.getWindowFunctionSetting());
 		s.setWindowSize(parameterView.getWindowSize());
 		s.setConversionMethod(parameterView.getConversionMethod());
+		s.setShowVisualisation(generalView.getVisualizeData());
+		s.setVisualisationFactor(generalView.getVisualizationFactor());
+		s.setCreateSpectrogram(spectroView.getCreateSpectrogram());
+		s.setSpectrogramContrast(spectroView.getContrast());
 		try {
 			s.save();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Utils.showErrorDialog("Could not save settings", e.getMessage());
 		}
 	}
 }

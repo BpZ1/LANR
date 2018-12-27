@@ -9,6 +9,7 @@ import lanr.model.SettingData;
 import lanr.model.Settings;
 import lanr.view.MainView;
 import lanr.view.SettingsView;
+import lanr.view.Utils;
 
 /**
  * Main controller.
@@ -39,7 +40,7 @@ public class MainViewController {
 	
 	public void start() {		
 		if(!settingsLoaded) {
-			mainView.showErrorDialog(
+			Utils.showErrorDialog(
 					"Could not load settings.ini",
 					"Default settings will be used instead.");
 		}
@@ -61,7 +62,7 @@ public class MainViewController {
 		try {
 			model.addAudioData(path);
 		} catch (LANRException e) {
-			mainView.showErrorDialog("Could not read file!", e.getMessage());
+			Utils.showErrorDialog("Could not read file!", e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -75,7 +76,7 @@ public class MainViewController {
 			view.initModality(Modality.APPLICATION_MODAL);
 			view.showAndWait();
 		}else {
-			mainView.showInfoDialog("Can't open settings",
+			Utils.showInfoDialog("Can't open settings",
 					"The settings can't be changed while files are being processed.");
 		}
 	}
