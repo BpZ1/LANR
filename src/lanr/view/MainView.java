@@ -103,8 +103,10 @@ public class MainView extends Stage {
 		fileMenu.getItems().add(openMenuItem);
 		fileMenu.getItems().add(exitMenuItem);
 		Menu editMenu = new Menu("Edit");
+		MenuItem analysisMenuItem = new MenuItem("Analyse all");
 		MenuItem settingsMenuItem = new MenuItem("Settings");
 		editMenu.getItems().add(settingsMenuItem);
+		editMenu.getItems().add(analysisMenuItem);
 
 		openMenuItem.setOnAction(event -> {
 			openFileDialog();
@@ -113,6 +115,15 @@ public class MainView extends Stage {
 		exitMenuItem.setOnAction(event -> {
 			Stage stage = (Stage) this.getScene().getWindow();
 			stage.close();
+		});
+		
+		analysisMenuItem.setOnAction(event ->{
+			boolean conirmation = Utils.confirmationDialog("Analyse all data",
+					"Do you want to analyse all files?",
+					"Depending on the number and length of the files this may take a while.");
+			if(conirmation) {
+				controller.startAnalyzing();
+			}
 		});
 
 		settingsMenuItem.setOnAction(event -> {
