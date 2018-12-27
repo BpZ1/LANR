@@ -3,15 +3,20 @@ package lanr.logic;
 import java.awt.image.BufferedImage;
 import java.nio.DoubleBuffer;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import lanr.logic.frequency.FrequencyConversion;
+import lanr.logic.frequency.windowfunctions.VonHannWindow;
+import lanr.logic.frequency.windowfunctions.VorbisWindow;
+import lanr.logic.frequency.windowfunctions.WindowFunction;
+import lanr.logic.model.Noise;
 import lanr.logic.noise.BackgroundNoiseSearch;
 import lanr.logic.noise.ClippingSearch;
+import lanr.logic.noise.HummingSearch;
 import lanr.logic.noise.NoiseSearch;
 import lanr.logic.noise.SilenceSearch;
 import lanr.logic.noise.VolumeSearch;
-import lanr.logic.noise.WindowFunction;
 
 /**
  * Analyzer and the main part of the analyzing process. All analyzing
@@ -22,41 +27,36 @@ import lanr.logic.noise.WindowFunction;
  */
 public class AudioAnalyzer {
 
-	@SuppressWarnings("serial")
-	private List<NoiseSearch> sampleAnalyzer = new ArrayList<NoiseSearch>() {
-		{
-			add(new ClippingSearch());
-			add(new SilenceSearch());
-			add(new VolumeSearch());
-			// Add new sample analyting methods here
-		}
-	};
-	
-	@SuppressWarnings("serial")
-	private List<NoiseSearch> frequencyAnalyzer = new ArrayList<NoiseSearch>() {
-		{
-			add(new BackgroundNoiseSearch());
-			// Add new frequency analyzing methods here
-		}
-	};
+	private List<NoiseSearch> sampleAnalyzer = new ArrayList<NoiseSearch>();
+	private List<NoiseSearch> frequencyAnalyzer = new ArrayList<NoiseSearch>();
 
 	private Spectrogram spectro;
-	private final int sampleRate;
 	private FrequencyConversion conversion;
-
+	private WindowFunction windowFunction;
 	private boolean useWindowFunction;
 
-	public AudioAnalyzer(int frameSize, int sampleRate, boolean createSpectorgam, boolean useWindowFunction,
+	public AudioAnalyzer(int windowSize, int sampleRate, boolean createSpectorgam, boolean useWindowFunction,
 			FrequencyConversion conversion) {
+		
+		//Sample analyzer
+		sampleAnalyzer.add(new ClippingSearch());
+		sampleAnalyzer.add(new SilenceSearch());
+		sampleAnalyzer.add(new VolumeSearch());
+		//Frequency analyzer
+		frequencyAnalyzer.add(new BackgroundNoiseSearch(sampleRate, windowSize));
+		frequencyAnalyzer.add(new HummingSearch(sampleRate, windowSize));
+		
 		this.conversion = conversion;
-		this.sampleRate = sampleRate;
 		this.useWindowFunction = useWindowFunction;
-		if (createSpectorgam) {
+		if(useWindowFunction) {
+			this.windowFunction = new VonHannWindow(windowSize);
+		}
+		if (createSpectorgam && windowSize < 50000) {
 			// FFT method used only uses half of the output data
 			if (conversion.getHalfSamples()) {
-				spectro = new Spectrogram(frameSize / 2 + 1);
+				spectro = new Spectrogram(windowSize / 2 + 1);
 			} else {
-				spectro = new Spectrogram(frameSize);
+				spectro = new Spectrogram(windowSize);
 			}
 		}
 	}
@@ -73,6 +73,22 @@ public class AudioAnalyzer {
 		}
 		return null;
 	}
+	
+	public List<Noise> getNoise() {
+		List<Noise> noise = new LinkedList<Noise>();
+		for(NoiseSearch analyzer : sampleAnalyzer) {
+			if(analyzer.getNoise() != null) {
+				noise.addAll(analyzer.getNoise());
+			}
+			
+		}
+		for(NoiseSearch analyzer : frequencyAnalyzer) {
+			if(analyzer.getNoise() != null) {
+				noise.addAll(analyzer.getNoise());
+			}
+		}
+		return noise;
+	}
 
 	/**
 	 * Takes an array of samples and analyzes them for the defined noises.
@@ -85,46 +101,44 @@ public class AudioAnalyzer {
 		// Analyzing the samples
 		sampleAnalysis(data);
 		if (useWindowFunction && conversion != FrequencyConversion.FWT) {
-			WindowFunction wf = new WindowFunction(data.length, conversion);
-			wf.apply(data);
+			windowFunction.apply(data);
 		}
 		double[] magnitudes = conversion.getConverter().convert(data);
 		if (spectro != null) {
 			spectro.addWindow(magnitudes);
 		}
 		// Analyzing the frequencies
+		magnitudes = toDecibel(magnitudes);
 		frequencyAnalysis(magnitudes);
 	}
 
 	private void sampleAnalysis(double[] samples) {
 		for (NoiseSearch search : sampleAnalyzer) {
 			search.search(samples);
+			search.compact();
 		}
 	}
 
 	private void frequencyAnalysis(double[] magnitudes) {
 		for (NoiseSearch search : frequencyAnalyzer) {
 			search.search(magnitudes);
+			search.compact();
 		}
 	}
 
-	private static double[] getFrequencyRange(double lower, double upper, double[] data, double sampleRate,
-			double sampleSize) {
-		DoubleBuffer results = DoubleBuffer.allocate(data.length);
-		int currentFrequency = 0;
-		int counter = 0;
-		double sum = 0;
-		for (int i = 0; i < data.length; i++) {
-			double frequency = ((sampleRate / 2) / sampleSize) * i; // i * fs / N
-			if (frequency > lower && frequency < upper) {
-				results.put(data[i]);
-			}
+	public void finish() {
+		for (NoiseSearch search : frequencyAnalyzer) {
+			search.compact();
 		}
-		int pos = results.position();
-		results.flip();
-		double[] endResult = new double[pos];
-		results.get(endResult, 0, pos);
-
-		return endResult;
+		for (NoiseSearch search : sampleAnalyzer) {
+			search.compact();
+		}
+	}
+	
+	private double[] toDecibel(double[] values) {
+		for(int i = 0; i < values.length; i++) {
+			values[i] = 20 * Math.log10(values[i]);
+		}
+		return values;
 	}
 }

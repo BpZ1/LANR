@@ -75,8 +75,10 @@ public class AudioChannel {
 				createSpectrogram, usingWindowFunction, converter);
 	}
 
-	public void analyseEnd() throws LANRException {
+	public void analyseEnd() throws LANRException {		
 		if (analyzer != null) {
+			analyzer.finish();
+			this.foundNoise = analyzer.getNoise();
 			if(createSpectrogram) {
 				StringBuilder fileName = new StringBuilder();
 				fileName.append(OUTPUT_FOLDER);

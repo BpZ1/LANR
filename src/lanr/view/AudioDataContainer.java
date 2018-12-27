@@ -221,9 +221,19 @@ public class AudioDataContainer extends TitledPane {
 		TableColumn<Noise, String> positionColumn = new TableColumn<Noise, String>();
 		positionColumn.setText("Position");
 		positionColumn.setCellValueFactory(param -> {
-			return new SimpleStringProperty(String.valueOf(param.getValue().getLocation()));
+			return new SimpleStringProperty(
+					getDurationString(param.getValue().getLocation() / data.getSampleRate()));
 		});
 		noiseTable.getColumns().add(positionColumn);
+		
+		// Create the column for the position in which the noise was located
+		TableColumn<Noise, String> lengthColumn = new TableColumn<Noise, String>();
+		lengthColumn.setText("Length");
+		lengthColumn.setCellValueFactory(param -> {
+			return new SimpleStringProperty(
+					getDurationString(param.getValue().getLength() / data.getSampleRate()));
+		});
+		noiseTable.getColumns().add(lengthColumn);
 
 		// Create the column for the severity of the noise
 		TableColumn<Noise, String> severityColumn = new TableColumn<Noise, String>();

@@ -19,7 +19,7 @@ public class FastWaveletTransformer implements SampleConverter {
 		complex = transform.forward(complex);
 		
 		for(int i= 0; i < samples.length / 2 + 1; i++) {
-			double value = complex[i].getMag();
+			double value = 2 * complex[i].getMag() / samples.length;
 			samples[i] = value;
 		}
 		return samples;

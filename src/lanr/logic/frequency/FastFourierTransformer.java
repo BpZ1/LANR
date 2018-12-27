@@ -23,7 +23,7 @@ public class FastFourierTransformer implements SampleConverter {
 		for (int i = 0; i < finalResult.length; i++) {
 			double real = result[i * 2];
 			double imag = result[i * 2 + 1];
-			double magnitude = Math.hypot(real, imag) / 100;
+			double magnitude = 2 * Math.hypot(real, imag) / samples.length;
 			finalResult[i] = magnitude;
 		}	
 		return finalResult;

@@ -22,6 +22,12 @@ public class ClippingSearch implements NoiseSearch {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public void compact() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	
 }
