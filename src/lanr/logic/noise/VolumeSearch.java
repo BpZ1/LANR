@@ -18,4 +18,10 @@ public class VolumeSearch implements NoiseSearch {
 		return null;
 	}
 
+	@Override
+	public void compact() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

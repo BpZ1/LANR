@@ -9,12 +9,12 @@ package lanr.logic.model;
 public class Noise {
 
 	private double severity;
-	private int location;
-	private int length;
+	private long location;
+	private long length;
 	private int channel;
 	private NoiseType type;
 
-	public Noise(NoiseType type, int location, int length, double severity) {
+	public Noise(NoiseType type, long location, long length, double severity) {
 		this.type = type;
 		this.location = location;
 		this.severity = severity;
@@ -29,11 +29,11 @@ public class Noise {
 		this.severity = severity;
 	}
 
-	public int getLocation() {
+	public long getLocation() {
 		return location;
 	}
 
-	public void setLocation(int location) {
+	public void setLocation(long location) {
 		this.location = location;
 	}
 
@@ -45,11 +45,11 @@ public class Noise {
 		this.type = type;
 	}
 
-	public int getLength() {
+	public long getLength() {
 		return length;
 	}
 
-	public void setLength(int length) {
+	public void setLength(long length) {
 		this.length = length;
 	}
 

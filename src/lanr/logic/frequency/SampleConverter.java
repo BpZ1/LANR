@@ -7,6 +7,7 @@ public interface SampleConverter {
 	 * 
 	 * @param samples
 	 * @return Frequency magnitudes were <br>
+	 * Frequency:<br>
 	 * i * fs / N <br>
 	 * N = Number of samples <br>
 	 * fs = sample frequency <br>

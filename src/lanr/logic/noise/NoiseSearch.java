@@ -9,4 +9,6 @@ public interface NoiseSearch {
 	public void search(double[] samples);
 	
 	public List<Noise> getNoise();
+	
+	public void compact();
 }
