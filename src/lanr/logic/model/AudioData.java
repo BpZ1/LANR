@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class AudioData {
 
+	public final static String DATA_ANALYSIS_STARTED = "start";
 	public final static String DATA_ANALYZED_PROPERTY = "analyzed";
 	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
 	
@@ -76,6 +77,13 @@ public class AudioData {
 
 	public String getPath() {
 		return path;
+	}
+	
+	/**
+	 * Notifys all listeners that the data is now being analyzed.
+	 */
+	public void startAnalysis() {
+		state.firePropertyChange(DATA_ANALYSIS_STARTED, null, null);
 	}
 
 	public void setAnalyzed(boolean value) {

@@ -143,10 +143,9 @@ public class FileReader  {
 	}
 
 	/**
-	 * Creates a {@link AudioData} object containing data about the
+	 * Creates a {@link AudioData} object containing data about the audio file.
 	 * 
-	 * @param path
-	 * @param listener
+	 * @param path - Path to the file to be read.
 	 * @return
 	 * @throws InterruptedException
 	 * @throws IOException
@@ -198,7 +197,7 @@ public class FileReader  {
 		if (data == null) {
 			throw new IllegalArgumentException("Audio data musn't be null");
 		}
-
+		data.startAnalysis();
 		Demuxer demuxer = Demuxer.make();
 		demuxer.open(data.getPath(), null, false, true, null, null);
 
