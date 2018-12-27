@@ -9,7 +9,7 @@ public enum FrequencyConversion {
 	/**
 	 * Discrete Consine Transform
 	 */
-	DCT(new DiscreteConsineTransformer(), false),
+	DCT(new DiscreteCosineTransformer(), false),
 	/**
 	 * Fast Fourier Transform
 	 */
