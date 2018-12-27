@@ -5,6 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.time.LocalTime;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -39,12 +40,14 @@ public class AudioDataContainer extends TitledPane {
 	private static final String PLACEHOLDER_CSS_ID = "placeHolder";
 	private static final String DATA_BOX_CSS_ID = "dataBox";
 	private static boolean showVisualization = true;
+	
 	private final AudioController controller;
 	private final AudioData data;
 	private VBox content;
 	private Button analyzeButton;
 	private Text placeHolderText;
-	private ScrollPane visualisationContainer;
+	private AudioVisualisation audioVisualisation;
+	private TitledPane noiseData;
 	private Circle statusCircle;
 	
 	public AudioDataContainer(AudioData data, AudioController controller) {
@@ -52,20 +55,17 @@ public class AudioDataContainer extends TitledPane {
 		this.data = data;
 		this.setId(AUDIO_CONTAINER_CSS_ID);
 		this.setText(data.getPath() + " - Not analyzed");
-		data.addChangeListener(createChangeListener());
+		data.addChangeListener(createDataChangeListener());
 		createNodeElements();
-		
 	}
 	
 	private void createNodeElements() {
 		this.content = createContent();
-		this.visualisationContainer = createAudioVisual();
 		this.setContent(content);	
 		//Creating the state circle
 		this.statusCircle = new Circle(6, Color.WHITE);	
 		this.statusCircle.setStroke(Color.BLACK);
 		this.setGraphic(statusCircle);
-
 		this.placeHolderText = new Text("In Progress..."); 
 		this.placeHolderText.setId(PLACEHOLDER_CSS_ID);
 	}
@@ -118,7 +118,7 @@ public class AudioDataContainer extends TitledPane {
 			row++;
 		}
 		
-		Text bitLabelText = new Text("Bit depth:");
+		Text bitLabelText = new Text("Bit rate:");
 		bitLabelText.setId(LABEL_CSS_ID);
 		Text bitDepthText = new Text(String.valueOf(data.getBitDepth()));
 	
@@ -146,14 +146,8 @@ public class AudioDataContainer extends TitledPane {
 	private Button createAnalyzeButton() {
 		analyzeButton = new Button();
 		analyzeButton.setText("Analyze");
-		analyzeButton.setOnAction(event ->{
-			content.getChildren().remove(analyzeButton);
-			placeHolderText = new Text("In Progress..."); 
-			placeHolderText.setId("placeHolderText");
-			this.setText(data.getPath() + " - Is being analyzed...");
-			content.getChildren().add(placeHolderText);
+		analyzeButton.setOnAction(event ->{		
 			controller.analyze(data);
-			content.getChildren().add(visualisationContainer);
 		});
 		return analyzeButton;
 	}
@@ -162,36 +156,46 @@ public class AudioDataContainer extends TitledPane {
 	 * Gets called when the analyzing is finished.
 	 * @return
 	 */
-	private PropertyChangeListener createChangeListener() {
+	private PropertyChangeListener createDataChangeListener() {
 		PropertyChangeListener listener = new  PropertyChangeListener() {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
-				//When the file has finished analyzing the table with the found noise will be added
+				
 				Platform.runLater(()->{
-					//Add the visualisation
-					content.getChildren().remove(placeHolderText);
-					//Add the table
-					TitledPane noiseData = new TitledPane();
-					noiseData.setText("Found Problems");
-					noiseData.setContent(createNoiseTable());
-					content.getChildren().add(noiseData);
-					statusCircle.setFill(getSeverityColor(data.getSeverity()));
-					setText(data.getPath() + " - Severity: " + data.getSeverity());
+					if(evt.getPropertyName().equals(AudioData.DATA_ANALYSIS_STARTED)){
+						if(showVisualization) {
+							if(audioVisualisation != null) {
+								content.getChildren().remove(audioVisualisation);								
+							}
+							analyzeButton.setVisible(false);
+							placeHolderText = new Text("In Progress..."); 
+							placeHolderText.setId("placeHolderText");
+							setText(data.getPath() + " - Is being analyzed...");
+							content.getChildren().add(placeHolderText);
+							audioVisualisation = new AudioVisualisation(200, 600, data);
+							content.getChildren().add(audioVisualisation);
+						}
+						if(noiseData != null) {
+							content.getChildren().remove(noiseData);
+						}
+						//When the file has finished analyzing the table with the found noise will be added
+					}else if(evt.getPropertyName().equals(AudioData.DATA_ANALYZED_PROPERTY)) {
+						analyzeButton.setVisible(true);
+						//Add the visualisation
+						content.getChildren().remove(placeHolderText);
+						//Add the table
+						noiseData = new TitledPane();
+						noiseData.setText("Found Problems");
+						noiseData.setContent(createNoiseTable());
+						content.getChildren().add(noiseData);
+						statusCircle.setFill(getSeverityColor(data.getSeverity()));
+						setText(data.getPath() + " - Severity: " + data.getSeverity());
+					}
 				});
 				
 			}			
 		};
 		return listener;
-	}
-
-	private ScrollPane createAudioVisual() {
-		ScrollPane pane = new ScrollPane();
-		pane.setPrefHeight(200);
-		pane.setVbarPolicy(ScrollBarPolicy.NEVER);
-		pane.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
-		AudioVisualisation canvasContainer = new AudioVisualisation(200, 600, data);
-		pane.setContent(canvasContainer);
-		return pane;
 	}
 
 	private TableView<Noise> createNoiseTable() {
