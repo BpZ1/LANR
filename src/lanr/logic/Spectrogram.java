@@ -22,7 +22,7 @@ public class Spectrogram {
 	 * the current maximum.
 	 */
 	private static final int ARRAY_MULTIPLICATOR = 1000;
-	private static final double COLOR_MULTIPLIER = 0.00002;
+	private static final double COLOR_MULTIPLIER = 0.008;
 	private final int windowSize;
 	/**
 	 * Array containing the pixel informations.
