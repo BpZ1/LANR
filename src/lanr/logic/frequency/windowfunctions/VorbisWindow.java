@@ -1,18 +1,14 @@
-package lanr.logic.noise;
-
-import lanr.logic.frequency.FrequencyConversion;
+package lanr.logic.frequency.windowfunctions;
 
 /**
  * Based on a version from
  * https://code.google.com/archive/p/spectro-edit/
  */
-public class WindowFunction {
+public class VorbisWindow extends WindowFunction {
 
 	private final double[] scalars;
 
-	private static final double PI = Math.PI;
-
-	public WindowFunction(int size, FrequencyConversion conversion) {
+	public VorbisWindow(int size) {
 		scalars = new double[size];
 		for (int i = 0; i < size; i++) {
 			double xx = Math.sin((PI / (2.0 * size)) * (2.0 * i));
@@ -21,13 +17,13 @@ public class WindowFunction {
 
 	}
 
-	public void apply(double[] data) {
-		if (data.length != scalars.length) {
+	public void apply(double[] samples) {
+		if (samples.length != scalars.length) {
 			throw new IllegalArgumentException(
-					"Invalid length. Was " + data.length + " but should be " + scalars.length);
+					"Invalid length. Was " + samples.length + " but should be " + scalars.length);
 		}
-		for (int i = 0; i < data.length; i++) {
-			data[i] *= scalars[i];
+		for (int i = 0; i < samples.length; i++) {
+			samples[i] *= scalars[i];
 		}
 	}
 }
