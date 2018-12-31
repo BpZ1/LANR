@@ -6,10 +6,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
@@ -27,7 +25,7 @@ import io.humble.video.MediaAudio;
 import io.humble.video.MediaDescriptor;
 import io.humble.video.MediaPacket;
 import io.humble.video.Rational;
-import lanr.logic.model.AudioChannel;
+import lanr.logic.model.AudioStream;
 import lanr.logic.model.AudioData;
 import lanr.logic.model.LANRException;
 import lanr.logic.model.LANRFileException;
@@ -53,7 +51,6 @@ public class FileReader  {
 	public static final String ERROR_PROPERTY = "error";
 	public static final String ALL_TASKS_COMPLETE = "complete";
 	private static final int TASK_DELAY = 1000;
-	private final static int BUFFER_PUFFER = 50000; // 50kb Puffer
 	private static int windowSize = 1024;
 	private Timer timer = new Timer();
 	
@@ -215,8 +212,8 @@ public class FileReader  {
 	 */
 	private AudioData createFileContainer(String path) throws InterruptedException, IOException, LANRFileException {
 		// Creating the audio object
-		List<AudioChannel> audioChannels = new ArrayList<AudioChannel>();
-		AudioData data = new AudioData(path, audioChannels);
+		List<AudioStream> audioStreams = new ArrayList<AudioStream>();
+		AudioData data = new AudioData(path, audioStreams);
 
 		/*
 		 * Start by creating a container object, in this case a demuxer since we are
@@ -241,13 +238,11 @@ public class FileReader  {
 				// Calculate the time of the stream in seconds
 				Rational r = stream.getTimeBase();
 				long length = stream.getDuration() / r.getDenominator();
-				for (int c = 1; c <= samples.getChannels(); c++) {
-					AudioChannel channel = new AudioChannel(data, bitDepth, sampleRate, i, c, length);
-					audioChannels.add(channel);
-				}
+				AudioStream audioStream = new AudioStream(data, bitDepth, sampleRate, i, length);
+				audioStreams.add(audioStream);
 			}
 		}
-		if (audioChannels.isEmpty()) {
+		if (audioStreams.isEmpty()) {
 			throw new LANRFileException("No audio stream could be found in " + path);
 		}
 		demuxer.close();
@@ -263,22 +258,9 @@ public class FileReader  {
 		Demuxer demuxer = Demuxer.make();
 		demuxer.open(data.getPath(), null, false, true, null, null);
 
-		Map<Integer, List<AudioChannel>> audioStreams = new HashMap<Integer, List<AudioChannel>>();
-
 		// Sort the channels by their audio stream
-		for (AudioChannel channel : data.getChannel()) {
-			List<AudioChannel> stream = audioStreams.get(channel.getId());
-			if (stream == null) {
-				LinkedList<AudioChannel> value = new LinkedList<AudioChannel>();
-				value.add(channel);
-				audioStreams.put(channel.getId(), value);
-			} else {
-				stream.add(channel);
-			}
-		}
-		// Read the data for all channel in a given stream
-		for (Map.Entry<Integer, List<AudioChannel>> audioStream : audioStreams.entrySet()) {
-			readAudioStreamData(audioStream.getKey(), audioStream.getValue(), demuxer);
+		for (AudioStream audioStream : data.getStreams()) {
+			readAudioStreamData(audioStream, demuxer);
 		}
 
 		data.setAnalyzed(true);
@@ -297,127 +279,122 @@ public class FileReader  {
 	 * @throws LANRFileException
 	 * @throws LANRException
 	 */
-	private void readAudioStreamData(int streamId, List<AudioChannel> channels, Demuxer demuxer)
+	private void readAudioStreamData(AudioStream streamData, Demuxer demuxer)
 			throws InterruptedException, IOException, LANRFileException, LANRException {
 
-		final DemuxerStream stream = demuxer.getStream(streamId);
+		final DemuxerStream stream = demuxer.getStream(streamData.getId());
 		final Decoder decoder = stream.getDecoder();
-
+		
 		decoder.open(null, null);
 		final MediaAudio samples = MediaAudio.make(decoder.getFrameSize(), decoder.getSampleRate(),
 				decoder.getChannels(), decoder.getChannelLayout(), decoder.getSampleFormat());
-		
-		int bytePerSample = samples.getBytesPerSample();
-		int bufferSize = windowSize * bytePerSample * channels.size();
-		ByteBuffer rawAudio = null;
-
-		ByteBuffer buffer = ByteBuffer.allocate(bufferSize + BUFFER_PUFFER); // Added extra buffer to prevent overflow
-		// Data that will be processed
-		byte[] bufferData = new byte[bufferSize];
-		int byteInBuffer = 0;
+				
 		final MediaPacket packet = MediaPacket.make();
+
 		// List that collects the data that will be sent to the channels
-		List<DoubleBuffer> channelData = new ArrayList<DoubleBuffer>();
-		for (int c = 0; c < channels.size(); c++) {
-			// Adds the container and notify the channel
-			channelData.add(DoubleBuffer.allocate(windowSize));
-			channels.get(c).analyseStart(windowSize);
-		}
+		DoubleBuffer channelData = DoubleBuffer.allocate(2048 + windowSize);
+		streamData.analyseStart(windowSize);
 		DoubleConverter doubleConverter;
 		try {
 			doubleConverter = Converter.getConverter(samples.getFormat());
 		} catch (LANRException e) {
 			throw new LANRFileException(e.getMessage());
 		}
-		int counter = 0;
 		// Read the packets
 		while (demuxer.read(packet) >= 0) {
 			// Check if the packet is part of the current stream
-			if (packet.getStreamIndex() == streamId) {
+			if (packet.getStreamIndex() == streamData.getId()) {
 				int offset = 0;
 				int bytesRead = 0;
 				do {
 					if (interrupted) {
-						for (AudioChannel channel : channels) {
-							channel.clearAnalysisData();
-						}
+						streamData.clearAnalysisData();
 						return;
 					}
 					bytesRead += decoder.decode(samples, packet, offset);
 					if (samples.isComplete()) {
 						// Send the packet data to listeners
-						rawAudio = null;
-						rawAudio = getSamples(rawAudio, samples, channels.size());
-						// Count number of bytes in buffer
-						byteInBuffer += rawAudio.capacity();
-						buffer.put(rawAudio);
+						getSamples(channelData, samples, doubleConverter);
+						
 						// If enough bytes are in the buffer send data to channel
-						while (buffer.position() >= bufferSize) {
-							buffer.flip();
-							buffer.get(bufferData, 0, bufferSize);
-							double[] convertedData = doubleConverter.convert(bufferData);
-							// Sort the data for the different channel
-							counter = 0;
-							for (int i = 0; i < convertedData.length; i++) {
-								channelData.get(counter).put(convertedData[i]);
-								counter = (counter + 1) % channels.size();
-							}
-							// Send the data to the different channel
-							for (int c = 0; c < channels.size(); c++) {
-								DoubleBuffer channelDataBuffer = channelData.get(c);
-								channels.get(c).analyzeData(channelDataBuffer.array());
-								channelDataBuffer.clear();
-							}
-
-							buffer.position(bufferSize);
-							buffer.compact();
-							byteInBuffer -= bufferSize;
-							buffer.position(byteInBuffer);
-						}
+						while (channelData.position() >= windowSize) {
+							int pos = channelData.position();
+							channelData.position(0);
+							double[] data = new double[windowSize];
+							channelData.get(data, 0, windowSize);
+							streamData.analyzeData(data);
+							channelData.compact();
+							channelData.position(pos - windowSize);
+						}												
 					}
 					offset += bytesRead;
 				} while (offset < packet.getSize());
 			}
 		}
 		// Check if there is still data that is < sampleSize * bytesPerSample
-		if (buffer.position() != 0) {
+		if (channelData.position() != 0) {
 			// The final frame has to be filled to get a power of 2.
-			int currentPos = buffer.position();
-			for (int i = currentPos; i < bufferSize; i++) {
-				buffer.put((byte) 0);
+			while(channelData.position() < windowSize) {
+				channelData.put(0.0);
 			}
-			buffer.flip();
-			buffer.get(bufferData, 0, bufferSize);
-			double[] convertedData = doubleConverter.convert(bufferData);	
-			counter = 0;
-			for (int i = 0; i < convertedData.length; i++) {
-				channelData.get(counter).put(convertedData[i]);
-				counter = (counter + 1) % channels.size();
-			}
-			// Send the data to the different channel
-			for (int c = 0; c < channels.size(); c++) {
-				DoubleBuffer channelDataBuffer = channelData.get(c);
-				channels.get(c).analyzeData(channelDataBuffer.array());
-				channelDataBuffer.clear();
-			}
+			channelData.flip();
+			double[] data = new double[windowSize];
+			channelData.get(data, 0, windowSize);
+			streamData.analyzeData(data);
 		}
-		buffer.clear();
-		for (AudioChannel channel : channels) {
-			channel.analyseEnd();
-		}
+		channelData.clear();
+		streamData.analyseEnd();
 	}
 	
-	private ByteBuffer getSamples(ByteBuffer output, MediaAudio samples, int channels) {
-		int size = AudioFormat.getBufferSizeNeeded(samples.getNumSamples(), channels, samples.getFormat());
-		output = ByteBuffer.allocate(size);
-		final Buffer buffer = samples.getData(0);
-	    int bufferSize = samples.getDataPlaneSize(0);
-	    byte[] bytes = output.array();
-	    buffer.get(0, bytes, 0, bufferSize);
-	    output.limit(size);
-	    output.position(0);
-	    buffer.delete();
-	    return output;
+	/**
+	 * Converts the raw audio data from the {@link MediaAudio} object to
+	 * a mono signal and into samples of type double and stores them in the given buffer.
+	 * @param streamData - Buffer in which the samples will be stored.
+	 * @param audio - Audio data containing the raw data.
+	 * @param doubleConverter - Converter for convertign the sample from byte to double.
+	 */
+	private void getSamples(DoubleBuffer streamData, MediaAudio audio,
+			DoubleConverter doubleConverter) {
+		
+		double multiplicationFactor = 1.0 / audio.getChannels();
+		//Converts the data if it is in planar form
+		if(audio.isPlanar()) {
+			int planeCount = audio.getNumDataPlanes();
+			double[][] planeSamples = new double[planeCount][];
+			//Get the data from every plane
+			for(int i = 0; i < planeCount; i++) {
+				final Buffer buffer = audio.getData(i);		
+			    int bufferSize = audio.getDataPlaneSize(i);
+			    byte[] bytes = new byte[audio.getDataPlaneSize(i)];
+			    buffer.get(0, bytes, 0, bufferSize);
+			    buffer.delete(); 
+				planeSamples[i] = doubleConverter.convert(bytes);
+			}	
+			//Combine the samples from the planes into a single mono sample
+			for(int i = 0; i < planeSamples[0].length; i++) {
+				double currentSample = 0.0;				
+				for(int j = 0; j < planeCount; j++) {
+					currentSample += planeSamples[j][i] * multiplicationFactor; 
+				}
+				streamData.put(currentSample);
+			}
+		}else {
+			int size = AudioFormat.getBufferSizeNeeded(audio.getNumSamples(), audio.getChannels(), audio.getFormat());
+			ByteBuffer data = ByteBuffer.allocate(size);
+			final Buffer buffer = audio.getData(0);		
+		    int bufferSize = audio.getDataPlaneSize(0);
+		    byte[] bytes = data.array();
+		    buffer.get(0, bytes, 0, bufferSize);
+		    buffer.delete();
+		    double[] samples = doubleConverter.convert(bytes);		    
+	    	for (int i = 0; i < samples.length; i += audio.getChannels()) {
+	    		double sample = 0.0;
+	    		for(int s = i; s < i + audio.getChannels(); s++) {
+	    			sample += samples[s] * multiplicationFactor;
+	    		}
+	    		streamData.put(sample);
+			}
+		}
 	}
 	
 	/**
