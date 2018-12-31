@@ -6,7 +6,7 @@ import java.beans.PropertyChangeListener;
 import javafx.application.Platform;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.paint.Color;
-import lanr.logic.model.AudioChannel;
+import lanr.logic.model.AudioStream;
 
 /**
  * Contains methods for the visual representation of an audio channel
@@ -16,7 +16,7 @@ import lanr.logic.model.AudioChannel;
  */
 public class ChannelVisualisation extends Canvas {	
 	private final double width;
-	private final AudioChannel channel;
+	private final AudioStream channel;
 	private final long sampleCount;
 	private final double sampleDistance;
 	private final double maxSampleValue;
@@ -29,14 +29,14 @@ public class ChannelVisualisation extends Canvas {
 	private double currentXPosition = 0;
 	private double lastYPosition = 0;
 
-	public ChannelVisualisation(double parentWidth, double height, AudioChannel channel) {
+	public ChannelVisualisation(double parentWidth, double height, AudioStream channel) {
 		this.setHeight(height);
 		this.channel = channel;
 		this.getGraphicsContext2D().setStroke(Color.BLUE);
 		this.getGraphicsContext2D().setLineWidth(0.1);
 		channel.addChangeListener(createChangeListener());
 		this.sampleCount = (long) ((channel.getLength() * channel.getSampleRate()) 
-				/ channel.getParent().getChannel().size()
+				/ channel.getParent().getStreams().size()
 				* visualisationReductionFactor);
 
 		if (channel.getLength() / 3 < parentWidth) {
@@ -103,7 +103,7 @@ public class ChannelVisualisation extends Canvas {
 		return visualisationReductionFactor;
 	}
 
-	public AudioChannel getAudioChannel() {
+	public AudioStream getAudioChannel() {
 		return channel;
 	}
 

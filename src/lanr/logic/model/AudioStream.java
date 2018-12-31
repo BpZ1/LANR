@@ -18,7 +18,7 @@ import lanr.logic.frequency.FrequencyConversion;
  *         Contains the data for a single audio channel.
  *
  */
-public class AudioChannel {
+public class AudioStream {
 
 	private static final String OUTPUT_FOLDER = "spectrograms/";
 	
@@ -34,10 +34,6 @@ public class AudioChannel {
 	 */
 	private final int id;
 	/**
-	 * Index of the channel.
-	 */
-	private final int index;
-	/**
 	 * Bit depth per sample.
 	 */
 	private final int bitRate;
@@ -48,8 +44,6 @@ public class AudioChannel {
 	private static FrequencyConversion converter = FrequencyConversion.FFT;
 	private static boolean usingWindowFunction = false;
 	private static boolean createSpectrogram = true;
-	
-	private final int bytePerSample;
 	/**
 	 * Samples per second.
 	 */
@@ -60,14 +54,12 @@ public class AudioChannel {
 	 */
 	private List<Noise> foundNoise = new ArrayList<Noise>();
 
-	public AudioChannel(AudioData parent, int bitRate, int sampleRate, int id, int index, long length) {
+	public AudioStream(AudioData parent, int bitRate, int sampleRate, int id, long length) {
 		this.parent = parent;
-		this.index = index;
 		this.bitRate = bitRate;
 		this.sampleRate = sampleRate;
 		this.id = id;
 		this.length = length;
-		this.bytePerSample = bitRate / 8;
 	}
 
 	public void analyseStart(int frameSize) {
@@ -84,7 +76,7 @@ public class AudioChannel {
 				fileName.append(OUTPUT_FOLDER);
 				fileName.append(parent.getName());
 				fileName.append("_");
-				fileName.append(index);
+				fileName.append(id);
 				fileName.append(".png");
 				File outputfile = new File(fileName.toString());
 				try {
@@ -110,12 +102,12 @@ public class AudioChannel {
 
 	public void setFoundNoise(List<Noise> foundNoise) {
 		this.foundNoise = foundNoise;
-		foundNoise.forEach(n -> n.setChannel(index));
+		foundNoise.forEach(n -> n.setChannel(id));
 	}
 
 	public void addNoise(Noise noise) {
 		this.foundNoise.add(noise);
-		noise.setChannel(index);
+		noise.setChannel(id);
 	}
 
 	public List<Noise> getFoundNoise() {
@@ -145,10 +137,6 @@ public class AudioChannel {
 	public int getId() {
 		return id;
 	}
-	
-	public int getIndex() {
-		return index;
-	}
 
 	public long getLength() {
 		return length;
@@ -175,6 +163,6 @@ public class AudioChannel {
 	}
 
 	public static void setConverter(FrequencyConversion converter) {
-		AudioChannel.converter = converter;
+		AudioStream.converter = converter;
 	}
 }

@@ -16,69 +16,69 @@ public class AudioData {
 	public final static String DATA_ANALYSIS_STARTED = "start";
 	public final static String DATA_ANALYZED_PROPERTY = "analyzed";
 	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
-	
+
 	private String name;
-	
+
 	private final String path;
-	
+
 	/**
-	 * Represents the amount and intensity of the found audio noises. 
+	 * Represents the amount and intensity of the found audio noises.
 	 */
 	private double severity;
-	private final List<AudioChannel> audioChannels;
+	private final List<AudioStream> audioStreams;
 	private boolean isAnalyzed;
 
-	public AudioData(String path, List<AudioChannel> audioChannels) {
-		this.audioChannels = audioChannels;
+	public AudioData(String path, List<AudioStream> audioStreams) {
+		this.audioStreams = audioStreams;
 		this.path = path;
 		this.name = Paths.get(path).getFileName().toString();
 	}
 
 	/**
-	 * Calculates the severity of all found {@link Noise} types
-	 * found in all {@link AudioChannel}s.
+	 * Calculates the severity of all found {@link Noise} types found in all
+	 * {@link AudioStream}s.
 	 */
 	public void calculateSeverity() {
 		severity = 0;
-		for(AudioChannel channel : audioChannels) {
+		for(AudioStream channel : audioStreams) {
 			for (Noise noise : channel.getFoundNoise()) {
 				severity += noise.getSeverity();
 			}
 		}	
 	}
-	
+
 	public void addChangeListener(PropertyChangeListener listener) {
 		this.state.addPropertyChangeListener(listener);
 	}
 
 	public int getSampleRate() {
-		if (audioChannels.size() > 0) {
-			return audioChannels.get(0).getSampleRate();
+		if (audioStreams.size() > 0) {
+			return audioStreams.get(0).getSampleRate();
 		} else {
 			return 0;
 		}
 	}
 
 	public int getBitDepth() {
-		if (audioChannels.size() > 0) {
-			return audioChannels.get(0).getBitDepth();
+		if (audioStreams.size() > 0) {
+			return audioStreams.get(0).getBitDepth();
 		} else {
 			return 0;
 		}
 	}
 
-	public List<AudioChannel> getChannel() {
-		return audioChannels;
+	public List<AudioStream> getStreams() {
+		return audioStreams;
 	}
 
-	public AudioChannel getAudioChannel(int index) {
-		return audioChannels.get(index);
+	public AudioStream getAudioChannel(int index) {
+		return audioStreams.get(index);
 	}
 
 	public String getPath() {
 		return path;
 	}
-	
+
 	/**
 	 * Notifys all listeners that the data is now being analyzed.
 	 */
@@ -88,7 +88,7 @@ public class AudioData {
 
 	public void setAnalyzed(boolean value) {
 		this.isAnalyzed = value;
-		if(value) {
+		if (value) {
 			calculateSeverity();
 			state.firePropertyChange(DATA_ANALYZED_PROPERTY, null, null);
 		}
@@ -97,7 +97,7 @@ public class AudioData {
 	public double getSeverity() {
 		return severity;
 	}
-	
+
 	public boolean isAnalyzed() {
 		return isAnalyzed;
 	}

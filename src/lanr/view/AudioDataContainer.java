@@ -23,7 +23,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import lanr.controller.AudioController;
-import lanr.logic.model.AudioChannel;
+import lanr.logic.model.AudioStream;
 import lanr.logic.model.AudioData;
 import lanr.logic.model.Noise;
 
@@ -107,13 +107,13 @@ public class AudioDataContainer extends TitledPane {
 		
 		Text channelLabelText = new Text("Channel:");
 		channelLabelText.setId(LABEL_CSS_ID);
-		Text channelNumberText = new Text(String.valueOf(data.getChannel().size()));	
+		Text channelNumberText = new Text(String.valueOf(data.getStreams().size()));	
 		
 		infoBox.add(channelLabelText, 0, row);
 		infoBox.add(channelNumberText, 1, row);	
 		row++;
 		
-		for(AudioChannel channel : data.getChannel()) {
+		for(AudioStream channel : data.getStreams()) {
 			Text durationLabelText = new Text("Duration:");
 			durationLabelText.setId(LABEL_CSS_ID);
 			Text durationNumberText = new Text(getDurationString(channel.getLength()));
@@ -253,7 +253,7 @@ public class AudioDataContainer extends TitledPane {
 		noiseTable.setEditable(false);
 
 		ObservableList<Noise> noiseList = FXCollections.observableArrayList();
-		for(AudioChannel c : data.getChannel()) {
+		for(AudioStream c : data.getStreams()) {
 			noiseList.addAll(c.getFoundNoise());
 		}
 		noiseTable.setItems(noiseList);
