@@ -10,7 +10,7 @@ import java.nio.ByteOrder;
  *
  */
 public class Short16BitConverter extends DoubleConverter {
-
+	
 	@Override
 	public double[] convert(byte[] data) {
 		double[] resultData = new double[data.length / 2];
