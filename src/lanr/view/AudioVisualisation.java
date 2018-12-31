@@ -21,11 +21,11 @@ public class AudioVisualisation extends ScrollPane {
 		double canvasHeight = height / data.getStreams().size();
 		VBox content = new VBox();		
 		//The canvas are created in advance and drawn to when analyzing
-		for (AudioStream channel : data.getStreams()) {
+		for (AudioStream stream : data.getStreams()) {
 			content.getChildren().add(new ChannelVisualisation(
 					minWidth,
 					canvasHeight,
-					channel));
+					stream));
 		}
 		this.setContent(content);
 	}

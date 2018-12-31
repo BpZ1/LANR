@@ -11,8 +11,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Accordion;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -99,6 +97,7 @@ public class MainView extends Stage {
 		menuBar.setPadding(new Insets(2,2,2,2));
 		Menu fileMenu = new Menu("File");
 		MenuItem openMenuItem = new MenuItem("Open");
+		MenuItem removeMenuItem = new MenuItem("Remove all");
 		MenuItem exitMenuItem = new MenuItem("Exit");
 		fileMenu.getItems().add(openMenuItem);
 		fileMenu.getItems().add(exitMenuItem);
@@ -110,6 +109,14 @@ public class MainView extends Stage {
 
 		openMenuItem.setOnAction(event -> {
 			openFileDialog();
+		});
+		
+		removeMenuItem.setOnAction(event -> {
+			if(Utils.confirmationDialog("Confirm your selection",
+					"Are you sure you want to remove all loaded data?",
+					"Created spectrograms and logs will not be deleted.")) {
+				audioList.clear();				
+			}
 		});
 
 		exitMenuItem.setOnAction(event -> {
@@ -225,7 +232,7 @@ public class MainView extends Stage {
 	private void removeAudioData(AudioData data) {
 		TitledPane toBeRemoved = null;
 		for (TitledPane pane : audioList) {
-			if (pane.getText().equals(data.getPath())) {
+			if(((AudioDataContainer)pane).getData().equals(data)) {
 				toBeRemoved = pane;
 			}
 		}

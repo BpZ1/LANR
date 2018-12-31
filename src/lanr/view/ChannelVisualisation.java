@@ -36,7 +36,6 @@ public class ChannelVisualisation extends Canvas {
 		this.getGraphicsContext2D().setLineWidth(0.1);
 		channel.addChangeListener(createChangeListener());
 		this.sampleCount = (long) ((channel.getLength() * channel.getSampleRate()) 
-				/ channel.getParent().getStreams().size()
 				* visualisationReductionFactor);
 
 		if (channel.getLength() / 3 < parentWidth) {

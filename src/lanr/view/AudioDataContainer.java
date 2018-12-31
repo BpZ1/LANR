@@ -11,8 +11,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
@@ -26,6 +26,7 @@ import lanr.controller.AudioController;
 import lanr.logic.model.AudioStream;
 import lanr.logic.model.AudioData;
 import lanr.logic.model.Noise;
+import lanr.model.MainModel;
 
 /**
  * Container for an audio file and its channel.
@@ -43,6 +44,7 @@ public class AudioDataContainer extends TitledPane {
 	
 	private final AudioController controller;
 	private final AudioData data;
+	private SimpleBooleanProperty contextMenuDisabled = new SimpleBooleanProperty(false);
 	private VBox content;
 	private Button analyzeButton;
 	private Text placeHolderText;
@@ -57,10 +59,32 @@ public class AudioDataContainer extends TitledPane {
 		this.setText(data.getPath() + " - Not analyzed");
 		data.addChangeListener(createDataChangeListener());
 		createNodeElements();
+		createContextMenu();
 		placeHolderText = new Text("In Progress..."); 
 		placeHolderText.setId("placeHolderText");
 		content.getChildren().add(placeHolderText);
 		placeHolderText.setVisible(false);
+	}
+	
+	private void createContextMenu() {
+		ContextMenu menu = new ContextMenu();
+		MenuItem analyze = new MenuItem("Analyze");		
+		MenuItem remove = new MenuItem("Remove");
+		analyze.disableProperty().bind(contextMenuDisabled);
+		remove.disableProperty().bind(contextMenuDisabled);
+		
+		analyze.setOnAction(event -> {
+			MainModel.instance().analyzeAudio(data);
+		});
+		
+		remove.setOnAction(event -> {
+			MainModel.instance().removeAudioData(data);
+		});
+		
+		menu.getItems().add(analyze);
+		menu.getItems().add(remove);
+		
+		this.setContextMenu(menu);
 	}
 	
 	private void createNodeElements() {
@@ -173,6 +197,7 @@ public class AudioDataContainer extends TitledPane {
 							if(audioVisualisation != null) {
 								content.getChildren().remove(audioVisualisation);								
 							}
+							contextMenuDisabled.setValue(true);
 							analyzeButton.setVisible(false);
 							placeHolderText.setVisible(true);
 							setText(data.getPath() + " - Is being analyzed...");
@@ -187,6 +212,7 @@ public class AudioDataContainer extends TitledPane {
 					}else if(evt.getPropertyName().equals(AudioData.DATA_ANALYZED_PROPERTY)) {
 						analyzeButton.setVisible(true);
 						placeHolderText.setVisible(false);
+						contextMenuDisabled.setValue(false);
 						//Add the visualisation
 						content.getChildren().remove(placeHolderText);
 						//Add the table
@@ -282,6 +308,10 @@ public class AudioDataContainer extends TitledPane {
 
 	public static void setShowVisualization(boolean showVisualization) {
 		AudioDataContainer.showVisualization = showVisualization;
+	}
+	
+	public AudioData getData() {
+		return data;
 	}
 
 }
