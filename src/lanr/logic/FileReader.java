@@ -249,6 +249,14 @@ public class FileReader  {
 		return data;
 	}
 
+	/**
+	 * Starts the analyzing process for a given audio file.
+	 * @param data - File to be analyzed.
+	 * @throws InterruptedException
+	 * @throws IOException
+	 * @throws LANRFileException
+	 * @throws LANRException
+	 */
 	private void analyseFile(AudioData data)
 			throws InterruptedException, IOException, LANRFileException, LANRException {
 		if (data == null) {
