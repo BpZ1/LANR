@@ -6,9 +6,9 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * @author Nicolas Bruch
+ *  Represents the audio data from a given file.
  * 
- *         Represents the audio data from a given file.
+ * @author Nicolas Bruch
  * 
  */
 public class AudioData {
