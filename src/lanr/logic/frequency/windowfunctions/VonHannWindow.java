@@ -12,7 +12,11 @@ public class VonHannWindow extends WindowFunction {
 	}
 
 	@Override
-	public void apply(double[] samples) {			
+	public void apply(double[] samples) {		
+		if (samples.length != scalars.length) {
+			throw new IllegalArgumentException(
+					"Invalid length. Was " + samples.length + " but should be " + scalars.length);
+		}
 		for (int i = 0; i < samples.length; i++) {
 			samples[i] *= scalars[i];
 		}	
