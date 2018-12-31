@@ -201,7 +201,7 @@ public class AudioDataContainer extends TitledPane {
 							analyzeButton.setVisible(false);
 							placeHolderText.setVisible(true);
 							setText(data.getPath() + " - Is being analyzed...");
-							audioVisualisation = new AudioVisualisation(200, 600, data);
+							audioVisualisation = new AudioVisualisation(200, content.getWidth(), data);
 							content.getChildren().add(audioVisualisation);
 						}
 						//Remove old data if it exists
