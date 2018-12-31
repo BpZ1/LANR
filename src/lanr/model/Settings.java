@@ -10,7 +10,7 @@ import java.util.Properties;
 import lanr.logic.FileReader;
 import lanr.logic.Spectrogram;
 import lanr.logic.frequency.FrequencyConversion;
-import lanr.logic.model.AudioChannel;
+import lanr.logic.model.AudioStream;
 import lanr.view.AudioDataContainer;
 import lanr.view.ChannelVisualisation;
 
@@ -273,7 +273,7 @@ public class Settings {
 	}
 
 	public void setCreateSpectrogram(boolean createSpectrogram) {
-		AudioChannel.setCreateSpectrogram(createSpectrogram);
+		AudioStream.setCreateSpectrogram(createSpectrogram);
 		this.createSpectrogram.y = createSpectrogram;
 	}
 
@@ -308,7 +308,7 @@ public class Settings {
 	}
 
 	public void setConversionMethod(FrequencyConversion conversionMethod) {
-		AudioChannel.setConverter(conversionMethod);
+		AudioStream.setConverter(conversionMethod);
 		this.conversionMethod.y = conversionMethod;
 	}
 
@@ -317,7 +317,7 @@ public class Settings {
 	}
 
 	public void setUsingWindowFunction(boolean usingWindowFunction) {
-		AudioChannel.setUsingWindowFunction(usingWindowFunction);
+		AudioStream.setUsingWindowFunction(usingWindowFunction);
 		this.usingWindowFunction.y = usingWindowFunction;
 	}
 }
