@@ -44,13 +44,36 @@ public class FileReader  {
 
 	private volatile boolean interrupted = false;
 
+	/**
+	 * Is fired when a new task was started.
+	 */
 	public static final String WORK_STARTED_PROPERTY = "start";
+	/**
+	 * Is fired when a task ended. The passed argument will be
+	 * an array of {@link AudioData}.
+	 */
 	public static final String WORK_ENDED_PROPERTY = "end";
+	/**
+	 * Is fired every x milliseconds to give the current memory usage.
+	 */
 	public static final String MEMORY_USAGE_PROPERTY = "memory";
+	/**
+	 * Is fired every x milliseconds and reports the current progress
+	 * of all submitted tasks.
+	 */
 	public static final String PROGRESS_PROPERTY = "progress";
 	public static final String ERROR_PROPERTY = "error";
+	/**
+	 * Is fired when all submitted tasks are completed.
+	 */
 	public static final String ALL_TASKS_COMPLETE = "complete";
-	private static final int TASK_DELAY = 1000;
+	/**
+	 * Delay of the timer.
+	 */
+	private static final int TIMER_DELAY = 1000;
+	/**
+	 * Size of the windows that will be analyzed in samples.
+	 */
 	private static int windowSize = 1024;
 	private Timer timer = new Timer();
 	
@@ -69,8 +92,8 @@ public class FileReader  {
 	private ReentrantLock counterLock2 = new ReentrantLock(true);
 	
 	
-	private List<Future<AudioData>> runningTasks = new LinkedList<Future<AudioData>>();
-	private List<Future<AudioData>> completedTasks = new LinkedList<Future<AudioData>>();
+	private List<Future<AudioData[]>> runningTasks = new LinkedList<Future<AudioData[]>>();
+	private List<Future<AudioData[]>> completedTasks = new LinkedList<Future<AudioData[]>>();
 	
 	/**
 	 * Thread pool
@@ -88,7 +111,7 @@ public class FileReader  {
 						updateMemoryUsage();
 						updateProgress();
 					}			
-				}, 1000, TASK_DELAY);
+				}, 1000, TIMER_DELAY);
 	}
 
 	/**
@@ -104,14 +127,16 @@ public class FileReader  {
 	 * </ul>
 	 * @param path
 	 */
-	public void getFileContainer(String path) {
+	public void getFileContainer(String[] paths) {
 		incrementProcessCounter();
 		incrementProgressCounter();
 		runningTasks.add(executors.submit(() -> {
 			state.firePropertyChange(WORK_STARTED_PROPERTY, null, null);
-			AudioData data = null;
+			AudioData[] data = new AudioData[paths.length];
 			try {
-				data = createFileContainer(path);
+				for(int i = 0; i < paths.length; i++) {
+					data[i] = createFileContainer(paths[i]);
+				}
 			} catch (InterruptedException | IOException | LANRFileException e) {
 				state.firePropertyChange(ERROR_PROPERTY, null, new LANRException(e));
 			}			
@@ -176,10 +201,10 @@ public class FileReader  {
 	
 	private void checkTasks() {
 		for(int i = 0; i < runningTasks.size(); i++) {
-			Future<AudioData> task = runningTasks.get(i);
+			Future<AudioData[]> task = runningTasks.get(i);
 			if(task.isDone()) {
 				try {
-					AudioData data = task.get();
+					AudioData[] data = task.get();
 					state.firePropertyChange(WORK_ENDED_PROPERTY, null, data);
 					completedTasks.add(task);
 				} catch (InterruptedException | ExecutionException e) {
@@ -187,7 +212,7 @@ public class FileReader  {
 				}
 			}
 		}
-		for(Future<AudioData> task : completedTasks) {
+		for(Future<AudioData[]> task : completedTasks) {
 			runningTasks.remove(task);
 		}
 		completedTasks.clear();
