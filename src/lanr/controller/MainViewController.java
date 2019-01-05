@@ -1,6 +1,9 @@
 package lanr.controller;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javafx.stage.Modality;
 import lanr.logic.model.LANRException;
@@ -58,9 +61,9 @@ public class MainViewController {
 	 * Reads a single file and adds it to the list.
 	 * @param path
 	 */
-	public void addFile(String path) {
+	public void addFile(File file) {
 		try {
-			model.addAudioData(path);
+			model.addAudioData(file);
 		} catch (LANRException e) {
 			Utils.showErrorDialog("Could not read file!", e.getMessage());
 			e.printStackTrace();

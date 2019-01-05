@@ -22,6 +22,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
@@ -97,9 +98,11 @@ public class MainView extends Stage {
 		menuBar.setPadding(new Insets(2,2,2,2));
 		Menu fileMenu = new Menu("File");
 		MenuItem openMenuItem = new MenuItem("Open");
+		MenuItem openFolderMenuItem = new MenuItem("Open Folder");
 		MenuItem removeMenuItem = new MenuItem("Remove all");
 		MenuItem exitMenuItem = new MenuItem("Exit");
 		fileMenu.getItems().add(openMenuItem);
+		fileMenu.getItems().add(openFolderMenuItem);
 		fileMenu.getItems().add(exitMenuItem);
 		Menu editMenu = new Menu("Edit");
 		MenuItem analysisMenuItem = new MenuItem("Analyse all");
@@ -109,6 +112,10 @@ public class MainView extends Stage {
 
 		openMenuItem.setOnAction(event -> {
 			openFileDialog();
+		});
+		
+		openFolderMenuItem.setOnAction(event -> {
+			openDirectoryDialog();
 		});
 		
 		removeMenuItem.setOnAction(event -> {
@@ -150,7 +157,16 @@ public class MainView extends Stage {
 				new ExtensionFilter("All Files", "*.*"));
 		File selectedFile = fileChooser.showOpenDialog(this);
 		if (selectedFile != null) {
-			controller.addFile(selectedFile.getAbsolutePath());
+			controller.addFile(selectedFile);
+		}
+	}
+	
+	private void openDirectoryDialog() {
+		DirectoryChooser directoryChooser = new DirectoryChooser();
+		directoryChooser.setTitle("Open Folder");
+		File selectedDirectory = directoryChooser.showDialog(this);		
+		if(selectedDirectory != null) {
+			controller.addFile(selectedDirectory);
 		}
 	}
 
@@ -194,10 +210,12 @@ public class MainView extends Stage {
 							break;
 						// If a new audio file has been added
 						case MainModel.AUDIO_ADDED_PROPERTY:
-							AudioData addedData = (AudioData) evt.getNewValue();
-							audioList.add(new AudioDataContainer(
-									addedData,
-										new AudioController(MainModel.instance())));							
+							AudioData[] addedData = (AudioData[]) evt.getNewValue();
+							for(AudioData audio : addedData) {
+								audioList.add(new AudioDataContainer(
+										audio,
+										new AudioController(MainModel.instance())));
+							}													
 							break;
 						//Audio file has been removed
 						case MainModel.AUDIO_REMOVED_PROPERTY:

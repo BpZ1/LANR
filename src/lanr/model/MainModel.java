@@ -2,8 +2,9 @@ package lanr.model;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
+import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import lanr.logic.FileReader;
@@ -43,6 +44,20 @@ public class MainModel extends Model {
 			reader.analyze(data);
 		}
 	}	
+	
+	private boolean isSupportedFile(String path) {
+		String p = path.toLowerCase();
+		if(p.endsWith(".mp3")) {
+			return true;
+		}
+		if(p.endsWith(".mp4")) {
+			return true;
+		}
+		if(p.endsWith(".avi")) {
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * Reads the data of a given file and saves it.
@@ -50,8 +65,28 @@ public class MainModel extends Model {
 	 * @param path - Path to the audio file
 	 * @throws LANRException
 	 */
-	public void addAudioData(String path) throws LANRException {	
-		reader.getFileContainer(path);
+	public void addAudioData(File file) throws LANRException {	
+		if(file == null) {
+			throw new IllegalArgumentException("The given file mustn't be null");
+		}
+		if(file.isFile()) {
+			reader.getFileContainer(new String[] {file.getAbsolutePath()});			
+		}else if(file.isDirectory()) {			
+			List<String> files = new LinkedList<String>();
+			for(String p : file.list()) {
+				File contained = new File(file.getAbsolutePath() + "\\" + p);
+				if(contained.isFile()) {
+					if(isSupportedFile(p)) {
+						files.add(contained.getAbsolutePath());
+					}
+				}else {
+					addAudioData(contained);
+				}
+			}
+			String[] fArr = new String[files.size()];
+			fArr = files.toArray(fArr);
+			reader.getFileContainer(fArr);
+		}
 	}
 	
 	/**
@@ -89,8 +124,10 @@ public class MainModel extends Model {
 						break;
 					case FileReader.WORK_ENDED_PROPERTY:
 						if(evt.getNewValue() != null) {
-							AudioData data = (AudioData) evt.getNewValue();
-							audioData.add(data);
+							AudioData[] data = (AudioData[]) evt.getNewValue();
+							for(AudioData audio : data) {
+								audioData.add(audio);								
+							}
 							state.firePropertyChange(AUDIO_ADDED_PROPERTY, null, evt.getNewValue());
 						}					
 						break;
