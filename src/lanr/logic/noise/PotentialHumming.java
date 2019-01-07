@@ -1,15 +1,15 @@
-package lanr.logic.frequency;
+package lanr.logic.noise;
 
 import lanr.logic.model.Noise;
 
-public class PotentialNoise {
+public class PotentialHumming {
 
 	private Noise noise;
 	private int counter = 0;
 	private int skipCounter = 0;
 	private int lastWindowIndex;
 	
-	public PotentialNoise(Noise noise) {
+	public PotentialHumming(Noise noise) {
 		this.noise = noise;
 	}
 

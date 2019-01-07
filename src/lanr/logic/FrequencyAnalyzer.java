@@ -1,14 +1,13 @@
 package lanr.logic;
 
-public abstract class FrequencyAnalyzer {
+import lanr.logic.noise.NoiseSearch;
 
-	protected final int sampleRate;
-	protected final int windowSize;
+public abstract class FrequencyAnalyzer extends NoiseSearch {
 	
 	public FrequencyAnalyzer(int sampleRate, int windowSize) {
-		this.sampleRate = sampleRate;
-		this.windowSize = windowSize;
+		super(sampleRate, windowSize);
 	}
+
 	/**
 	 * Calculates the frequency of a given index in a window.
 	 * i * fs / N

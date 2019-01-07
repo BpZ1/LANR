@@ -5,7 +5,7 @@ import java.util.List;
 import lanr.logic.FrequencyAnalyzer;
 import lanr.logic.model.Noise;
 
-public class BackgroundNoiseSearch extends FrequencyAnalyzer implements NoiseSearch {
+public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 
 	
 	public BackgroundNoiseSearch(int sampleRate, int windowSize) {

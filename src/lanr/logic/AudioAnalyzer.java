@@ -1,14 +1,12 @@
 package lanr.logic;
 
 import java.awt.image.BufferedImage;
-import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import lanr.logic.frequency.FrequencyConversion;
 import lanr.logic.frequency.windowfunctions.VonHannWindow;
-import lanr.logic.frequency.windowfunctions.VorbisWindow;
 import lanr.logic.frequency.windowfunctions.WindowFunction;
 import lanr.logic.model.Noise;
 import lanr.logic.noise.BackgroundNoiseSearch;
@@ -39,9 +37,9 @@ public class AudioAnalyzer {
 			FrequencyConversion conversion) {
 		
 		//Sample analyzer
-		sampleAnalyzer.add(new ClippingSearch());
-		sampleAnalyzer.add(new SilenceSearch());
-		sampleAnalyzer.add(new VolumeSearch());
+		sampleAnalyzer.add(new ClippingSearch(sampleRate, windowSize));
+		sampleAnalyzer.add(new SilenceSearch(sampleRate, windowSize));
+		sampleAnalyzer.add(new VolumeSearch(sampleRate, windowSize));
 		//Frequency analyzer
 		frequencyAnalyzer.add(new BackgroundNoiseSearch(sampleRate, windowSize));
 		frequencyAnalyzer.add(new HummingSearch(sampleRate, windowSize));
@@ -115,14 +113,12 @@ public class AudioAnalyzer {
 	private void sampleAnalysis(double[] samples) {
 		for (NoiseSearch search : sampleAnalyzer) {
 			search.search(samples);
-			search.compact();
 		}
 	}
 
 	private void frequencyAnalysis(double[] magnitudes) {
 		for (NoiseSearch search : frequencyAnalyzer) {
 			search.search(magnitudes);
-			search.compact();
 		}
 	}
 
