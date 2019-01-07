@@ -127,6 +127,7 @@ public class MainView extends Stage {
 		});
 
 		exitMenuItem.setOnAction(event -> {
+			controller.shutdown();
 			Stage stage = (Stage) this.getScene().getWindow();
 			stage.close();
 		});
