@@ -89,9 +89,9 @@ public class Spectrogram {
 	/**
 	 * Transforms the image.
 	 * 
-	 * @param image
-	 * @param at
-	 * @return
+	 * @param image - Image to be transformed.
+	 * @param at - Transform
+	 * @return Transformed image
 	 */
 	private BufferedImage createTransformed(BufferedImage image, AffineTransform at) {
 		BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
