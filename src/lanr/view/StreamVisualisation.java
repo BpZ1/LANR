@@ -14,7 +14,7 @@ import lanr.logic.model.AudioStream;
  * @author Nicolas Bruch
  * 
  */
-public class ChannelVisualisation extends Canvas {	
+public class StreamVisualisation extends Canvas {	
 	private final double width;
 	private final AudioStream channel;
 	private final long sampleCount;
@@ -29,7 +29,7 @@ public class ChannelVisualisation extends Canvas {
 	private double currentXPosition = 0;
 	private double lastYPosition = 0;
 
-	public ChannelVisualisation(double parentWidth, double height, AudioStream channel) {
+	public StreamVisualisation(double parentWidth, double height, AudioStream channel) {
 		this.setHeight(height);
 		this.channel = channel;
 		this.getGraphicsContext2D().setStroke(Color.BLUE);
@@ -45,7 +45,7 @@ public class ChannelVisualisation extends Canvas {
 		}
 		this.setWidth(width);
 		this.sampleDistance = width / sampleCount;
-		this.maxSampleValue = Math.pow(2, channel.getBitDepth()) + 10; // added 10 for puffer
+		this.maxSampleValue = 200;
 		this.heightValue = height / maxSampleValue;
 		this.halfValue = maxSampleValue / 2;
 
@@ -72,7 +72,7 @@ public class ChannelVisualisation extends Canvas {
 				 * multiplier is needed to convert the sample value into the height space of the
 				 * canvas.
 				 */
-				sampleYPosition = (sample + halfValue) * heightValue;
+				sampleYPosition = (sample * 100 + halfValue) * heightValue;
 				this.getGraphicsContext2D().strokeLine(currentXPosition, lastYPosition, newXPosition, sampleYPosition);
 				// update last point
 				lastYPosition = sampleYPosition;
