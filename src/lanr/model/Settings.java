@@ -11,6 +11,7 @@ import lanr.logic.FileReader;
 import lanr.logic.Spectrogram;
 import lanr.logic.frequency.FrequencyConversion;
 import lanr.logic.model.AudioStream;
+import lanr.logic.model.Tuple;
 import lanr.view.AudioDataContainer;
 import lanr.view.StreamVisualisation;
 
