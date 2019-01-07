@@ -12,7 +12,7 @@ import lanr.logic.Spectrogram;
 import lanr.logic.frequency.FrequencyConversion;
 import lanr.logic.model.AudioStream;
 import lanr.view.AudioDataContainer;
-import lanr.view.ChannelVisualisation;
+import lanr.view.StreamVisualisation;
 
 /**
  * Contains variable settings that are saved and used to change the received
@@ -264,7 +264,7 @@ public class Settings {
 	}
 
 	public void setVisualisationFactor(double visualisationFactor) {
-		ChannelVisualisation.setVisualisationReductionFactor(visualisationFactor);
+		StreamVisualisation.setVisualisationReductionFactor(visualisationFactor);
 		this.visualisationFactor.y = visualisationFactor;
 	}
 
