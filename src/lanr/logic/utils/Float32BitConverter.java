@@ -16,7 +16,7 @@ public class Float32BitConverter extends DoubleConverter {
 		double[] resultData = new double[data.length / 4];
 		ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
 		for (int i = 0; i < resultData.length; i++) {
-			resultData[i] = buffer.getFloat() * 10000;
+			resultData[i] = buffer.getFloat();
 		}
 		return resultData;
 	}
