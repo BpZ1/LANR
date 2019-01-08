@@ -49,7 +49,7 @@ public class SilenceSearch extends NoiseSearch {
 					if(currentNoise != null) {
 						currentNoise.setLength(currentNoise.getLength() + 1);
 					}else {
-						currentNoise = new Noise(NoiseType.Silence, sampleCounter, minimalDurationSamples, 0);
+						currentNoise = new Noise(NoiseType.Silence, sampleCounter - minimalDurationSamples, minimalDurationSamples, 0);
 					}
 				}				
 			}else {
@@ -76,8 +76,7 @@ public class SilenceSearch extends NoiseSearch {
 		if(currentNoise != null) {
 			foundNoise.add(currentNoise);
 		}
-		combineNoises(foundNoise, 1.0/sampleRate, sampleRate * 3);
-		
+		foundNoise = combineNoises(foundNoise, 1.0/sampleRate, sampleRate * 3);		
 	}
 
 }
