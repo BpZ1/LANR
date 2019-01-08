@@ -2,39 +2,12 @@ package lanr.logic.noise;
 
 import lanr.logic.model.Noise;
 
-public class PotentialHumming {
+public class PotentialHumming extends PotentialNoise {
 
-	private Noise noise;
-	private int counter = 0;
-	private int skipCounter = 0;
 	private int lastWindowIndex;
 	
 	public PotentialHumming(Noise noise) {
-		this.noise = noise;
-	}
-
-	public Noise getNoise() {
-		return noise;
-	}
-
-	public void setNoise(Noise noise) {
-		this.noise = noise;
-	}
-
-	public void incrementSkipCounter() {
-		this.skipCounter++;
-	}
-	
-	public void incrementCounter() {
-		this.counter++;
-	}
-	
-	public int getSkipCounter() {
-		return skipCounter;
-	}
-
-	public void setSkipCounter(int skipCounter) {
-		this.skipCounter = skipCounter;
+		super(noise);
 	}
 
 	public int getLastWindowIndex() {
@@ -44,13 +17,4 @@ public class PotentialHumming {
 	public void setLastWindowIndex(int lastWindowIndex) {
 		this.lastWindowIndex = lastWindowIndex;
 	}
-
-	public int getCounter() {
-		return counter;
-	}
-
-	public void setCounter(int counter) {
-		this.counter = counter;
-	}
-	
 }
