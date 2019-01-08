@@ -6,6 +6,13 @@ import java.util.List;
 import lanr.logic.model.Noise;
 import lanr.logic.model.NoiseType;
 
+/**
+ * Searches for parts of the signal that are
+ * under a specified threshold for a certain duration.
+ * 
+ * @author Nicolas Bruch
+ *
+ */
 public class SilenceSearch extends NoiseSearch {
 
 	/**
