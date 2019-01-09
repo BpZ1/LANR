@@ -16,6 +16,8 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
@@ -67,8 +69,7 @@ public class MainView extends Stage {
 	private Pane createRootPane() {
 		BorderPane bp = new BorderPane();
 		bp.setTop(createTopMenu());
-		centerPane = createCenterPane();
-		bp.setCenter(centerPane);
+		bp.setCenter(createCenterPane());
 		bp.setBottom(createBottomPane());
 		return bp;
 	}
@@ -171,10 +172,15 @@ public class MainView extends Stage {
 		}
 	}
 
-	private Accordion createCenterPane() {
-		Accordion center = new Accordion();
-		audioList = center.getPanes();
-		return center;
+	private ScrollPane createCenterPane() {
+		ScrollPane pane = new ScrollPane();
+		pane.setFitToWidth(true);
+		pane.setHbarPolicy(ScrollBarPolicy.NEVER);
+		pane.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+		centerPane = new Accordion();
+		audioList = centerPane.getPanes();
+		pane.setContent(centerPane);
+		return pane;
 	}
 
 	private Pane createBottomPane() {
