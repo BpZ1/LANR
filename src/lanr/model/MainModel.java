@@ -28,7 +28,7 @@ public class MainModel extends Model {
 	
 	private MainModel() {
 		reader = new FileReader(
-				Settings.getInstance().getThreadCount(), //Number of threads
+				1,//Settings.getInstance().getThreadCount(), //Number of threads //TODO: Fix threading issue with humble library
 				getReaderEventHandler());	//Event handler
 	};
 	
@@ -132,8 +132,13 @@ public class MainModel extends Model {
 						}					
 						break;
 					case FileReader.ERROR_PROPERTY:
-						LANRException e = (LANRException) evt.getNewValue();
-						state.firePropertyChange(ERROR_PROPERTY, null, e);
+						if(evt.getNewValue() instanceof LANRException) {
+							LANRException e = (LANRException) evt.getNewValue();
+							state.firePropertyChange(ERROR_PROPERTY, null, e);
+						}else {
+							Exception e = (Exception) evt.getNewValue();
+							throw new RuntimeException(e);
+						}
 						break;				
 					case FileReader.WORK_STARTED_PROPERTY:
 						state.firePropertyChange(IS_WORKING_PROPERTY, null, null);
