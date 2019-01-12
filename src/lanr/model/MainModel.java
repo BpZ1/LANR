@@ -28,7 +28,7 @@ public class MainModel extends Model {
 	
 	private MainModel() {
 		reader = new FileReader(
-				1,//Settings.getInstance().getThreadCount(), //Number of threads //TODO: Fix threading issue with humble library
+				Settings.getInstance().getThreadCount(), //Number of threads //TODO:
 				getReaderEventHandler());	//Event handler
 	};
 	
