@@ -60,7 +60,7 @@ public class AudioAnalyzer {
 	}
 
 	/**
-	 * Returns the spectrogram generated.
+	 * Returns the spectrogram generated.<br>
 	 * This method should only be called after all data has been
 	 * submitted as the spectrogram will otherwise be incomplete.
 	 * @return
@@ -72,6 +72,11 @@ public class AudioAnalyzer {
 		return null;
 	}
 	
+	/**
+	 * Returns all {@link Noise}s that were found.<br>
+	 * Should only be called after finish().
+	 * @return List of the found noise.
+	 */
 	public List<Noise> getNoise() {
 		List<Noise> noise = new LinkedList<Noise>();
 		for(NoiseSearch analyzer : sampleAnalyzer) {
@@ -122,6 +127,9 @@ public class AudioAnalyzer {
 		}
 	}
 
+	/**
+	 * Should be called after the analysis is complete.
+	 */
 	public void finish() {
 		for (NoiseSearch search : frequencyAnalyzer) {
 			search.compact();
@@ -131,6 +139,11 @@ public class AudioAnalyzer {
 		}
 	}
 	
+	/**
+	 * Converts amplitudes to decibel.
+	 * @param values - Amplitudes.
+	 * @return Decibel values
+	 */
 	private double[] toDecibel(double[] values) {
 		for(int i = 0; i < values.length; i++) {
 			values[i] = 20 * Math.log10(values[i]);
