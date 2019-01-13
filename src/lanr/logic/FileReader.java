@@ -240,10 +240,6 @@ public class FileReader  {
 		List<AudioStream> audioStreams = new ArrayList<AudioStream>();
 		AudioData data = new AudioData(path, audioStreams);
 
-		/*
-		 * Start by creating a container object, in this case a demuxer since we are
-		 * reading, to get audio data from.
-		 */
 		Demuxer demuxer = Demuxer.make();
 		demuxer.open(path, null, false, true, null, null);
 
@@ -319,6 +315,7 @@ public class FileReader  {
 		final Decoder decoder = stream.getDecoder();
 		
 		decoder.open(null, null);
+	
 		final MediaAudio samples = MediaAudio.make(decoder.getFrameSize(), decoder.getSampleRate(),
 				decoder.getChannels(), decoder.getChannelLayout(), decoder.getSampleFormat());
 				
