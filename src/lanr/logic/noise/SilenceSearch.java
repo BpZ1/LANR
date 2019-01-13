@@ -20,7 +20,11 @@ public class SilenceSearch extends NoiseSearch {
 	 * recognized as silence.
 	 */
 	private static double threshold = 0.02;
-	private static int maxSkip = 100;
+	/**
+	 * Maximum number of samples that can be over the threshold 
+	 * in a silence window.
+	 */
+	private final int maxSkip = sampleRate / 500;
 	/**
 	 * Number of seconds a silence has to last before it is
 	 * recognized as such.
@@ -50,16 +54,26 @@ public class SilenceSearch extends NoiseSearch {
 		long minimalDurationSamples = minimalDuration * sampleRate;
 		for(double s : samples) {
 			sampleCounter++;
+			//Check if the sample is under the threshold
 			if(Math.abs(s) < threshold) {
 				counter++;
+				//Check if the sample
 				if(counter >= minimalDurationSamples) {
 					if(currentNoise != null) {
 						currentNoise.setLength(currentNoise.getLength() + 1);
 					}else {
-						currentNoise = new Noise(NoiseType.Silence, sampleCounter - minimalDurationSamples, minimalDurationSamples, 0);
+						currentNoise = new Noise(NoiseType.Silence,
+								sampleCounter - minimalDurationSamples,
+								minimalDurationSamples, 0);
 					}
 				}				
 			}else {
+				/*
+				 * If a sample over the threshold was found increment the skip counter
+				 * If the skip counter is over the allowed number of skips
+				 * start a new search by resetting the counter. If a noise was already
+				 * created it will be added to the list of found noises.
+				 */
 				skipCounter++;
 				if(skipCounter > maxSkip) {
 					counter = 0;
@@ -83,6 +97,7 @@ public class SilenceSearch extends NoiseSearch {
 		if(currentNoise != null) {
 			foundNoise.add(currentNoise);
 		}
+		//Noises that are up to 3 seconds apart will still be counted as one.
 		foundNoise = combineNoises(foundNoise, 1.0/sampleRate, sampleRate * 3);		
 	}
 
