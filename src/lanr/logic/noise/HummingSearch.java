@@ -11,20 +11,29 @@ import lanr.logic.model.Noise;
 import lanr.logic.model.NoiseType;
 
 public class HummingSearch extends FrequencyAnalyzer {
-
+	
 	/**
 	 * Severity per second of noise
 	 */
 	private static final double SEVERITY_WEIGHT = 1;
 	private static final double TOLERANCE = 1;
 	/**
-	 * Number of frames that can be interrupted and still count
+	 * Threshold for the decibel value of the humming.
+	 */
+	private static final double DECIBEL_BOUND_VALUE = -40;
+	/**
+	 * We are only interested in low frequency humming under 400 Hz.
+	 */
+	private static final double FREQUENCY_BOUND_VALUE = 400;
+	/**
+	 * Number of windows that can be interrupted and still count
 	 */
 	private int toleranceLevel = (int) (TOLERANCE * 4000 / windowSize);	
 	/**
-	 * The signal must exist for 1/4th of a second.
+	 * Number of seconds for which the humming must persist.
 	 */
-	private int threshold = sampleRate * 3;
+	private static int duration = 3;
+	private int threshold = sampleRate * duration;
 	/**
 	 * Value how much one window counts in severity.
 	 */
@@ -32,11 +41,16 @@ public class HummingSearch extends FrequencyAnalyzer {
 
 	public HummingSearch(int sampleRate, int windowSize) {
 		super(sampleRate, windowSize);
+		//Calculate the frequencies of the input bins
+		for(int i = 0; i < windowSize / 2; i++) {
+			frequencies.add(calculateFrequency(i));
+		}
 	}
 	private int windowCount = 0;
 	private long locationCounter = 0;
 	private List<Noise> noise = new LinkedList<Noise>();
 
+	private List<Double> frequencies = new LinkedList<Double>();
 	private Map<Integer, PotentialHumming> frequencyMap = new HashMap<Integer, PotentialHumming>();
 	private List<Integer> toBeRemoved = new LinkedList<Integer>();
 
@@ -45,7 +59,7 @@ public class HummingSearch extends FrequencyAnalyzer {
 		//Check all frequencies for high decibel values
 		for (int i = 0; i < samples.length; i++) {
 			//If found add it to the frequency map or update the window in which it was found
-			if (samples[i] > 0) {
+			if (samples[i] > DECIBEL_BOUND_VALUE && frequencies.get(i) < FREQUENCY_BOUND_VALUE) {
 				PotentialHumming pn = frequencyMap.get(i);
 				if (pn != null) {
 					pn.setLastWindowIndex(windowCount);
@@ -57,10 +71,10 @@ public class HummingSearch extends FrequencyAnalyzer {
 				}
 			}
 		}
-		//Check which frequencies skipped frames and could be removed
+		//Check which frequencies skipped windows and could be removed
 		for (Entry<Integer, PotentialHumming> entry : frequencyMap.entrySet()) {
 			PotentialHumming pn = entry.getValue();
-			//Check if the frequency was found this frame
+			//Check if the frequency was found this window
 			if((windowCount - pn.getLastWindowIndex()) > 0) {
 				pn.incrementSkipCounter();
 			}
@@ -73,7 +87,7 @@ public class HummingSearch extends FrequencyAnalyzer {
 				toBeRemoved.add(entry.getKey());
 			}
 		}
-		//Remove all frequencies that went over the treshold
+		//Remove all frequencies that went over the threshold
 		for(Integer i : toBeRemoved) {
 			frequencyMap.remove(i);
 		}
@@ -96,14 +110,12 @@ public class HummingSearch extends FrequencyAnalyzer {
 		for (Entry<Integer, PotentialHumming> entry : frequencyMap.entrySet()) {
 			PotentialHumming pn = entry.getValue();
 			if(pn.getCounter() * windowSize > threshold) {
-				pn.getNoise().setSeverity((pn.getNoise().getLength() / sampleRate) * SEVERITY_WEIGHT);
 				noise.add(pn.getNoise());
 			}
 		}
-		//Combine noises if possible
-		
+		//Combine noises if possible		
 		if(!noise.isEmpty()) {
-			this.noise = combineNoises(noise, SEVERITY_WEIGHT, 0);
+			this.noise = combineNoises(noise, SEVERITY_WEIGHT/sampleRate, sampleRate);
 		}	
 	}
 
