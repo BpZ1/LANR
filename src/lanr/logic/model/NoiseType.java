@@ -24,9 +24,9 @@ public enum NoiseType {
 	 */
 	Volume("Difference in volume in the audio stream"),
 	/**
-	 * Other noises.
+	 * Background noise.
 	 */
-	Other("Difference in volume in the audio stream");
+	Background("Difference in volume in the audio stream");
 	
 	private final String definition;
 	
