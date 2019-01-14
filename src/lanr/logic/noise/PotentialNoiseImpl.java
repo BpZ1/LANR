@@ -2,11 +2,11 @@ package lanr.logic.noise;
 
 import lanr.logic.model.Noise;
 
-public class PotentialHumming extends PotentialNoise {
+public class PotentialNoiseImpl extends PotentialNoise {
 
 	private int lastWindowIndex;
 	
-	public PotentialHumming(Noise noise) {
+	public PotentialNoiseImpl(Noise noise) {
 		super(noise);
 	}
 
