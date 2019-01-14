@@ -64,6 +64,7 @@ public abstract class NoiseSearch {
 	protected List<Noise> combineNoises(List<Noise> noise, double severity, long distance) {
 		List<Noise> noises = new LinkedList<Noise>(noise);
 		int numberOfNoises = 0;
+		//Iterate to keep combining noises until the number stays the same.
 		do {
 			numberOfNoises = noises.size();
 			noises = combine(noises, severity, distance);

@@ -10,8 +10,8 @@ import lanr.logic.model.NoiseType;
 /**
  * Search for background noise.<br>
  * The search does the following:<br>
- * Save all values as long as a window contains a dBFS value over the given
- * threshold.
+ * Background noise is defined as noise in the range of
+ * 400 hZ or more over a certain threshold of dBFS.<br>
  * 
  * @author Nicolas Bruch
  *
