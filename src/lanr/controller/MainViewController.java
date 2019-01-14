@@ -2,7 +2,6 @@ package lanr.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
 
 import javafx.stage.Modality;
