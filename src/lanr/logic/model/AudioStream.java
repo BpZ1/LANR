@@ -23,6 +23,7 @@ public class AudioStream {
 	private static final String OUTPUT_FOLDER = "spectrograms/";
 	
 	public final static String DATA_ADDED_PROPERTY = "added";	
+	public final static String ANALYZING_COMPLETE = "complete";
 	
 	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
 
@@ -71,6 +72,7 @@ public class AudioStream {
 		if (analyzer != null) {
 			analyzer.finish();
 			this.foundNoise = analyzer.getNoise();
+			this.state.firePropertyChange(ANALYZING_COMPLETE, null, foundNoise);
 			if(createSpectrogram) {
 				StringBuilder fileName = new StringBuilder();
 				fileName.append(OUTPUT_FOLDER);
