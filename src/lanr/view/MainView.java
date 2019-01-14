@@ -3,6 +3,7 @@ package lanr.view;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.List;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
@@ -157,9 +158,9 @@ public class MainView extends Stage {
 		fileChooser.getExtensionFilters().addAll(
 				new ExtensionFilter("Media Files", "*.mp4", "*.avi", "*.mp3"),
 				new ExtensionFilter("All Files", "*.*"));
-		File selectedFile = fileChooser.showOpenDialog(this);
-		if (selectedFile != null) {
-			controller.addFile(selectedFile);
+		List<File> selectedFiles = fileChooser.showOpenMultipleDialog(this);
+		if (selectedFiles != null && !selectedFiles.isEmpty()) {
+			controller.addFiles(selectedFiles);
 		}
 	}
 	
@@ -168,7 +169,7 @@ public class MainView extends Stage {
 		directoryChooser.setTitle("Open Folder");
 		File selectedDirectory = directoryChooser.showDialog(this);		
 		if(selectedDirectory != null) {
-			controller.addFile(selectedDirectory);
+			controller.addFolder(selectedDirectory);
 		}
 	}
 

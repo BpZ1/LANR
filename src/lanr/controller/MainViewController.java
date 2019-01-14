@@ -61,9 +61,24 @@ public class MainViewController {
 	 * Reads a single file and adds it to the list.
 	 * @param path
 	 */
-	public void addFile(File file) {
+	public void addFolder(File file) {
 		try {
 			model.addAudioData(file);
+		} catch (LANRException e) {
+			Utils.showErrorDialog("Could not read file!", e.getMessage());
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Reads a single file and adds it to the list.
+	 * @param path
+	 */
+	public void addFiles(List<File> files) {
+		try {
+			for(File f : files) {
+				model.addAudioData(f);				
+			}
 		} catch (LANRException e) {
 			Utils.showErrorDialog("Could not read file!", e.getMessage());
 			e.printStackTrace();
