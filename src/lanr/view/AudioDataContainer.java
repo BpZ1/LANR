@@ -17,11 +17,13 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import lanr.controller.AudioController;
 import lanr.logic.model.AudioStream;
 import lanr.logic.model.AudioData;
@@ -164,7 +166,7 @@ public class AudioDataContainer extends TitledPane {
 		row++;
 
 		content.getChildren().add(infoBox);				
-		content.getChildren().add(createAnalyzeButton());
+		content.getChildren().add(createButtons());
 		return content;
 	}
 	
@@ -172,13 +174,25 @@ public class AudioDataContainer extends TitledPane {
 	 * Creates the button for analyzing the data.
 	 * @return
 	 */
-	private Button createAnalyzeButton() {
+	private HBox createButtons() {
+		HBox box = new HBox();
+		box.setSpacing(4);
 		analyzeButton = new Button();
 		analyzeButton.setText("Analyze");
 		analyzeButton.setOnAction(event ->{		
 			controller.analyze(data);
 		});
-		return analyzeButton;
+		box.getChildren().add(analyzeButton);
+		
+		Button infoButton = new Button();
+		infoButton.setText("Info");
+		infoButton.setOnAction(event ->{
+			NoiseInfoView infoView = new NoiseInfoView();
+			infoView.initModality(Modality.APPLICATION_MODAL);
+			infoView.showAndWait();
+		});
+		box.getChildren().add(infoButton);
+		return box;
 	}
 	
 	/**
