@@ -32,9 +32,15 @@ public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 
 	private List<Double> frequencies = new LinkedList<Double>();
 
+	/**
+	 * Location on which the current noise was found.
+	 */
 	private long foundLocation = 0;
 	private long locationCounter = 0;
 	private List<Noise> foundNoise = new LinkedList<Noise>();
+	/**
+	 * dBFS values that meet the requirements of background noise.
+	 */
 	private List<Double> frequencyDbValues = new LinkedList<Double>();
 
 	public BackgroundNoiseSearch(int sampleRate, int windowSize) {
@@ -44,13 +50,12 @@ public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 			frequencies.add(calculateFrequency(i));
 		}
 	}
-	private double max = Double.NEGATIVE_INFINITY;
+	
 	@Override
 	public void search(double[] frequencySamples) {
 		boolean windowContainsNoise = false;
 		for (int i = 0; i < frequencySamples.length; i++) {
 			// Check if there are frequencies that are above the threshold
-			max = Math.max(max, frequencySamples[i]);
 			if (frequencySamples[i] > DECIBEL_BOUND && frequencies.get(i) > FREQUENCY_BOUND) {
 				// Save the beginning location if this is the start of the noise
 				if (foundLocation == 0) {
@@ -77,6 +82,18 @@ public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 		locationCounter += windowSize;
 	}
 
+	/**
+	 * Calculates an average value for the given values.<br>
+	 * The value is calculated like this:<br>
+	 * Add the values to the positive lower decibel bound
+	 * to convert them to positive values.<br>
+	 * Take them to the power of 3 to increase the gap
+	 * between big and small numbers.<br>
+	 * Multiply them by 0.25 to get them smaller.<br>
+	 * Sum all values and divide through the number of values.
+	 * @param values - dBFS values.
+	 * @return Specially calculated average value.
+	 */
 	private double average(List<Double> values) {
 		double sum = 0.0;
 		for (double d : values) {
@@ -93,7 +110,6 @@ public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 
 	@Override
 	public void compact() {
-		System.out.println("MAX: " + max);
 		double noiseLevel = average(frequencyDbValues);
 		frequencyDbValues.clear();
 		if (noiseLevel > noiseThreshold) {
