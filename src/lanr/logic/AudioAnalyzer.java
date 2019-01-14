@@ -146,7 +146,7 @@ public class AudioAnalyzer {
 	 */
 	private double[] toDecibel(double[] values) {
 		for(int i = 0; i < values.length; i++) {
-			values[i] = 20 * Math.log10(values[i]);
+			values[i] = Utils.toDBFS(values[i]);
 		}
 		return values;
 	}

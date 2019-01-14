@@ -29,6 +29,7 @@ public class AudioStream {
 
 	private final AudioData parent;
 	private AudioAnalyzer analyzer;
+	private double replayGain;
 	private final long length;
 	/**
 	 * Id of the audio stream
@@ -89,6 +90,14 @@ public class AudioStream {
 			}		
 			analyzer = null;
 		}
+	}
+	
+	public void setReplayGain(double value) {
+		this.replayGain = value;
+	}
+	
+	public double getReplayGain() {
+		return replayGain;
 	}
 
 	public void analyzeData(double[] samples) {

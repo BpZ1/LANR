@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import lanr.logic.FileReader;
+import lanr.logic.AudioLogic;
 import lanr.logic.model.AudioData;
 import lanr.logic.model.LANRException;
 
@@ -24,10 +24,10 @@ public class MainModel extends Model {
 	
 	private List<AudioData> audioData = new ArrayList<AudioData>();
 	private static MainModel instance;
-	private final FileReader reader;
+	private final AudioLogic reader;
 	
 	private MainModel() {
-		reader = new FileReader(
+		reader = new AudioLogic(
 				Settings.getInstance().getThreadCount(), //Number of threads //TODO:
 				getReaderEventHandler());	//Event handler
 	};
@@ -116,13 +116,13 @@ public class MainModel extends Model {
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				switch(evt.getPropertyName()) {
-					case FileReader.MEMORY_USAGE_PROPERTY:
+					case AudioLogic.MEMORY_USAGE_PROPERTY:
 						state.firePropertyChange(MEMORY_USAGE_PROPERTY, null, (double)evt.getNewValue());
 						break;
-					case FileReader.PROGRESS_PROPERTY:
+					case AudioLogic.PROGRESS_PROPERTY:
 						state.firePropertyChange(PROGRESS_UPDATE_PROPERTY, null, evt.getNewValue());
 						break;
-					case FileReader.WORK_ENDED_PROPERTY:
+					case AudioLogic.WORK_ENDED_PROPERTY:
 						if(evt.getNewValue() != null) {
 							AudioData[] data = (AudioData[]) evt.getNewValue();
 							for(AudioData audio : data) {
@@ -131,7 +131,7 @@ public class MainModel extends Model {
 							state.firePropertyChange(AUDIO_ADDED_PROPERTY, null, evt.getNewValue());
 						}					
 						break;
-					case FileReader.ERROR_PROPERTY:
+					case AudioLogic.ERROR_PROPERTY:
 						if(evt.getNewValue() instanceof LANRException) {
 							LANRException e = (LANRException) evt.getNewValue();
 							state.firePropertyChange(ERROR_PROPERTY, null, e);
@@ -140,10 +140,10 @@ public class MainModel extends Model {
 							throw new RuntimeException(e);
 						}
 						break;				
-					case FileReader.WORK_STARTED_PROPERTY:
+					case AudioLogic.WORK_STARTED_PROPERTY:
 						state.firePropertyChange(IS_WORKING_PROPERTY, null, null);
 						break;
-					case FileReader.ALL_TASKS_COMPLETE:
+					case AudioLogic.ALL_TASKS_COMPLETE:
 						state.firePropertyChange(IS_IDLE_PROPERTY, null, true);
 						break;
 				}			

@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
 
-import lanr.logic.FileReader;
+import lanr.logic.AudioLogic;
 import lanr.logic.Spectrogram;
 import lanr.logic.frequency.FrequencyConversion;
 import lanr.logic.model.AudioStream;
@@ -256,7 +256,7 @@ public class Settings {
 	}
 
 	public void setWindowSize(int windowSize) {
-		FileReader.setWindowSize(windowSize);
+		AudioLogic.setWindowSize(windowSize);
 		this.windowSize.y = windowSize;
 	}
 
