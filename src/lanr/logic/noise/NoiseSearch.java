@@ -62,6 +62,16 @@ public abstract class NoiseSearch {
 	 * @return
 	 */
 	protected List<Noise> combineNoises(List<Noise> noise, double severity, long distance) {
+		List<Noise> noises = new LinkedList<Noise>(noise);
+		int numberOfNoises = 0;
+		do {
+			numberOfNoises = noises.size();
+			noises = combine(noises, severity, distance);
+		}while(numberOfNoises != noises.size());
+		return noises;
+	}
+	
+	private final List<Noise> combine(List<Noise> noise, double severity, long distance){
 		if (noise == null) {
 			throw new IllegalArgumentException("The given noise must'nt be null");
 		}
