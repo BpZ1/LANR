@@ -33,16 +33,16 @@ public class AudioAnalyzer {
 	private WindowFunction windowFunction;
 	private boolean useWindowFunction;
 
-	public AudioAnalyzer(int windowSize, int sampleRate, boolean createSpectorgam, boolean useWindowFunction,
+	public AudioAnalyzer(int windowSize, int sampleRate, double replayGain, boolean createSpectorgam, boolean useWindowFunction,
 			FrequencyConversion conversion) {
 		
 		//Sample analyzer
-		sampleAnalyzer.add(new ClippingSearch(sampleRate, windowSize));
-		sampleAnalyzer.add(new SilenceSearch(sampleRate, windowSize));
-		sampleAnalyzer.add(new VolumeSearch(sampleRate, windowSize));
+		sampleAnalyzer.add(new ClippingSearch(sampleRate, windowSize, replayGain));
+		sampleAnalyzer.add(new SilenceSearch(sampleRate, windowSize, replayGain));
+		sampleAnalyzer.add(new VolumeSearch(sampleRate, windowSize, replayGain));
 		//Frequency analyzer
-		frequencyAnalyzer.add(new BackgroundNoiseSearch(sampleRate, windowSize));
-		frequencyAnalyzer.add(new HummingSearch(sampleRate, windowSize));
+		frequencyAnalyzer.add(new BackgroundNoiseSearch(sampleRate, windowSize, replayGain));
+		frequencyAnalyzer.add(new HummingSearch(sampleRate, windowSize, replayGain));
 		
 		this.conversion = conversion;
 		this.useWindowFunction = useWindowFunction;

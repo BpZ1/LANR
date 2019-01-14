@@ -11,7 +11,7 @@ public class StubNoiseSearch extends NoiseSearch {
 	private List<Noise> noiseList = new LinkedList<Noise>();
 	
 	public StubNoiseSearch(int sampleRate, int windowSize) {
-		super(sampleRate, windowSize);
+		super(sampleRate, windowSize, 0);
 	}
 	
 	@Override

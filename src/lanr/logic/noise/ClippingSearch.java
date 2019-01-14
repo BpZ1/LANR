@@ -19,8 +19,8 @@ import lanr.model.Interval;
  */
 public class ClippingSearch extends NoiseSearch {	
 
-	public ClippingSearch(int sampleRate, int windowSize) {
-		super(sampleRate, windowSize);
+	public ClippingSearch(int sampleRate, int windowSize, double replayGain) {
+		super(sampleRate, windowSize, replayGain);
 	}
 
 	private long locationCounter = 0;

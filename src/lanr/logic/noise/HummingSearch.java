@@ -47,8 +47,8 @@ public class HummingSearch extends FrequencyAnalyzer {
 	private Map<Integer, PotentialNoiseImpl> frequencyMap = new HashMap<Integer, PotentialNoiseImpl>();
 	private List<Integer> toBeRemoved = new LinkedList<Integer>();
 
-	public HummingSearch(int sampleRate, int windowSize) {
-		super(sampleRate, windowSize);
+	public HummingSearch(int sampleRate, int windowSize, double replayGain) {
+		super(sampleRate, windowSize, replayGain);
 		//Calculate the frequencies of the input bins
 		for(int i = 0; i < windowSize / 2; i++) {
 			frequencies.add(calculateFrequency(i));

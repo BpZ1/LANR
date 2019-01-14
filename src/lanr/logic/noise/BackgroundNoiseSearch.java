@@ -43,8 +43,8 @@ public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 	 */
 	private List<Double> frequencyDbValues = new LinkedList<Double>();
 
-	public BackgroundNoiseSearch(int sampleRate, int windowSize) {
-		super(sampleRate, windowSize);
+	public BackgroundNoiseSearch(int sampleRate, int windowSize, double replayGain) {
+		super(sampleRate, windowSize, replayGain);
 		// Calculate the frequencies of the input bins
 		for (int i = 0; i < (windowSize / 2) + 1; i++) {
 			frequencies.add(calculateFrequency(i));
@@ -68,6 +68,7 @@ public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 		// If no noise was found in this window, add the previously found noise
 		if (!windowContainsNoise && !frequencyDbValues.isEmpty()) {
 			double noiseLevel = average(frequencyDbValues);
+			System.out.println(noiseLevel + " / " + noiseThreshold);
 			frequencyDbValues.clear();
 			// Only add the noise if it is above a certain level
 			if (noiseLevel > noiseThreshold) {

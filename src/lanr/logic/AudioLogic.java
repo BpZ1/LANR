@@ -3,10 +3,6 @@ package lanr.logic;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
@@ -18,21 +14,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 
-import io.humble.ferry.Buffer;
-import io.humble.video.AudioFormat;
-import io.humble.video.Decoder;
-import io.humble.video.Demuxer;
-import io.humble.video.DemuxerStream;
-import io.humble.video.MediaAudio;
-import io.humble.video.MediaDescriptor;
-import io.humble.video.MediaPacket;
-import io.humble.video.Rational;
-import lanr.logic.model.AudioStream;
 import lanr.logic.model.AudioData;
 import lanr.logic.model.LANRException;
 import lanr.logic.model.LANRFileException;
-import lanr.logic.utils.Converter;
-import lanr.logic.utils.DoubleConverter;
 
 /**
  * Contains all the logic for reading audio or video files.

@@ -22,10 +22,16 @@ public abstract class NoiseSearch {
 	 * Size of the data arrays that will be given for analysis.
 	 */
 	protected final int windowSize;
+	
+	/**
+	 * Replay gain represents the overall volume of the file.
+	 */
+	protected final double replayGain;
 
-	public NoiseSearch(int sampleRate, int windowSize) {
+	public NoiseSearch(int sampleRate, int windowSize, double replayGain) {
 		this.sampleRate = sampleRate;
 		this.windowSize = windowSize;
+		this.replayGain = replayGain;
 	}
 
 	/**

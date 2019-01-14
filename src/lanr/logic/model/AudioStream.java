@@ -65,7 +65,7 @@ public class AudioStream {
 	}
 
 	public void analyseStart(int frameSize) {
-		analyzer = new AudioAnalyzer(frameSize, sampleRate,
+		analyzer = new AudioAnalyzer(frameSize, sampleRate, replayGain,
 				createSpectrogram, usingWindowFunction, converter);
 	}
 

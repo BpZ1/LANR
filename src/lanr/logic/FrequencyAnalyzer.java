@@ -4,8 +4,8 @@ import lanr.logic.noise.NoiseSearch;
 
 public abstract class FrequencyAnalyzer extends NoiseSearch {
 	
-	public FrequencyAnalyzer(int sampleRate, int windowSize) {
-		super(sampleRate, windowSize);
+	public FrequencyAnalyzer(int sampleRate, int windowSize, double replayGain) {
+		super(sampleRate, windowSize, replayGain);
 	}
 
 	/**

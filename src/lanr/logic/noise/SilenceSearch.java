@@ -45,8 +45,8 @@ public class SilenceSearch extends NoiseSearch {
 	private List<Noise> foundNoise = new LinkedList<Noise>();
 	private Noise currentNoise;
 	
-	public SilenceSearch(int sampleRate, int windowSize) {
-		super(sampleRate, windowSize);
+	public SilenceSearch(int sampleRate, int windowSize, double replayGain) {
+		super(sampleRate, windowSize, replayGain);
 	}
 	
 	@Override

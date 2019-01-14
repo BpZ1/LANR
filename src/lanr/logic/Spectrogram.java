@@ -32,6 +32,7 @@ public class Spectrogram {
 	 * Contrast for the spectrogram. Default = 300
 	 */
 	private static int contrast = 300;
+	private static double scale = 1;
 	private int maxFrames = ARRAY_MULTIPLICATOR;
 	private int currentFrame = 0;
 	private BufferedImage image;
@@ -110,9 +111,11 @@ public class Spectrogram {
 	 * @param newH
 	 * @return
 	 */
-	private BufferedImage resize(BufferedImage img, int newW, int newH) {
-		Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
-		BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
+	private BufferedImage resize(BufferedImage img, double scale) {
+		int newWidth = (int) (img.getWidth() * scale);
+		int newHeight = (int) (img.getHeight() * scale);
+		Image tmp = img.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+		BufferedImage dimg = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = dimg.createGraphics();
 		g2d.drawImage(tmp, 0, 0, null);
 		g2d.dispose();
@@ -132,6 +135,9 @@ public class Spectrogram {
 			AffineTransform at = new AffineTransform();
 			at.concatenate(AffineTransform.getScaleInstance(1, -1));
 			at.concatenate(AffineTransform.getTranslateInstance(0, -image.getHeight()));
+			if(scale != 1) {
+				image = resize(image, scale);
+			}
 			return createTransformed(image, at);
 		} else {
 			return image;
@@ -144,5 +150,13 @@ public class Spectrogram {
 
 	public static int getContrast() {
 		return contrast;
+	}
+	
+	public static void setScale(double value) {
+		scale = value;
+	}
+	
+	public static double getScale() {
+		return scale;
 	}
 }

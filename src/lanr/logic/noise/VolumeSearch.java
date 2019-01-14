@@ -6,8 +6,8 @@ import lanr.logic.model.Noise;
 
 public class VolumeSearch extends NoiseSearch {
 
-	public VolumeSearch(int sampleRate, int windowSize) {
-		super(sampleRate, windowSize);
+	public VolumeSearch(int sampleRate, int windowSize, double replayGain) {
+		super(sampleRate, windowSize, replayGain);
 	}
 
 	@Override
