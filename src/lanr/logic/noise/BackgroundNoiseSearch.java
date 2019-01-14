@@ -68,7 +68,6 @@ public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 		// If no noise was found in this window, add the previously found noise
 		if (!windowContainsNoise && !frequencyDbValues.isEmpty()) {
 			double noiseLevel = average(frequencyDbValues);
-			System.out.println("Number: " + frequencyDbValues.size() + " Value: " + noiseLevel);
 			frequencyDbValues.clear();
 			// Only add the noise if it is above a certain level
 			if (noiseLevel > noiseThreshold) {
