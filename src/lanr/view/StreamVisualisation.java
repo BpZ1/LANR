@@ -52,7 +52,6 @@ public class StreamVisualisation extends Canvas {
 		channel.addChangeListener(createChangeListener());
 		//Number of samples that will be displayed
 		this.sampleCount = (long) ((channel.getLength() * channel.getSampleRate()) * visualisationReductionFactor);
-		System.out.println(channel.getLength() + "   " + channel.getSampleRate() + "  " +  visualisationReductionFactor);
 		if (channel.getLength() / 3 < parentWidth) {
 			this.width = parentWidth;
 		} else {
