@@ -19,9 +19,7 @@ import lanr.logic.model.LANRException;
 import lanr.logic.model.LANRFileException;
 
 /**
- * Contains all the logic for reading audio or video files.
- * Also contains a thread pool that will be used every time an audio file
- * is being read or analyzed.
+ * Contains all the logic managing the threads that read and analyze audio files.
  * 
  * @author Nicolas Bruch
  *
