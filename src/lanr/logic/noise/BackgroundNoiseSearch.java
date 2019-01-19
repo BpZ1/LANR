@@ -18,11 +18,11 @@ import lanr.logic.model.NoiseType;
  */
 public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 
-	private static double noiseThreshold = 100;
+	private static double noiseThreshold = 400;
 	/**
 	 * Minimum dBFS value.
 	 */
-	private final static double DECIBEL_BOUND = -30;
+	private final static double DECIBEL_BOUND = -40;
 	/**
 	 * Lower frequency bound.
 	 */
@@ -68,18 +68,18 @@ public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 			}
 		}
 		// If no noise was found in this window, add the previously found noise
-		if (!windowContainsNoise && !frequencyDbValues.isEmpty()) {
+		if (windowContainsNoise && !frequencyDbValues.isEmpty()) {
 			double noiseLevel = average(frequencyDbValues);
 			System.out.println(noiseLevel + " / " + noiseThreshold);
 			frequencyDbValues.clear();
 			// Only add the noise if it is above a certain level
-			if (noiseLevel > noiseThreshold) {
-				long length = (locationCounter - foundLocation) + windowSize;
+			if (noiseLevel > noiseThreshold) {				
 				if(currentNoise != null) {
 					//Add the noise to the existing noise
-				}
-				if(length >= duration) {
-					foundNoise.add(new Noise(NoiseType.Background, foundLocation, length, noiseLevel));					
+					currentNoise.setLength(currentNoise.getLength() + windowSize);
+				}else {
+					long length = (locationCounter - foundLocation) + windowSize;
+					currentNoise = new Noise(NoiseType.Background, foundLocation, length, noiseLevel);
 				}
 			}else {
 				if(currentNoise != null) {
@@ -101,7 +101,6 @@ public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 	 * to convert them to positive values.<br>
 	 * Take them to the power of 3 to increase the gap
 	 * between big and small numbers.<br>
-	 * Multiply them by 0.25 to get them smaller.<br>
 	 * Sum all values and divide through the number of values.
 	 * @param values - dBFS values.
 	 * @return Specially calculated average value.
@@ -109,8 +108,16 @@ public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 	private double average(List<Double> values) {
 		double sum = 0.0;
 		for (double d : values) {
-			double value = Math.pow(40 + d, 3) * 0.25;
+			double value = Math.pow(40 + d, 2);
 			sum += value;
+		}
+		return sum / values.size();
+	}
+	
+	private double normalAverage(List<Double> values) {
+		double sum = 0.0;
+		for (double d : values) {
+			sum += d;
 		}
 		return sum / values.size();
 	}
