@@ -25,8 +25,22 @@ import lanr.logic.model.LANRFileException;
 import lanr.logic.utils.Converter;
 import lanr.logic.utils.DoubleConverter;
 
+/**
+ * This class contains methods for reading the audio of 
+ * media files.
+ * 
+ * @author Nicolas Bruch
+ *
+ */
 class FileReader {
 
+	/**
+	 * Reference Replay gain value calculated from a 83dB pink noise signal.
+	 * This value is just used to normalize the volume of the audio.
+	 * The size of this value does not matter as long as 
+	 * the replay gain value is not saved in the file, or the file
+	 * is not played with volume adjusted according to this value.
+	 */
 	private static final double refDBValue = -21.796831800472418;
 	/**
 	 * Creates a {@link AudioData} object containing data about the audio file.
@@ -102,6 +116,17 @@ class FileReader {
 		data.setAnalyzed(true);
 	}
 	
+	/**
+	 * Calculates the Replay Gain value of a given audio stream.
+	 * @param streamData
+	 * @param demuxer
+	 * @param windowSize
+	 * @param interrupted
+	 * @throws InterruptedException
+	 * @throws IOException
+	 * @throws LANRFileException
+	 * @throws LANRException
+	 */
 	private static void calculateReplayGain(AudioStream streamData, Demuxer demuxer, int windowSize, AtomicBoolean interrupted) 
 			throws InterruptedException, IOException, LANRFileException, LANRException {
 		final DemuxerStream stream = demuxer.getStream(streamData.getId());
@@ -177,9 +202,16 @@ class FileReader {
 		Collections.sort(rmsValues);
 		double replayGain = refDBValue - rmsValues.get((int) (rmsValues.size() * 0.95));
 		streamData.setReplayGain(replayGain);
-		System.out.println(replayGain);
 	}
 	
+	/**
+	 * Calculates the Root Mean Square of the given samples.
+	 * This is done by calculating the average of the squared channel
+	 * samples, then calculating the average of the channel averages.
+	 * And then squaring the result.
+	 * @param channelSamples
+	 * @return
+	 */
 	private static double calculateRMS(double[][] channelSamples) {
 		double[] means = new double[channelSamples.length];
 		//Calculating the sum of the squared sample values
