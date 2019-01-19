@@ -3,6 +3,7 @@ package lanr.logic.noise;
 import java.util.LinkedList;
 import java.util.List;
 
+import lanr.logic.Utils;
 import lanr.logic.model.Noise;
 import lanr.logic.model.NoiseType;
 
@@ -19,7 +20,7 @@ public class SilenceSearch extends NoiseSearch {
 	 * Threshold of the audio signal under which it is
 	 * recognized as silence.
 	 */
-	private static double threshold = 0.02;
+	private static double threshold = -40;
 	/**
 	 * Maximum number of samples that can be over the threshold 
 	 * in a silence window.
@@ -55,7 +56,8 @@ public class SilenceSearch extends NoiseSearch {
 		for(double s : samples) {
 			sampleCounter++;
 			//Check if the sample is under the threshold
-			if(Math.abs(s) < threshold) {
+			double dbValue = Utils.toDBFS(s) + replayGain;
+			if(dbValue < threshold) {
 				counter++;
 				//Check if the sample
 				if(counter >= minimalDurationSamples) {
