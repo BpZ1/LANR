@@ -1,9 +1,9 @@
 package lanr.logic.model;
 
 /**
- * @author Nicolas Bruch
+ * Represents noise found in an audio signal.
  * 
- *         Represents noise found in an audio signal.
+ * @author Nicolas Bruch      
  *
  */
 public class Noise {
