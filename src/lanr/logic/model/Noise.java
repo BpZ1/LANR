@@ -65,7 +65,7 @@ public class Noise {
 	/**
 	 * Checks if the given noise is inside
 	 * of the time interval of the noise.
-	 * @return
+	 * @return True if the given noise is completely inside of this noise.
 	 */
 	public boolean isInside(Noise noise) {
 		if(location <= noise.getLocation() && end >= noise.getEnd()) {
@@ -74,6 +74,11 @@ public class Noise {
 		return false;
 	}
 	
+	/**
+	 * Checks if the given noise is not overlapping with the noise.
+	 * @param noise
+	 * @return True if they are not overlapping.
+	 */
 	public boolean isOutside(Noise noise) {
 		if(noise.getLocation() > end || noise.getEnd() < location) {
 			return true;
