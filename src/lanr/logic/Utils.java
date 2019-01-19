@@ -20,6 +20,6 @@ public class Utils {
 	 * @return dBFS value.
 	 */
 	public static double toDBFS(double sample) {
-		return 20 * Math.log10(sample);
+		return 20 * Math.log10(Math.abs(sample));
 	}
 }
