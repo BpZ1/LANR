@@ -32,10 +32,12 @@ public class AudioAnalyzer {
 	private FrequencyConversion conversion;
 	private WindowFunction windowFunction;
 	private boolean useWindowFunction;
+	private double replayGain;
 
 	public AudioAnalyzer(int windowSize, int sampleRate, double replayGain, boolean createSpectorgam, boolean useWindowFunction,
 			FrequencyConversion conversion) {
 		
+		this.replayGain = replayGain;
 		//Sample analyzer
 		sampleAnalyzer.add(new ClippingSearch(sampleRate, windowSize, replayGain));
 		sampleAnalyzer.add(new SilenceSearch(sampleRate, windowSize, replayGain));
@@ -146,7 +148,7 @@ public class AudioAnalyzer {
 	 */
 	private double[] toDecibel(double[] values) {
 		for(int i = 0; i < values.length; i++) {
-			values[i] = Utils.toDBFS(values[i]);
+			values[i] = Utils.toDBFS(values[i]) + replayGain;
 		}
 		return values;
 	}
