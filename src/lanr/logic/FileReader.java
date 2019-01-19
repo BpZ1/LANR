@@ -27,6 +27,7 @@ import lanr.logic.utils.DoubleConverter;
 
 class FileReader {
 
+	private static final double refDBValue = -21.796831800472418;
 	/**
 	 * Creates a {@link AudioData} object containing data about the audio file.
 	 * 
@@ -174,8 +175,9 @@ class FileReader {
 			rmsValues.add(Utils.toDBFS(calculateRMS(data)));
 		}
 		Collections.sort(rmsValues);
-		double replayGain = rmsValues.get((int) (rmsValues.size() * 0.95));
+		double replayGain = refDBValue - rmsValues.get((int) (rmsValues.size() * 0.95));
 		streamData.setReplayGain(replayGain);
+		System.out.println(replayGain);
 	}
 	
 	private static double calculateRMS(double[][] channelSamples) {
