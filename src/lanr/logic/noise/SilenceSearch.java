@@ -98,7 +98,7 @@ public class SilenceSearch extends NoiseSearch {
 			foundNoise.add(currentNoise);
 		}
 		//Noises that are up to 3 seconds apart will still be counted as one.
-		foundNoise = combineNoises(foundNoise, 1.0/sampleRate, sampleRate * 3);		
+		foundNoise = combineNoises(foundNoise, sampleRate * 3);		
 	}
 
 }

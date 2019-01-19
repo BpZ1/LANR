@@ -16,7 +16,7 @@ import lanr.logic.model.Noise;
  * @author Nicolas Bruch
  *
  */
-public class NoiseSearchTest {
+public class NoiseCombinationTest {
 
 	/**
 	 * Noises created:<br>

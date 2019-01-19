@@ -67,43 +67,36 @@ public abstract class NoiseSearch {
 	 *                 other. Value is in samples.
 	 * @return
 	 */
-	protected List<Noise> combineNoises(List<Noise> noise, double severity, long distance) {
+	protected List<Noise> combineNoises(List<Noise> noise, long distance) {
 		List<Noise> noises = new LinkedList<Noise>(noise);
 		int numberOfNoises = 0;
 		//Iterate to keep combining noises until the number stays the same.
 		do {
 			numberOfNoises = noises.size();
-			noises = combine(noises, severity, distance);
+			noises = combine(noises, distance);
 		}while(numberOfNoises != noises.size());
 		return noises;
 	}
 	
-	private final List<Noise> combine(List<Noise> noise, double severity, long distance){
+	private final List<Noise> combine(List<Noise> noise, long distance){
 		if (noise == null) {
 			throw new IllegalArgumentException("The given noise must'nt be null");
 		}
 		if (noise.isEmpty()) {
 			return new LinkedList<Noise>();
 		}
-		List<Noise> noises = new LinkedList<Noise>();
-		Noise currentNoise = noise.get(0);
-		long endOfNoise = currentNoise.getLocation() + currentNoise.getLength() + distance;
-		for (Noise n : noise) {
-			long endOfN = n.getLocation() + n.getLength();
-			if (n.getLocation() < endOfNoise) {
-				// Check if it goes further than the current noise
-				if (endOfN > endOfNoise) {
-					currentNoise.setLength(endOfN - currentNoise.getLocation());
-				}
-			} else {
-				// Sets the new noise as current if they are not overlapping
-				currentNoise.setSeverity((currentNoise.getLength() / sampleRate) * severity);
-				noises.add(currentNoise);
-				currentNoise = n;
-				endOfNoise = endOfN + distance;
+		for (int i = 0; i < noise.size(); i++) {
+			if(i +1 < noise.size()) {
+				Noise current = noise.get(i);
+				current.setLength(current.getLength() + distance);
+				if(current.add(noise.get(i +1))) {
+					noise.remove(i + 1);
+					i--;
+				}else{
+					current.setLength(current.getLength() - distance);
+				};
 			}
 		}
-		noises.add(currentNoise);
-		return noises;
+		return noise;
 	}
 }

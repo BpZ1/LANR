@@ -116,7 +116,7 @@ public class HummingSearch extends FrequencyAnalyzer {
 		}
 		//Combine noises if possible		
 		if(!noise.isEmpty()) {
-			this.noise = combineNoises(noise, SEVERITY_WEIGHT/sampleRate, sampleRate * 3);
+			this.noise = combineNoises(noise, sampleRate * 3);
 		}
 	}
 

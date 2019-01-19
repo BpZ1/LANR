@@ -22,7 +22,7 @@ public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 	/**
 	 * Minimum dBFS value.
 	 */
-	private final static double DECIBEL_BOUND = -40;
+	private final static double DECIBEL_BOUND = -30;
 	/**
 	 * Lower frequency bound.
 	 */
@@ -42,6 +42,8 @@ public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 	 * dBFS values that meet the requirements of background noise.
 	 */
 	private List<Double> frequencyDbValues = new LinkedList<Double>();
+	
+	private Noise currentNoise;
 
 	public BackgroundNoiseSearch(int sampleRate, int windowSize, double replayGain) {
 		super(sampleRate, windowSize, replayGain);
@@ -72,9 +74,19 @@ public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 			frequencyDbValues.clear();
 			// Only add the noise if it is above a certain level
 			if (noiseLevel > noiseThreshold) {
-				long length = locationCounter - foundLocation + windowSize;
+				long length = (locationCounter - foundLocation) + windowSize;
+				if(currentNoise != null) {
+					//Add the noise to the existing noise
+				}
 				if(length >= duration) {
 					foundNoise.add(new Noise(NoiseType.Background, foundLocation, length, noiseLevel));					
+				}
+			}else {
+				if(currentNoise != null) {
+					if(currentNoise.getLength() >= duration) {
+						foundNoise.add(currentNoise);
+						currentNoise = null;
+					}
 				}
 			}
 			foundLocation = 0;
@@ -115,7 +127,7 @@ public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 		if (noiseLevel > noiseThreshold) {
 			foundNoise.add(new Noise(NoiseType.Background, foundLocation, locationCounter - foundLocation, noiseLevel));
 		}
-		foundNoise = combineNoises(foundNoise, 0, sampleRate * 3);
+		foundNoise = combineNoises(foundNoise, sampleRate * 3);
 	}
 
 }

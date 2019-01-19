@@ -119,7 +119,7 @@ public class ClippingSearch extends NoiseSearch {
 
 	@Override
 	public void compact() {
-		this.foundNoise = combineNoises(foundNoise, 1, sampleRate * 3);
+		this.foundNoise = combineNoises(foundNoise, sampleRate * 3);
 	}
 	
 	

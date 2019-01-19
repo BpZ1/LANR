@@ -41,7 +41,7 @@ public class StubNoiseSearch extends NoiseSearch {
 	}
 	
 	public List<Noise> combineNoises(long distance) {
-		return combineNoises(noiseList, 0, distance);
+		return combineNoises(noiseList, distance);
 	}
 
 }
