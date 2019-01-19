@@ -12,6 +12,7 @@ public class Noise {
 	private long location;
 	private long length;
 	private int channel;
+	private long end;
 	private NoiseType type;
 
 	public Noise(NoiseType type, long location, long length, double severity) {
@@ -19,6 +20,65 @@ public class Noise {
 		this.location = location;
 		this.severity = severity;
 		this.length = length;
+		this.end = location + length;
+	}
+	
+	/**
+	 * Adds the length and the severity of the noises together.
+	 * @param noise
+	 */
+	public boolean add(Noise noise) {
+		if(noise == null) {
+			throw new IllegalArgumentException("Can't add null to noise");
+		}
+		if(noise.getType() != type) {
+			throw new IllegalArgumentException("Only noise of the same type can be added");
+		}
+		if(isOutside(noise)) {
+			return false;
+		}else if(isInside(noise)) {
+			this.severity += noise.getSeverity();
+			return true;
+		}else if(noise.isInside(this)){
+			noise.add(this);
+			this.location = noise.getLocation();
+			this.length = noise.getLength();
+			this.severity = noise.getSeverity();
+			return true;
+		}else {
+			//Overlapping bounds
+			if(noise.getLocation() < end && noise.getEnd() > end) {
+				//Overlapping on the right bound
+				long additionalLength = noise.getEnd() - end;
+				this.length += additionalLength;
+				this.severity += noise.getSeverity();
+				return true;
+			}else{
+				//Overlapping left bound
+				this.location = noise.getLocation();
+				this.severity += noise.getSeverity();
+				return true;
+			}
+		}
+	}
+	
+	/**
+	 * Checks if the given noise is inside
+	 * of the time interval of the noise.
+	 * @return
+	 */
+	public boolean isInside(Noise noise) {
+		if(location <= noise.getLocation() && end >= noise.getEnd()) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean isOutside(Noise noise) {
+		if(noise.getLocation() > end || noise.getEnd() < location) {
+			return true;
+		}
+		return false;
 	}
 
 	public double getSeverity() {
@@ -35,6 +95,7 @@ public class Noise {
 
 	public void setLocation(long location) {
 		this.location = location;
+		this.end = location + length;
 	}
 
 	public NoiseType getType() {
@@ -51,6 +112,7 @@ public class Noise {
 
 	public void setLength(long length) {
 		this.length = length;
+		this.end = location + length;
 	}
 
 	public int getChannel() {
@@ -59,6 +121,10 @@ public class Noise {
 
 	public void setChannel(int channel) {
 		this.channel = channel;
+	}
+	
+	public long getEnd() {
+		return end;
 	}
 
 }
