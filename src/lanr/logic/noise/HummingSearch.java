@@ -1,7 +1,5 @@
 package lanr.logic.noise;
 
-import java.util.List;
-
 import lanr.logic.model.Noise;
 import lanr.logic.model.NoiseType;
 
@@ -40,21 +38,11 @@ public class HummingSearch extends FrequencySearch {
 				Double.NEGATIVE_INFINITY, FREQUENCY_BOUND_VALUE, DECIBEL_BOUND, maxSkip);
 		severityRelativeWeight = severityWeight / sampleRate;
 	}
-	
-	@Override
-	public void search(double[] samples) {
-		getNoise(samples);
-	}
 
 	@Override
 	protected Noise createNoise(long location, long length) {
 		Noise noise = new Noise(NoiseType.Hum, location, length, severityRelativeWeight);
 		return noise;
-	}
-
-	@Override
-	public List<Noise> getNoise() {
-		return foundNoise;
 	}
 
 	@Override

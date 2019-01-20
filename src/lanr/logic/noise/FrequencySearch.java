@@ -76,7 +76,7 @@ public abstract class FrequencySearch extends NoiseSearch {
 		this.upperFreqBound = upperFreqBound;
 		this.threshold = threshold;
 		this.maxSkip = maxSkip;
-		this.duration = (int) (sampleRate * duration);
+		this.duration = (int) ((double)sampleRate * duration);
 		int size = windowSize;
 		if(mirrored) size = (size / 1) + 1;
 		for (int i = 0; i < size; i++) {
@@ -92,7 +92,8 @@ public abstract class FrequencySearch extends NoiseSearch {
 	 * defined for the defined duration, it is recognized as noise. 
 	 * @param values - Frequency magnitudes in dBFS.
 	 */
-	protected final void getNoise(double[] values) {
+	@Override
+	public void search(double[] values) {
 		for(int i = 0; i < values.length; i++) {
 			double frequency = frequencies.get(i);
 			double value = values[i];
@@ -111,8 +112,8 @@ public abstract class FrequencySearch extends NoiseSearch {
 					}					
 				}else {
 					if(currentNoises.containsKey(i)) {
-						skipCounter[i]++;
-						if(skipCounter[i] > maxSkip) {						
+						skipCounter[i]++;				
+						if(skipCounter[i] > maxSkip) {	
 							Noise noise = currentNoises.get(i);
 							if(noise.getLength() >= duration) {
 								foundNoise.add(noise);							
@@ -136,6 +137,11 @@ public abstract class FrequencySearch extends NoiseSearch {
 			}
 		}
 		foundNoise = combineNoises(foundNoise, sampleRate * 3);
+	}
+	
+	@Override
+	public List<Noise> getNoise() {
+		return foundNoise;
 	}
 	
 	/**

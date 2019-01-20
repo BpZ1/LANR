@@ -1,8 +1,5 @@
 package lanr.logic.noise;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import lanr.logic.model.Noise;
 import lanr.logic.model.NoiseType;
 
@@ -29,9 +26,7 @@ public class BackgroundNoiseSearch extends FrequencySearch {
 	/**
 	 * Lower frequency bound.
 	 */
-	private final static double FREQUENCY_BOUND = 400;
-
-	private List<Noise> foundNoise = new LinkedList<Noise>();
+	private final static double FREQUENCY_BOUND = 600;
 
 	public BackgroundNoiseSearch(int sampleRate, int windowSize, double replayGain, boolean mirrored) {
 		super(sampleRate, windowSize, replayGain, mirrored, duration,
@@ -40,20 +35,10 @@ public class BackgroundNoiseSearch extends FrequencySearch {
 	}
 	
 	@Override
-	public void search(double[] frequencySamples) {
-		getNoise(frequencySamples);
-	}
-	
-	@Override
 	protected Noise createNoise(long location, long length) {
 		Noise noise = new Noise(NoiseType.Background, location, length, severityRelativeWeight);
 		return noise;
 	}	
-
-	@Override
-	public List<Noise> getNoise() {
-		return foundNoise;
-	}
 
 	@Override
 	protected double calculateSeverity(double dBFSValue) {
