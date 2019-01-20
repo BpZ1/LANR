@@ -76,5 +76,11 @@ public class BackgroundNoiseSearch extends FrequencySearch {
 		return foundNoise;
 	}
 
+	@Override
+	protected double calculateSeverity(double dBFSValue) {
+		double positiveThreshold = DECIBEL_BOUND * -1;	
+		return positiveThreshold + dBFSValue;
+	}
+
 	
 }

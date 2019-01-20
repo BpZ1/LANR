@@ -100,11 +100,13 @@ public abstract class FrequencySearch extends NoiseSearch {
 			if(frequency >= lowerFreqBound && frequency <= upperFreqBound) {
 				if(value > threshold) {
 					frequencyDbValues.get(i).add(value);
-						//If the noise has the needed size
+					double severity = calculateSeverity(value);
 					if(currentNoises.containsKey(i)) {
 						currentNoises.get(i).setLength(currentNoises.get(i).getLength() + windowSize);
-					}else {			
+						currentNoises.get(i).addSeverity(severity);
+					}else {
 						Noise noise = createNoise(locationCounter, windowSize);
+						noise.addSeverity(severity);
 						currentNoises.put(i, noise);
 					}					
 				}else {
@@ -137,7 +139,7 @@ public abstract class FrequencySearch extends NoiseSearch {
 	}
 	
 	/**
-	 * Will be used by the getNoise() method to create the noise
+	 * Used by the getNoise() method to create the noise
 	 * found.
 	 * @param location - Location of the noise.
 	 * @param length - Length of the noise.
@@ -145,6 +147,13 @@ public abstract class FrequencySearch extends NoiseSearch {
 	 */
 	protected abstract Noise createNoise(long location, long length);
 	
+	
+	/**
+	 * Calculates the severity with the given 
+	 * @param dBFSValue
+	 * @return
+	 */
+	protected abstract double calculateSeverity(double dBFSValue);
 	/**
 	 * Calculates the frequency of a given index in a window.
 	 * i * fs / N

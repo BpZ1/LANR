@@ -5,17 +5,22 @@ import java.util.List;
 import lanr.logic.model.Noise;
 import lanr.logic.model.NoiseType;
 
+/**
+ * Searches for humming in the low frequencies.
+ * 
+ * @author Nicolas Bruch
+ *
+ */
 public class HummingSearch extends FrequencySearch {
 	
 	/**
 	 * Severity per second of noise
 	 */
 	private static final double SEVERITY_WEIGHT = 1;
-	private static final double TOLERANCE = 1;
 	/**
 	 * Threshold for the decibel value of the humming.
 	 */
-	private static final double DECIBEL_BOUND_VALUE = -50;
+	private static final double DECIBEL_BOUND = -50;
 	/**
 	 * We are only interested in low frequency humming under 400 Hz.
 	 */
@@ -35,7 +40,7 @@ public class HummingSearch extends FrequencySearch {
 
 	public HummingSearch(int sampleRate, int windowSize, double replayGain, boolean mirrored) {
 		super(sampleRate, windowSize, replayGain, mirrored, duration,
-				Double.NEGATIVE_INFINITY, FREQUENCY_BOUND_VALUE, DECIBEL_BOUND_VALUE, maxSkip);
+				Double.NEGATIVE_INFINITY, FREQUENCY_BOUND_VALUE, DECIBEL_BOUND, maxSkip);
 	}
 	
 	@Override
@@ -52,5 +57,11 @@ public class HummingSearch extends FrequencySearch {
 	@Override
 	public List<Noise> getNoise() {
 		return foundNoise;
+	}
+
+	@Override
+	protected double calculateSeverity(double dBFSValue) {
+		double positiveThreshold = DECIBEL_BOUND * -1;	
+		return positiveThreshold + dBFSValue;
 	}
 }
