@@ -11,6 +11,7 @@ import lanr.logic.frequency.windowfunctions.WindowFunction;
 import lanr.logic.model.Noise;
 import lanr.logic.noise.BackgroundNoiseSearch;
 import lanr.logic.noise.ClippingSearch;
+import lanr.logic.noise.FrequencySearch;
 import lanr.logic.noise.HummingSearch;
 import lanr.logic.noise.NoiseSearch;
 import lanr.logic.noise.SilenceSearch;
@@ -26,7 +27,7 @@ import lanr.logic.noise.VolumeSearch;
 public class AudioAnalyzer {
 
 	private List<NoiseSearch> sampleAnalyzer = new ArrayList<NoiseSearch>();
-	private List<NoiseSearch> frequencyAnalyzer = new ArrayList<NoiseSearch>();
+	private List<FrequencySearch> frequencyAnalyzer = new ArrayList<FrequencySearch>();
 
 	private Spectrogram spectro;
 	private FrequencyConversion conversion;
@@ -43,8 +44,8 @@ public class AudioAnalyzer {
 		sampleAnalyzer.add(new SilenceSearch(sampleRate, windowSize, replayGain));
 		sampleAnalyzer.add(new VolumeSearch(sampleRate, windowSize, replayGain));
 		//Frequency analyzer
-		frequencyAnalyzer.add(new BackgroundNoiseSearch(sampleRate, windowSize, replayGain));
-		frequencyAnalyzer.add(new HummingSearch(sampleRate, windowSize, replayGain));
+		frequencyAnalyzer.add(new BackgroundNoiseSearch(sampleRate, windowSize, replayGain, conversion.getHalfSamples()));
+		frequencyAnalyzer.add(new HummingSearch(sampleRate, windowSize, replayGain, conversion.getHalfSamples()));
 		
 		this.conversion = conversion;
 		this.useWindowFunction = useWindowFunction;
@@ -109,6 +110,7 @@ public class AudioAnalyzer {
 			windowFunction.apply(data);
 		}
 		double[] magnitudes = conversion.getConverter().convert(data);
+
 		if (spectro != null) {
 			spectro.addWindow(magnitudes);
 		}
@@ -148,7 +150,7 @@ public class AudioAnalyzer {
 	 */
 	private double[] toDecibel(double[] values) {
 		for(int i = 0; i < values.length; i++) {
-			values[i] = Utils.toDBFS(values[i]) + replayGain;
+			values[i] = Utils.sampleToDBFS(values[i]) + replayGain;
 		}
 		return values;
 	}

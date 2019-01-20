@@ -3,7 +3,6 @@ package lanr.logic.noise;
 import java.util.LinkedList;
 import java.util.List;
 
-import lanr.logic.FrequencyAnalyzer;
 import lanr.logic.model.Noise;
 import lanr.logic.model.NoiseType;
 
@@ -16,83 +15,37 @@ import lanr.logic.model.NoiseType;
  * @author Nicolas Bruch
  *
  */
-public class BackgroundNoiseSearch extends FrequencyAnalyzer {
+public class BackgroundNoiseSearch extends FrequencySearch {
 
-	private static double noiseThreshold = 400;
+	private static final int maxSkip = 1;
 	/**
 	 * Minimum dBFS value.
 	 */
-	private final static double DECIBEL_BOUND = -40;
+	private final static double DECIBEL_BOUND = -30;
+
 	/**
 	 * Lower frequency bound.
 	 */
 	private final static double FREQUENCY_BOUND = 400;
-	
-	private final int duration = sampleRate / 4;
 
-	private List<Double> frequencies = new LinkedList<Double>();
-
-	/**
-	 * Location on which the current noise was found.
-	 */
-	private long foundLocation = 0;
-	private long locationCounter = 0;
 	private List<Noise> foundNoise = new LinkedList<Noise>();
-	/**
-	 * dBFS values that meet the requirements of background noise.
-	 */
-	private List<Double> frequencyDbValues = new LinkedList<Double>();
-	
-	private Noise currentNoise;
 
-	public BackgroundNoiseSearch(int sampleRate, int windowSize, double replayGain) {
-		super(sampleRate, windowSize, replayGain);
-		// Calculate the frequencies of the input bins
-		for (int i = 0; i < (windowSize / 2) + 1; i++) {
-			frequencies.add(calculateFrequency(i));
-		}
+	public BackgroundNoiseSearch(int sampleRate, int windowSize, double replayGain, boolean mirrored) {
+		super(sampleRate, windowSize, replayGain, mirrored, 0.25,
+				FREQUENCY_BOUND, Double.POSITIVE_INFINITY, DECIBEL_BOUND, maxSkip);
 	}
 	
 	@Override
 	public void search(double[] frequencySamples) {
-		boolean windowContainsNoise = false;
-		for (int i = 0; i < frequencySamples.length; i++) {
-			// Check if there are frequencies that are above the threshold
-			if (frequencySamples[i] > DECIBEL_BOUND && frequencies.get(i) > FREQUENCY_BOUND) {
-				// Save the beginning location if this is the start of the noise
-				if (foundLocation == 0) {
-					foundLocation = locationCounter;
-				}
-				frequencyDbValues.add(frequencySamples[i]);
-				windowContainsNoise = true;
-			}
-		}
-		// If no noise was found in this window, add the previously found noise
-		if (windowContainsNoise && !frequencyDbValues.isEmpty()) {
-			double noiseLevel = average(frequencyDbValues);
-			System.out.println(noiseLevel + " / " + noiseThreshold);
-			frequencyDbValues.clear();
-			// Only add the noise if it is above a certain level
-			if (noiseLevel > noiseThreshold) {				
-				if(currentNoise != null) {
-					//Add the noise to the existing noise
-					currentNoise.setLength(currentNoise.getLength() + windowSize);
-				}else {
-					long length = (locationCounter - foundLocation) + windowSize;
-					currentNoise = new Noise(NoiseType.Background, foundLocation, length, noiseLevel);
-				}
-			}else {
-				if(currentNoise != null) {
-					if(currentNoise.getLength() >= duration) {
-						foundNoise.add(currentNoise);
-						currentNoise = null;
-					}
-				}
-			}
-			foundLocation = 0;
-		}
-		locationCounter += windowSize;
+		getValues(frequencySamples);
 	}
+	
+	@Override
+	protected Noise createNoise(long location, long length) {
+		Noise noise = new Noise(NoiseType.Background, location, length, lowerFreqBound);
+		return noise;
+	}
+	
 
 	/**
 	 * Calculates an average value for the given values.<br>
@@ -106,20 +59,16 @@ public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 	 * @return Specially calculated average value.
 	 */
 	private double average(List<Double> values) {
+		if(values.isEmpty()) {
+			return 0.0;
+		}
 		double sum = 0.0;
 		for (double d : values) {
-			double value = Math.pow(40 + d, 2);
+			double value = Math.pow(d, 2);
 			sum += value;
 		}
-		return sum / values.size();
-	}
-	
-	private double normalAverage(List<Double> values) {
-		double sum = 0.0;
-		for (double d : values) {
-			sum += d;
-		}
-		return sum / values.size();
+		sum /= values.size();
+		return Math.sqrt(sum);
 	}
 
 	@Override
@@ -127,14 +76,5 @@ public class BackgroundNoiseSearch extends FrequencyAnalyzer {
 		return foundNoise;
 	}
 
-	@Override
-	public void compact() {
-		double noiseLevel = average(frequencyDbValues);
-		frequencyDbValues.clear();
-		if (noiseLevel > noiseThreshold) {
-			foundNoise.add(new Noise(NoiseType.Background, foundLocation, locationCounter - foundLocation, noiseLevel));
-		}
-		foundNoise = combineNoises(foundNoise, sampleRate * 3);
-	}
-
+	
 }
