@@ -16,7 +16,8 @@ public class HummingSearch extends FrequencySearch {
 	/**
 	 * Severity per second of noise
 	 */
-	private static final double SEVERITY_WEIGHT = 1;
+	private static double severityWeight = 10;
+	private double severityRelativeWeight;
 	/**
 	 * Threshold for the decibel value of the humming.
 	 */
@@ -33,14 +34,11 @@ public class HummingSearch extends FrequencySearch {
 	 * Number of seconds for which the humming must persist.
 	 */
 	private static double duration = 3;
-	/**
-	 * Value how much one window counts in severity.
-	 */
-	double severityValue = SEVERITY_WEIGHT * (1 / windowSize);
 
 	public HummingSearch(int sampleRate, int windowSize, double replayGain, boolean mirrored) {
 		super(sampleRate, windowSize, replayGain, mirrored, duration,
 				Double.NEGATIVE_INFINITY, FREQUENCY_BOUND_VALUE, DECIBEL_BOUND, maxSkip);
+		severityRelativeWeight = severityWeight / sampleRate;
 	}
 	
 	@Override
@@ -50,7 +48,7 @@ public class HummingSearch extends FrequencySearch {
 
 	@Override
 	protected Noise createNoise(long location, long length) {
-		Noise noise = new Noise(NoiseType.Hum, location, length, 0);
+		Noise noise = new Noise(NoiseType.Hum, location, length, severityRelativeWeight);
 		return noise;
 	}
 
@@ -63,5 +61,13 @@ public class HummingSearch extends FrequencySearch {
 	protected double calculateSeverity(double dBFSValue) {
 		double positiveThreshold = DECIBEL_BOUND * -1;	
 		return positiveThreshold + dBFSValue;
+	}
+	
+	public static double getSeverityWeight() {
+		return severityWeight;
+	}
+
+	public static void setSeverityWeight(double severityWeight) {
+		HummingSearch.severityWeight = severityWeight;
 	}
 }

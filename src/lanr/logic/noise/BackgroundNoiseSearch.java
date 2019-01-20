@@ -17,11 +17,14 @@ import lanr.logic.model.NoiseType;
  */
 public class BackgroundNoiseSearch extends FrequencySearch {
 
-	private static final int maxSkip = 1;
+	private static double severityWeight = 10;
+	private double severityRelativeWeight;
+	private static final double duration = 1 / 4;
+	private static final int maxSkip = 4;
 	/**
 	 * Minimum dBFS value.
 	 */
-	private final static double DECIBEL_BOUND = -30;
+	private final static double DECIBEL_BOUND = -50;
 
 	/**
 	 * Lower frequency bound.
@@ -31,8 +34,9 @@ public class BackgroundNoiseSearch extends FrequencySearch {
 	private List<Noise> foundNoise = new LinkedList<Noise>();
 
 	public BackgroundNoiseSearch(int sampleRate, int windowSize, double replayGain, boolean mirrored) {
-		super(sampleRate, windowSize, replayGain, mirrored, 0.25,
+		super(sampleRate, windowSize, replayGain, mirrored, duration,
 				FREQUENCY_BOUND, Double.POSITIVE_INFINITY, DECIBEL_BOUND, maxSkip);
+		severityRelativeWeight = severityWeight / sampleRate;
 	}
 	
 	@Override
@@ -42,34 +46,9 @@ public class BackgroundNoiseSearch extends FrequencySearch {
 	
 	@Override
 	protected Noise createNoise(long location, long length) {
-		Noise noise = new Noise(NoiseType.Background, location, length, lowerFreqBound);
+		Noise noise = new Noise(NoiseType.Background, location, length, severityRelativeWeight);
 		return noise;
-	}
-	
-
-	/**
-	 * Calculates an average value for the given values.<br>
-	 * The value is calculated like this:<br>
-	 * Add the values to the positive lower decibel bound
-	 * to convert them to positive values.<br>
-	 * Take them to the power of 3 to increase the gap
-	 * between big and small numbers.<br>
-	 * Sum all values and divide through the number of values.
-	 * @param values - dBFS values.
-	 * @return Specially calculated average value.
-	 */
-	private double average(List<Double> values) {
-		if(values.isEmpty()) {
-			return 0.0;
-		}
-		double sum = 0.0;
-		for (double d : values) {
-			double value = Math.pow(d, 2);
-			sum += value;
-		}
-		sum /= values.size();
-		return Math.sqrt(sum);
-	}
+	}	
 
 	@Override
 	public List<Noise> getNoise() {
@@ -82,5 +61,11 @@ public class BackgroundNoiseSearch extends FrequencySearch {
 		return positiveThreshold + dBFSValue;
 	}
 
-	
+	public static double getSeverityWeight() {
+		return severityWeight;
+	}
+
+	public static void setSeverityWeight(double severityWeight) {
+		BackgroundNoiseSearch.severityWeight = severityWeight;
+	}
 }
