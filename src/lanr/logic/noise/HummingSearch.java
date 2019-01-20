@@ -40,7 +40,7 @@ public class HummingSearch extends FrequencySearch {
 	
 	@Override
 	public void search(double[] samples) {
-		getValues(samples);
+		getNoise(samples);
 	}
 
 	@Override

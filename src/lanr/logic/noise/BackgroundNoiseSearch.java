@@ -37,7 +37,7 @@ public class BackgroundNoiseSearch extends FrequencySearch {
 	
 	@Override
 	public void search(double[] frequencySamples) {
-		getValues(frequencySamples);
+		getNoise(frequencySamples);
 	}
 	
 	@Override
