@@ -9,16 +9,17 @@ package lanr.logic.model;
 public class Noise {
 
 	private double severity;
+	private double severityWeight;
 	private long location;
 	private long length;
 	private int channel;
 	private long end;
 	private NoiseType type;
 
-	public Noise(NoiseType type, long location, long length, double severity) {
+	public Noise(NoiseType type, long location, long length, double severityWeight) {
+		this.severityWeight = severityWeight;
 		this.type = type;
 		this.location = location;
-		this.severity = severity;
 		this.length = length;
 		this.end = location + length;
 	}
@@ -84,6 +85,10 @@ public class Noise {
 			return true;
 		}
 		return false;
+	}
+	
+	public void addSeverity(double value) {
+		this.severity += (value * severityWeight);
 	}
 
 	public double getSeverity() {
