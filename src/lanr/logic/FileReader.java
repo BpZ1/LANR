@@ -181,7 +181,7 @@ class FileReader {
 								channelData[i].compact();
 								channelData[i].position(pos - sampleCount50Ms);
 							}	
-							rmsValues.add(Utils.toDBFS(calculateRMS(data)));
+							rmsValues.add(Utils.sampleToDBFS(calculateRMS(data)));
 						}												
 					}
 					offset += bytesRead;
@@ -197,7 +197,7 @@ class FileReader {
 				data[i] = new double[position];
 				channelData[i].get(data[i], 0, position);
 			}	
-			rmsValues.add(Utils.toDBFS(calculateRMS(data)));
+			rmsValues.add(Utils.sampleToDBFS(calculateRMS(data)));
 		}
 		Collections.sort(rmsValues);
 		double replayGain = refDBValue - rmsValues.get((int) (rmsValues.size() * 0.95));

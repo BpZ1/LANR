@@ -14,12 +14,12 @@ public class Utils {
 	}
 	
 	/**
-	 * Converts a value into dBFS (Decibel Full Scale).<br>
+	 * Converts a sample into dBFS (Decibel Full Scale).<br>
 	 * dbFS values go from negative infinity to 0.
 	 * @param sample - Value to be converted.
 	 * @return dBFS value.
 	 */
-	public static double toDBFS(double sample) {
+	public static double sampleToDBFS(double sample) {
 		return 20 * Math.log10(Math.abs(sample));
 	}
 }

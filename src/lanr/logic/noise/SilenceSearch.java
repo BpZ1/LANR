@@ -56,7 +56,7 @@ public class SilenceSearch extends NoiseSearch {
 		for(double s : samples) {
 			sampleCounter++;
 			//Check if the sample is under the threshold
-			double dbValue = Utils.toDBFS(s) + replayGain;
+			double dbValue = Utils.sampleToDBFS(s) + replayGain;
 			if(dbValue < threshold) {
 				counter++;
 				//Check if the sample
