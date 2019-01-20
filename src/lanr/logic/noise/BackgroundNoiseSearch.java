@@ -19,7 +19,7 @@ public class BackgroundNoiseSearch extends FrequencySearch {
 
 	private static double severityWeight = 10;
 	private double severityRelativeWeight;
-	private static final double duration = 1 / 4;
+	private static final double duration = 1.0 / 4.0;
 	private static final int maxSkip = 4;
 	/**
 	 * Minimum dBFS value.
