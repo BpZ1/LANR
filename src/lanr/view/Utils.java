@@ -8,6 +8,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert.AlertType;
 
+/**
+ * @author Nicolas Bruch
+ *
+ */
 public class Utils {
 
 	
@@ -50,7 +54,9 @@ public class Utils {
 	}
 	
 	public static double round(double value, int places) {
-	    if (places < 0) throw new IllegalArgumentException();
+	    if (places < 0) {
+	    	throw new IllegalArgumentException("Invalid value for number of places");
+	    }
 
 	    BigDecimal bd = new BigDecimal(value);
 	    bd = bd.setScale(places, RoundingMode.HALF_UP);

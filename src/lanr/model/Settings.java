@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Date;
 import java.util.Properties;
 
 import lanr.logic.AudioLogic;
@@ -135,7 +134,6 @@ public class Settings {
 		p.put(usingWindowFunction.x, String.valueOf(usingWindowFunction.y));
 		p.put(conversionMethod.x, String.valueOf(conversionMethod.y));
 		
-		Date date = new Date();
 		p.store(new FileOutputStream(SETTINGS_FILE_NAME), "LANR - Settings");
 	}
 

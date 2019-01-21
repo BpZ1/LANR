@@ -1,5 +1,9 @@
 package lanr.logic.model;
 
+/**
+ * @author Nicolas Bruch
+ *
+ */
 public class Tuple<X,Y> {
 
 	public X x;

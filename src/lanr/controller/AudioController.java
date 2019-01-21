@@ -3,6 +3,10 @@ package lanr.controller;
 import lanr.logic.model.AudioData;
 import lanr.model.MainModel;
 
+/**
+ * @author Nicolas Bruch
+ *
+ */
 public class AudioController {
 
 	private MainModel model;

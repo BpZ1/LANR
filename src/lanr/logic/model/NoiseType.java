@@ -1,10 +1,10 @@
 package lanr.logic.model;
 
 /**
+ * Type of noise found in an audio stream.
+ *         
  * @author Nicolas Bruch
  * 
- *         Type of noise found in an audio stream.
- *
  */
 public enum NoiseType {
 	/**

@@ -5,6 +5,10 @@ import jwave.datatypes.natives.Complex;
 import jwave.transforms.FastWaveletTransform;
 import jwave.transforms.wavelets.daubechies.Daubechies9;
 
+/**
+ * @author Nicolas Bruch
+ *
+ */
 public class FastWaveletTransformer implements SampleConverter {
 	
 	@Override

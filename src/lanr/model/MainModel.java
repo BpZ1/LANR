@@ -11,7 +11,10 @@ import lanr.logic.AudioLogic;
 import lanr.logic.model.AudioData;
 import lanr.logic.model.LANRException;
 
-
+/**
+ * @author Nicolas Bruch
+ *
+ */
 public class MainModel extends Model {
 	
 	public static final String AUDIO_ADDED_PROPERTY = "addAudio";

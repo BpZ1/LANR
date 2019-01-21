@@ -8,6 +8,10 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import lanr.logic.model.NoiseType;
 
+/**
+ * @author Nicolas Bruch
+ *
+ */
 public class NoiseInfoView extends Stage {
 
 	public NoiseInfoView() {

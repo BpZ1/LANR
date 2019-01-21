@@ -1,5 +1,11 @@
 package lanr.model;
 
+/**
+ * Contains different descriptions used in the GUI.
+ * 
+ * @author Nicolas Bruch
+ *
+ */
 public class Descriptions {
 
 	public static final String WINDOW_FUNCTION_DESCRIPTION = "Function used to reduce spectrac leakage in the frequency domain.";

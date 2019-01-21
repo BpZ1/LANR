@@ -5,11 +5,10 @@ import java.util.Optional;
 import lanr.logic.frequency.FrequencyConversion;
 
 /**
- * @author Nicolas Bruch
- * 	
  * Contains the loaded settings data.
  * For more information about the different parameter take a look at {@link Settings}
  *
+ * @author Nicolas Bruch
  */
 public class SettingData {
 

@@ -1,5 +1,9 @@
 package lanr.logic.model;
 
+/**
+ * @author Nicolas Bruch
+ *
+ */
 public class LANRFileException extends Exception {
 
 	private static final long serialVersionUID = -5064460493701095648L;

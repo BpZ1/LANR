@@ -3,6 +3,10 @@ package lanr.logic;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+/**
+ * @author Nicolas Bruch
+ *
+ */
 public class Utils {
 
 	public static double round(double value, int places) {

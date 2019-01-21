@@ -1,5 +1,9 @@
 package lanr.logic.frequency;
 
+/**
+ * @author Nicolas Bruch
+ *
+ */
 public interface SampleConverter {
 
 	/**

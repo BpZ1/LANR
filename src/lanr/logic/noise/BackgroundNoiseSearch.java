@@ -17,20 +17,20 @@ public class BackgroundNoiseSearch extends FrequencySearch {
 	private static double severityWeight = 10;
 	private double severityRelativeWeight;
 	private static final double duration = 1.0 / 4.0;
-	private static final int maxSkip = 4;
+	private static final int maxSkip = 1500;
 	/**
 	 * Minimum dBFS value.
 	 */
-	private final static double DECIBEL_BOUND = -50;
+	private final static double DECIBEL_BOUND = -40;
 
 	/**
 	 * Lower frequency bound.
 	 */
-	private final static double FREQUENCY_BOUND = 600;
+	private final static double FREQUENCY_BOUND = 800;
 
 	public BackgroundNoiseSearch(int sampleRate, int windowSize, double replayGain, boolean mirrored) {
 		super(sampleRate, windowSize, replayGain, mirrored, duration,
-				FREQUENCY_BOUND, Double.POSITIVE_INFINITY, DECIBEL_BOUND, maxSkip);
+				FREQUENCY_BOUND, Double.POSITIVE_INFINITY, DECIBEL_BOUND, maxSkip / windowSize);
 		severityRelativeWeight = severityWeight / sampleRate;
 	}
 	

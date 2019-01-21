@@ -7,6 +7,11 @@ import lanr.logic.Utils;
 import lanr.logic.model.Noise;
 import lanr.logic.model.NoiseType;
 
+
+/**
+ * @author Nicolas Bruch
+ *
+ */
 public class VolumeSearch extends NoiseSearch {
 
 	private static double lowerSilentThreshold = -40;

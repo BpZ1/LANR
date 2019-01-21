@@ -3,8 +3,11 @@ package lanr;
 import javafx.application.*;
 import javafx.stage.Stage;
 import lanr.controller.MainViewController;
-import lanr.model.MainModel;
 
+/**
+ * @author Nicolas Bruch
+ *
+ */
 public class Lanr extends Application {
 
 	public static void main(String[] args){

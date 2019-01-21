@@ -2,6 +2,10 @@ package lanr.logic.frequency;
 
 import org.jtransforms.dct.DoubleDCT_1D;
 
+/**
+ * @author Nicolas Bruch
+ *
+ */
 public class DiscreteCosineTransformer implements SampleConverter {
 
 	@Override

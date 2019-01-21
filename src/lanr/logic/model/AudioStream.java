@@ -13,10 +13,10 @@ import lanr.logic.AudioAnalyzer;
 import lanr.logic.frequency.FrequencyConversion;
 
 /**
+ * Contains the data for a single audio channel.
+ * 
  * @author Nicolas Bruch
  * 
- *         Contains the data for a single audio channel.
- *
  */
 public class AudioStream {
 
