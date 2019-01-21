@@ -27,7 +27,7 @@ public class HummingSearch extends FrequencySearch {
 	/**
 	 * Number of windows that can be interrupted and still count
 	 */
-	private static int maxSkip = 4;
+	private static int maxSkip = 4000;
 	/**
 	 * Number of seconds for which the humming must persist.
 	 */
@@ -35,7 +35,7 @@ public class HummingSearch extends FrequencySearch {
 
 	public HummingSearch(int sampleRate, int windowSize, double replayGain, boolean mirrored) {
 		super(sampleRate, windowSize, replayGain, mirrored, duration,
-				Double.NEGATIVE_INFINITY, FREQUENCY_BOUND_VALUE, DECIBEL_BOUND, maxSkip);
+				Double.NEGATIVE_INFINITY, FREQUENCY_BOUND_VALUE, DECIBEL_BOUND, maxSkip / windowSize);
 		severityRelativeWeight = severityWeight / sampleRate;
 	}
 
