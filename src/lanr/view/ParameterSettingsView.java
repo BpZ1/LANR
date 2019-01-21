@@ -12,6 +12,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.GridPane;
 import lanr.logic.frequency.FrequencyConversion;
+import lanr.model.Descriptions;
 import lanr.model.Settings;
 
 /**
@@ -21,7 +22,7 @@ import lanr.model.Settings;
  *
  */
 public class ParameterSettingsView extends GridPane {
-
+	
 	private SimpleIntegerProperty windowSize = new SimpleIntegerProperty();
 	private SimpleBooleanProperty windowFunctionSetting = new SimpleBooleanProperty();
 	private SimpleObjectProperty<FrequencyConversion> conversionMethod = new SimpleObjectProperty<FrequencyConversion>();
@@ -58,6 +59,7 @@ public class ParameterSettingsView extends GridPane {
 		this.add(windowSliderLabel, 0, 0);
 		this.add(windowSizeSlider, 1, 0);
 		this.add(windowValueLabel, 2, 0);
+		this.add(new InfoButton(Descriptions.WINDOW_SIZE_DESCRIPTION), 3, 0);
 	}
 
 	private void createWindowFunctionControl() {
@@ -67,6 +69,7 @@ public class ParameterSettingsView extends GridPane {
 		windowFunctionSetting.setValue(Settings.getInstance().isUsingWindowFunction());
 		this.add(windowFunctionLabel, 0, 1);
 		this.add(box, 1, 1);
+		this.add(new InfoButton(Descriptions.WINDOW_FUNCTION_DESCRIPTION), 2, 1);
 	}
 
 	private void createFrequencyTransformControl() {
@@ -77,6 +80,7 @@ public class ParameterSettingsView extends GridPane {
 		box.getSelectionModel().select(Settings.getInstance().getConversionMethod());
 		this.add(transformLabel, 0, 2);
 		this.add(box, 1, 2);
+		this.add(new InfoButton(Descriptions.FREQUENCY_TRANSFORM_DESCRIPTION), 2, 2);
 	}
 
 	public int getWindowSize() {

@@ -8,6 +8,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.GridPane;
+import lanr.model.Descriptions;
 import lanr.model.Settings;
 
 /**
@@ -15,7 +16,7 @@ import lanr.model.Settings;
  *
  */
 public class SpectrogramSettingsView extends GridPane {
-
+	
 	private SimpleBooleanProperty createSpectro = new SimpleBooleanProperty();
 	private SimpleIntegerProperty contrast = new SimpleIntegerProperty();
 	
@@ -32,10 +33,12 @@ public class SpectrogramSettingsView extends GridPane {
 	private void createCreateSpectrogramControl() {
 		Label label = new Label("Create Spectrorgam");
 		CheckBox box = new CheckBox();
+		InfoButton info = new InfoButton(Descriptions.CONTRAST_DESCRIPTION);
 		box.setSelected(Settings.getInstance().createSpectrogram());
 		createSpectro.bind(box.selectedProperty());
 		this.add(label, 0, 0);
 		this.add(box, 1, 0);
+		this.add(info, 2, 0);
 	}
 	
 	private void createContrastControl() {

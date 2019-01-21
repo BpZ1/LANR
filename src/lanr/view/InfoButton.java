@@ -1,5 +1,8 @@
 package lanr.view;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 
@@ -8,7 +11,9 @@ import javafx.scene.control.Tooltip;
  *
  */
 public class InfoButton extends Button {
-
+	
+	private static List<Tooltip> tooltips = new ArrayList<Tooltip>();
+	
 	private static final double SIZE = 18;
 	
 	public InfoButton(String message) {
@@ -23,15 +28,22 @@ public class InfoButton extends Button {
 				+ "-fx-font-weight: bold;"	);
 		Tooltip tt = new Tooltip();
 		tt.setText(message);
+		tooltips.add(tt);
 		this.setOnAction(event ->{
 			if(tt.isShowing()) {
-				tt.hide();
+				hideAllTooltips();
 			}else {
+				hideAllTooltips();
 				tt.show(this,
 						this.localToScreen(this.getBoundsInLocal()).getCenterX() + 30,
 						this.localToScreen(this.getBoundsInLocal()).getCenterY() - (tt.getHeight() / 2));
 			}			
-		});
+		});		
 	}
 	
+	public static void hideAllTooltips() {
+		for(Tooltip tt : tooltips) {
+			tt.hide();
+		}
+	}
 }
