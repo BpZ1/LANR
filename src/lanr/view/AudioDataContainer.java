@@ -311,7 +311,12 @@ public class AudioDataContainer extends TitledPane {
 	}
 	
 	private String getDurationString(long durationInSeconds) {
-		LocalTime timeOfDay = LocalTime.ofSecondOfDay(durationInSeconds);
+		LocalTime timeOfDay;
+		if(durationInSeconds > 86399) {
+			timeOfDay = LocalTime.ofSecondOfDay(86399);		
+		}else {
+			timeOfDay = LocalTime.ofSecondOfDay(durationInSeconds);			
+		}
 		String time = timeOfDay.toString();
 		return time;
 	}
