@@ -358,7 +358,7 @@ class FileReader {
 	 * a mono signal and into samples of type double and stores them in the given buffer.
 	 * @param streamData - Buffer in which the samples will be stored.
 	 * @param audio - Audio data containing the raw data.
-	 * @param doubleConverter - Converter for convertign the sample from byte to double.
+	 * @param doubleConverter - Converter for converting the sample from byte to double.
 	 */
 	private static void getSamples(DoubleBuffer streamData, MediaAudio audio,
 			DoubleConverter doubleConverter) {
