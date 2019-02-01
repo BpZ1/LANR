@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 
 import lanr.logic.AudioAnalyzer;
 import lanr.logic.frequency.FrequencyConversion;
+import lanr.logic.frequency.windowfunctions.WindowFunction;
 
 /**
  * Contains the data for a single audio channel.
@@ -44,6 +45,7 @@ public class AudioStream {
 	 * Converter for the conversion from time to frequency domain.
 	 */
 	private static FrequencyConversion converter = FrequencyConversion.FFT;
+	private static WindowFunction windowFunction = WindowFunction.Hanning;
 	private static boolean usingWindowFunction = false;
 	private static boolean createSpectrogram = true;
 	/**
@@ -66,7 +68,7 @@ public class AudioStream {
 
 	public void analyseStart(int frameSize) {
 		analyzer = new AudioAnalyzer(frameSize, sampleRate, replayGain,
-				createSpectrogram, usingWindowFunction, converter);
+				createSpectrogram, windowFunction, converter);
 	}
 
 	public void analyseEnd() throws LANRException {		
@@ -175,5 +177,13 @@ public class AudioStream {
 
 	public static void setConverter(FrequencyConversion converter) {
 		AudioStream.converter = converter;
+	}
+	
+	public static WindowFunction getWindowFunction() {
+		return windowFunction;
+	}
+	
+	public static void setWindowFunction(WindowFunction windowFunction) {
+		AudioStream.windowFunction = windowFunction;
 	}
 }

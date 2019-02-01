@@ -94,7 +94,7 @@ public class SettingsView extends Stage {
 	private void saveSettings() {
 		Settings s = Settings.getInstance();
 		s.setConversionMethod(parameterView.getConversionMethod());
-		s.setUsingWindowFunction(parameterView.getWindowFunctionSetting());
+		s.setWindowFunction(parameterView.getWindowFunction());
 		s.setWindowSize(parameterView.getWindowSize());
 		s.setConversionMethod(parameterView.getConversionMethod());
 		s.setShowVisualisation(generalView.getVisualizeData());

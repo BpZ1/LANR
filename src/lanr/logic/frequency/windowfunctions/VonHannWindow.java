@@ -7,7 +7,7 @@ package lanr.logic.frequency.windowfunctions;
  * @author Nicolas Bruch
  *
  */
-public class VonHannWindow extends WindowFunction {	
+public class VonHannWindow extends WindowFunctionImpl {	
 	
 	private final double[] scalars;
 	

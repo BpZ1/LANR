@@ -1,20 +1,41 @@
 package lanr.logic.frequency.windowfunctions;
 
 /**
- * The window function is used to reduce
- * the spectral leakage in the frequency data
- * that is created after using this function.
+ * Contains the different types of window funcions.
  * 
  * @author Nicolas Bruch
  *
  */
-public abstract class WindowFunction {
+public enum WindowFunction {
 
-	protected static final double PI = Math.PI;
+	None(""),
+	Hanning("Hanning"),
+	Hamming("Hamming"),
+	Kaiser("Kaiser");
+	
+	private String selected;
+	
+	private WindowFunction(String selection) {
+		this.selected = selection;
+	}
 	
 	/**
-	 * Applies the function on the given samples.
-	 * @param samples - Samples of a signal.
+	 * @param windowSize - Size of the window.
+	 * @return Implementation for the selected window.
 	 */
-	public abstract void apply(double[] samples);
+	public WindowFunctionImpl getImplementation(int windowSize) {
+		switch(this.selected) {
+			case "Hanning":
+				return new VonHannWindow(windowSize);
+				
+			case "Hamming":
+				return new HammingWindow(windowSize);
+				
+			case "Kaiser":
+				return new KaiserWindow(windowSize);
+				
+			default:
+				return null;
+		}	
+	}
 }

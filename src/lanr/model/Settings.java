@@ -9,6 +9,7 @@ import java.util.Properties;
 import lanr.logic.AudioLogic;
 import lanr.logic.Spectrogram;
 import lanr.logic.frequency.FrequencyConversion;
+import lanr.logic.frequency.windowfunctions.WindowFunction;
 import lanr.logic.model.AudioStream;
 import lanr.logic.model.Tuple;
 import lanr.view.AudioDataContainer;
@@ -64,12 +65,6 @@ public class Settings {
 			new Tuple<String, Integer>(THREAD_COUNT_PROPERTY_NAME, 10);
 	private static final String THREAD_COUNT_PROPERTY_NAME = "threadcount";
 	/**
-	 * Defines if a window function is used for the frequency data.
-	 */
-	private Tuple<String, Boolean> usingWindowFunction =
-			new Tuple<String, Boolean>(USING_WINDOWFUNCTION_PROPERTY_NAME, true);
-	private static final String USING_WINDOWFUNCTION_PROPERTY_NAME = "usingwindowfunction";
-	/**
 	 * The conversion method to convert the samples into frequency domain.
 	 */
 	private Tuple<String, FrequencyConversion> conversionMethod =
@@ -77,6 +72,14 @@ public class Settings {
 					CONVERSION_METHOD_PROPERTY_NAME, FrequencyConversion.FFT);
 	private static final String CONVERSION_METHOD_PROPERTY_NAME = "conversionmethod";
 
+	/**
+	 * The type of window function used.
+	 */
+	private Tuple<String, WindowFunction> windowFunction =
+			new Tuple<String, WindowFunction>(
+					WINDOWFUNCTION_PROPERTY_NAME, WindowFunction.Hanning);
+	public static final String WINDOWFUNCTION_PROPERTY_NAME = "windowfunction";
+	
 	private Settings() {};
 
 	public static Settings createSettings(SettingData data) {
@@ -101,11 +104,11 @@ public class Settings {
 		if (data.getThreadCount().isPresent()) {
 			instance.setThreadCount(data.getThreadCount().get());
 		}
-		if (data.getUsingWindowFunction().isPresent()) {
-			instance.setUsingWindowFunction(data.getUsingWindowFunction().get());
-		}
 		if (data.getFrequencyConverter().isPresent()) {
 			instance.setConversionMethod(data.getFrequencyConverter().get());
+		}
+		if(data.getWindowFunction().isPresent()) {
+			instance.setWindowFunction(data.getWindowFunction().get());
 		}
 		return instance;
 	}
@@ -131,8 +134,8 @@ public class Settings {
 		p.put(showVisualisation.x, String.valueOf(showVisualisation.y));
 		p.put(spectrogramContrast.x, String.valueOf(spectrogramContrast.y));
 		p.put(threadCount.x, String.valueOf(threadCount.y));
-		p.put(usingWindowFunction.x, String.valueOf(usingWindowFunction.y));
 		p.put(conversionMethod.x, String.valueOf(conversionMethod.y));
+		p.put(windowFunction.x, String.valueOf(windowFunction.y));
 		
 		p.store(new FileOutputStream(SETTINGS_FILE_NAME), "LANR - Settings");
 	}
@@ -178,7 +181,7 @@ public class Settings {
 								+ VISUALIZATION_FACTOR_PROPERTY_NAME + "'. Could not read ini file");
 			}
 		}
-		String spectro = p.getProperty(CREATE_SPECTRO_PROPERTY_NAME).toLowerCase();
+		String spectro = p.getProperty(CREATE_SPECTRO_PROPERTY_NAME);
 		if (spectro != null) {
 			if (spectro.equals("true")) {
 				data.setCreateSpectrogram(true);
@@ -190,7 +193,7 @@ public class Settings {
 								+ CREATE_SPECTRO_PROPERTY_NAME + "'. Could not read ini file");
 			}
 		}
-		String visual = p.getProperty(SHOW_VISUAL_PROPERTY_NAME).toLowerCase();
+		String visual = p.getProperty(SHOW_VISUAL_PROPERTY_NAME);
 		if (visual != null) {
 			if (visual.equals("true")) {
 				data.setShowVisualisation(true);
@@ -223,19 +226,7 @@ public class Settings {
 						+ THREAD_COUNT_PROPERTY_NAME + "'. Could not read ini file");
 			}
 		}
-		String usingWind = p.getProperty(USING_WINDOWFUNCTION_PROPERTY_NAME).toLowerCase();
-		if (usingWind != null) {
-			if (usingWind.equals("true")) {
-				data.setUsingWindowFunction(true);
-			} else if (usingWind.equals("false")) {
-				data.setUsingWindowFunction(false);
-			} else {
-				throw new IOException(
-						"Invalid value for property '" 
-								+ USING_WINDOWFUNCTION_PROPERTY_NAME + "'. Could not read ini file");
-			}
-		}
-		String convMethod = p.getProperty(CONVERSION_METHOD_PROPERTY_NAME).toUpperCase();
+		String convMethod = p.getProperty(CONVERSION_METHOD_PROPERTY_NAME);
 		if (convMethod != null) {
 			try {
 				FrequencyConversion fc = FrequencyConversion.valueOf(convMethod);
@@ -244,6 +235,17 @@ public class Settings {
 				throw new IOException(
 						"Invalid value for property '" 
 								+ CONVERSION_METHOD_PROPERTY_NAME + "'. Could not read ini file");
+			}	
+		}
+		String windowFunc = p.getProperty(WINDOWFUNCTION_PROPERTY_NAME);
+		if (windowFunc != null) {
+			try {
+				WindowFunction wf = WindowFunction.valueOf(windowFunc);
+				data.setWindowFunction(wf);
+			}catch(IllegalArgumentException e) {
+				throw new IOException(
+						"Invalid value for property '" 
+								+ WINDOWFUNCTION_PROPERTY_NAME + "'. Could not read ini file");
 			}	
 		}
 		return data;
@@ -310,13 +312,13 @@ public class Settings {
 		AudioStream.setConverter(conversionMethod);
 		this.conversionMethod.y = conversionMethod;
 	}
-
-	public boolean isUsingWindowFunction() {
-		return usingWindowFunction.y;
+	
+	public WindowFunction getWindowFunction() {
+		return windowFunction.y;
 	}
 
-	public void setUsingWindowFunction(boolean usingWindowFunction) {
-		AudioStream.setUsingWindowFunction(usingWindowFunction);
-		this.usingWindowFunction.y = usingWindowFunction;
+	public void setWindowFunction(WindowFunction windowFunction) {
+		AudioStream.setWindowFunction(windowFunction);
+		this.windowFunction.y = windowFunction;
 	}
 }

@@ -6,8 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import lanr.logic.frequency.FrequencyConversion;
-import lanr.logic.frequency.windowfunctions.VonHannWindow;
 import lanr.logic.frequency.windowfunctions.WindowFunction;
+import lanr.logic.frequency.windowfunctions.WindowFunctionImpl;
 import lanr.logic.model.Noise;
 import lanr.logic.noise.BackgroundNoiseSearch;
 import lanr.logic.noise.ClippingSearch;
@@ -31,12 +31,13 @@ public class AudioAnalyzer {
 
 	private Spectrogram spectro;
 	private FrequencyConversion conversion;
-	private WindowFunction windowFunction;
-	private boolean useWindowFunction;
+	private WindowFunctionImpl windowFunction;
 	private double replayGain;
 
-	public AudioAnalyzer(int windowSize, int sampleRate, double replayGain, boolean createSpectorgam, boolean useWindowFunction,
-			FrequencyConversion conversion) {
+	public AudioAnalyzer(int windowSize, int sampleRate, double replayGain, boolean createSpectorgam,
+			WindowFunction windowFunction, FrequencyConversion conversion) {
+		
+		this.windowFunction = windowFunction.getImplementation(windowSize);
 		
 		this.replayGain = replayGain;
 		//Sample analyzer
@@ -48,10 +49,6 @@ public class AudioAnalyzer {
 		frequencyAnalyzer.add(new HummingSearch(sampleRate, windowSize, replayGain, conversion.getHalfSamples()));
 		
 		this.conversion = conversion;
-		this.useWindowFunction = useWindowFunction;
-		if(useWindowFunction) {
-			this.windowFunction = new VonHannWindow(windowSize);
-		}
 		if (createSpectorgam && windowSize < 50000) {
 			// FFT method used only uses half of the output data
 			if (conversion.getHalfSamples()) {
@@ -106,7 +103,7 @@ public class AudioAnalyzer {
 	public void anazlyze(double[] data) {
 		// Analyzing the samples
 		sampleAnalysis(data);
-		if (useWindowFunction && conversion != FrequencyConversion.FWT) {
+		if (windowFunction != null && conversion != FrequencyConversion.FWT) {
 			windowFunction.apply(data);
 		}
 		double[] magnitudes = conversion.getConverter().convert(data);

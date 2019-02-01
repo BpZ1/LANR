@@ -6,12 +6,12 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.GridPane;
 import lanr.logic.frequency.FrequencyConversion;
+import lanr.logic.frequency.windowfunctions.WindowFunction;
 import lanr.model.Descriptions;
 import lanr.model.Settings;
 
@@ -24,8 +24,8 @@ import lanr.model.Settings;
 public class ParameterSettingsView extends GridPane {
 	
 	private SimpleIntegerProperty windowSize = new SimpleIntegerProperty();
-	private SimpleBooleanProperty windowFunctionSetting = new SimpleBooleanProperty();
 	private SimpleObjectProperty<FrequencyConversion> conversionMethod = new SimpleObjectProperty<FrequencyConversion>();
+	private SimpleObjectProperty<WindowFunction> windowFunction = new SimpleObjectProperty<WindowFunction>();
 
 	public ParameterSettingsView(SimpleBooleanProperty changed) {
 		this.setPadding(new Insets(8, 8, 8, 8));
@@ -38,8 +38,8 @@ public class ParameterSettingsView extends GridPane {
 		createFrequencyTransformControl();
 
 		windowSize.addListener((obs, oldval, newVal) -> changed.setValue(true));
-		windowFunctionSetting.addListener((obs, oldval, newVal) -> changed.setValue(true));
 		conversionMethod.addListener((obs, oldval, newVal) -> changed.setValue(true));
+		windowFunction.addListener((obs, oldval, newVal) -> changed.setValue(true));
 	}
 
 	private void createWindowSizeControl() {
@@ -63,11 +63,12 @@ public class ParameterSettingsView extends GridPane {
 	}
 
 	private void createWindowFunctionControl() {
-		Label windowFunctionLabel = new Label("Use Window function");
-		CheckBox box = new CheckBox();
-		box.selectedProperty().bindBidirectional(windowFunctionSetting);
-		windowFunctionSetting.setValue(Settings.getInstance().isUsingWindowFunction());
-		this.add(windowFunctionLabel, 0, 1);
+		Label windowFuncLabel = new Label("Transform");
+		ComboBox<WindowFunction> box = new ComboBox<WindowFunction>();
+		box.setItems(FXCollections.observableArrayList(WindowFunction.values()));
+		windowFunction.bind(box.getSelectionModel().selectedItemProperty());
+		box.getSelectionModel().select(Settings.getInstance().getWindowFunction());
+		this.add(windowFuncLabel, 0, 1);
 		this.add(box, 1, 1);
 		this.add(new InfoButton(Descriptions.WINDOW_FUNCTION_DESCRIPTION), 2, 1);
 	}
@@ -87,8 +88,8 @@ public class ParameterSettingsView extends GridPane {
 		return windowSize.getValue();
 	}
 
-	public boolean getWindowFunctionSetting() {
-		return windowFunctionSetting.getValue();
+	public WindowFunction getWindowFunction() {
+		return windowFunction.getValue();
 	}
 
 	public FrequencyConversion getConversionMethod() {

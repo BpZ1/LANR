@@ -4,7 +4,7 @@ package lanr.logic.frequency.windowfunctions;
  * Based on a version from
  * https://code.google.com/archive/p/spectro-edit/
  */
-public class VorbisWindow extends WindowFunction {
+public class VorbisWindow extends WindowFunctionImpl {
 
 	private final double[] scalars;
 
