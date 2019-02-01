@@ -6,7 +6,7 @@ package lanr.logic.frequency.windowfunctions;
  * @author Nicolas Bruch
  *
  */
-public class HammingWindow extends WindowFunction {
+public class HammingWindow extends WindowFunctionImpl {
 
 	private final double[] scalars;
 

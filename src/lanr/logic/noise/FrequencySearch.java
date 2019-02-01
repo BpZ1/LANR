@@ -1,5 +1,6 @@
 package lanr.logic.noise;
 
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -99,8 +100,13 @@ public abstract class FrequencySearch extends NoiseSearch {
 			double value = values[i];
 			//Ignore all values that are outside the defined frequency range
 			if(frequency >= lowerFreqBound && frequency <= upperFreqBound) {
-				if(value > threshold) {
+				if(value > threshold) {					
 					frequencyDbValues.get(i).add(value);
+					long seconds = locationCounter / sampleRate;
+					if(this.getClass() == BackgroundNoiseSearch.class && seconds > 740 && seconds < 1000) {
+						LocalTime timeOfDay = LocalTime.ofSecondOfDay(seconds +1);		
+						System.out.println("Peak at: " + frequencies.get(i) + " hZ = " + value + "  at: " + timeOfDay.toString());									
+					}
 					double severity = calculateSeverity(value);
 					if(currentNoises.containsKey(i)) {
 						currentNoises.get(i).setLength(currentNoises.get(i).getLength() + windowSize);
@@ -114,7 +120,7 @@ public abstract class FrequencySearch extends NoiseSearch {
 					if(currentNoises.containsKey(i)) {
 						skipCounter[i]++;				
 						if(skipCounter[i] > maxSkip) {	
-							Noise noise = currentNoises.get(i);
+							Noise noise = currentNoises.get(i);					
 							if(noise.getLength() >= duration) {
 								foundNoise.add(noise);							
 							}

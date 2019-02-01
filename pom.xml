@@ -45,6 +45,11 @@
 	        <version>3.1</version>
 	        <classifier>with-dependencies</classifier>
     	</dependency>
+    	<dependency>
+		    <groupId>net.sourceforge.jdistlib</groupId>
+		    <artifactId>jdistlib</artifactId>
+		    <version>0.4.5</version>
+		</dependency>
 	</dependencies>
 
 	<properties>
