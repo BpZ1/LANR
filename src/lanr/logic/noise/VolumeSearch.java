@@ -17,7 +17,7 @@ public class VolumeSearch extends NoiseSearch {
 	private static double lowerSilentThreshold = -40;
 	private static double upperSilentThreshold = -30;
 	
-	private static double lowerLoudThreshold = -20;
+	private static double lowerLoudThreshold = -10;
 	private static double upperLoudThreshold = 0;
 	/**
 	 * Maximum number of samples that can be over the threshold 
