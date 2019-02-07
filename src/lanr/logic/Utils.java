@@ -2,6 +2,7 @@ package lanr.logic;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalTime;
 
 /**
  * @author Nicolas Bruch
@@ -25,5 +26,16 @@ public class Utils {
 	 */
 	public static double sampleToDBFS(double sample) {
 		return 20 * Math.log10(Math.abs(sample));
+	}
+	
+	public static String getDurationString(long durationInSeconds) {
+		LocalTime timeOfDay;
+		if(durationInSeconds > 86399) {
+			timeOfDay = LocalTime.ofSecondOfDay(86399);		
+		}else {
+			timeOfDay = LocalTime.ofSecondOfDay(durationInSeconds);			
+		}
+		String time = timeOfDay.toString();
+		return time;
 	}
 }

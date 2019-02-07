@@ -16,12 +16,15 @@ public class SettingData {
 	private Optional<Integer> windowSize = Optional.empty();
 	private Optional<Double> visualisationFactor = Optional.empty();
 	private Optional<Boolean> createSpectrogram = Optional.empty();
+	private Optional<String> spectrogramPath = Optional.empty();
 	private Optional<Boolean> showVisualisation = Optional.empty();
 	private Optional<Integer> spectrogramContrast = Optional.empty();
 	private Optional<Double> spectrogramScale = Optional.empty();
 	private Optional<Integer> threadCount = Optional.empty();
 	private Optional<FrequencyConversion> frequencyConverter = Optional.empty();
 	private Optional<WindowFunction> windowFunction = Optional.empty();
+	private Optional<Boolean> createLog = Optional.empty();
+	private Optional<String> logPath = Optional.empty();
 	
 	public Optional<Integer> getWindowSize() {
 		return windowSize;
@@ -40,6 +43,12 @@ public class SettingData {
 	}
 	public void setCreateSpectrogram(boolean createSpectrogram) {
 		this.createSpectrogram = Optional.of(createSpectrogram);
+	}
+	public Optional<String> getSpectrogramPath(){
+		return spectrogramPath;
+	}
+	public void setSpectrogramPath(String path) {
+		this.spectrogramPath = Optional.of(path);
 	}
 	public Optional<Boolean> getShowVisualisation() {
 		return showVisualisation;
@@ -76,5 +85,17 @@ public class SettingData {
 	}
 	public void setWindowFunction(WindowFunction windowFuntion) {
 		this.windowFunction = Optional.of(windowFuntion);
+	}
+	public Optional<Boolean> getCreateLog() {
+		return createLog;
+	}
+	public void setCreateLog(boolean createLog) {
+		this.createLog = Optional.of(createLog);
+	}
+	public Optional<String> getLogPath(){
+		return logPath;
+	}
+	public void setLogPath(String path) {
+		this.logPath = Optional.of(path);
 	}
 }

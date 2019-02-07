@@ -44,7 +44,8 @@ public class SettingsView extends Stage {
 		//Performance tab
 		Tab performanceTab = new Tab("General");
 		performanceTab.setClosable(false);
-		generalView = new GeneralSettingsView(changed);
+		generalView = new GeneralSettingsView(changed,
+				Stage.getWindows().get(0));
 		performanceTab.setContent(generalView);		
 		//Parameter tab
 		Tab parametersTab = new Tab("Parameter");
@@ -55,7 +56,8 @@ public class SettingsView extends Stage {
 		//Parameter tab
 		Tab spectroTab = new Tab("Spectrogram");
 		spectroTab.setClosable(false);
-		this.spectroView = new SpectrogramSettingsView(changed);
+		this.spectroView = new SpectrogramSettingsView(changed,
+				Stage.getWindows().get(0));
 		spectroTab.setContent(spectroView);
 		
 		pane.getTabs().add(performanceTab);
@@ -91,6 +93,9 @@ public class SettingsView extends Stage {
 		return mainPane;
 	}
 	
+	/**
+	 * Saves the data of all sub nodes into the {@link Settings} instance.
+	 */
 	private void saveSettings() {
 		Settings s = Settings.getInstance();
 		s.setConversionMethod(parameterView.getConversionMethod());
@@ -99,8 +104,11 @@ public class SettingsView extends Stage {
 		s.setConversionMethod(parameterView.getConversionMethod());
 		s.setShowVisualisation(generalView.getVisualizeData());
 		s.setVisualisationFactor(generalView.getVisualizationFactor());
+		s.setLogCreation(generalView.getCreateLog());
+		s.setLogPath(generalView.getPath());
 		s.setCreateSpectrogram(spectroView.getCreateSpectrogram());
 		s.setSpectrogramContrast(spectroView.getContrast());
+		s.setSpectrogramPath(spectroView.getPath());
 		try {
 			s.save();
 		} catch (IOException e) {

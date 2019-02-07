@@ -10,6 +10,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import lanr.logic.AudioAnalyzer;
+import lanr.logic.LogWriter;
 import lanr.logic.frequency.FrequencyConversion;
 import lanr.logic.frequency.windowfunctions.WindowFunction;
 
@@ -21,13 +22,22 @@ import lanr.logic.frequency.windowfunctions.WindowFunction;
  */
 public class AudioStream {
 
-	private static final String OUTPUT_FOLDER = "spectrograms/";
+	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
+	
+	private static String SPECTROGRAM_OUTPUT_FOLDER;
+	private static boolean createLogFile;
 	
 	public final static String DATA_ADDED_PROPERTY = "added";	
 	public final static String ANALYZING_COMPLETE = "complete";
+	/**
+	 * Converter for the conversion from time to frequency domain.
+	 */
+	private static FrequencyConversion converter = FrequencyConversion.FFT;
+	private static WindowFunction windowFunction = WindowFunction.Hanning;
+	private static boolean usingWindowFunction;
+	private static boolean createSpectrogram;
+	private static boolean createLogs;
 	
-	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
-
 	private final AudioData parent;
 	private AudioAnalyzer analyzer;
 	private double replayGain;
@@ -40,14 +50,6 @@ public class AudioStream {
 	 * Bit depth per sample.
 	 */
 	private final int bitRate;
-	
-	/**
-	 * Converter for the conversion from time to frequency domain.
-	 */
-	private static FrequencyConversion converter = FrequencyConversion.FFT;
-	private static WindowFunction windowFunction = WindowFunction.Hanning;
-	private static boolean usingWindowFunction = false;
-	private static boolean createSpectrogram = true;
 	/**
 	 * Samples per second.
 	 */
@@ -66,19 +68,31 @@ public class AudioStream {
 		this.length = length;
 	}
 
-	public void analyseStart(int frameSize) {
-		analyzer = new AudioAnalyzer(frameSize, sampleRate, replayGain,
+	/**
+	 * Creates the {@link AudioAnalyzer} used for the analysis.
+	 * This method needs to be called before windows of samples can be analysed.
+	 * @param windowSize - Size of the windows.
+	 */
+	public void analyseStart(int windowSize) {
+		analyzer = new AudioAnalyzer(windowSize, sampleRate, replayGain,
 				createSpectrogram, windowFunction, converter);
 	}
 
+	/**
+	 * Finishes the analysis by adding overlapping noise together and
+	 * creating the spectrogram and/or log files if selected.
+	 * This method needs to be called at the end of the analysis process.
+	 * @throws LANRException If a file could not be written.
+	 */
 	public void analyseEnd() throws LANRException {		
 		if (analyzer != null) {
 			analyzer.finish();
 			this.foundNoise = analyzer.getNoise();
 			this.state.firePropertyChange(ANALYZING_COMPLETE, null, foundNoise);
 			if(createSpectrogram) {
+				//Saving the spectrogram image file
 				StringBuilder fileName = new StringBuilder();
-				fileName.append(OUTPUT_FOLDER);
+				fileName.append(SPECTROGRAM_OUTPUT_FOLDER + "/");
 				fileName.append(parent.getName());
 				fileName.append("_");
 				fileName.append(id);
@@ -89,7 +103,10 @@ public class AudioStream {
 				} catch (IOException e) {
 					throw new LANRException("Could not create spectrogram!", e);
 				}
-			}		
+			}
+			if(createLogs) {
+				LogWriter.writeLogFile(parent);
+			}
 			analyzer = null;
 		}
 	}
@@ -185,5 +202,17 @@ public class AudioStream {
 	
 	public static void setWindowFunction(WindowFunction windowFunction) {
 		AudioStream.windowFunction = windowFunction;
+	}
+	
+	public static void setSpectrogramOutputFolder(String path) {
+		AudioStream.SPECTROGRAM_OUTPUT_FOLDER = path;
+	}
+	
+	public static boolean getCreateLogFile() {
+		return createLogFile;
+	}
+
+	public static void setCreateLogFile(boolean createLogFile) {
+		AudioStream.createLogFile = createLogFile;
 	}
 }

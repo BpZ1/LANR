@@ -4,14 +4,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import lanr.logic.AudioLogic;
+import lanr.logic.LogWriter;
 import lanr.logic.Spectrogram;
 import lanr.logic.frequency.FrequencyConversion;
 import lanr.logic.frequency.windowfunctions.WindowFunction;
 import lanr.logic.model.AudioStream;
-import lanr.logic.model.Tuple;
+import lanr.logic.model.LANRException;
 import lanr.view.AudioDataContainer;
 import lanr.view.StreamVisualisation;
 
@@ -27,60 +33,66 @@ public class Settings {
 	private static final String SETTINGS_FILE_NAME = "settings.ini";
 
 	private static Settings instance;
+	private Map<String, Object> settingsProperties = new HashMap<String, Object>();
 	/**
 	 * Size of samples that are analyzed of a given signal.
 	 */
-	private Tuple<String, Integer> windowSize = 
-			new Tuple<String, Integer>(WINDOW_SIZE_PROPERTY_NAME, 1024);
-	private static final String WINDOW_SIZE_PROPERTY_NAME = "windowsize";
+	public static final String WINDOW_SIZE_PROPERTY_NAME = "windowsize";
 	/**
 	 * Reduction factor of the visualization of the signal.<br>
 	 * 0.01 = 10% of the signals sample content will be displayed.
 	 */
-	private Tuple<String, Double> visualisationFactor =
-			new Tuple<String, Double>(VISUALIZATION_FACTOR_PROPERTY_NAME, 0.01);
-	private static final String VISUALIZATION_FACTOR_PROPERTY_NAME = "visualisationfactor";
+	public static final String VISUALIZATION_FACTOR_PROPERTY_NAME = "visualisationfactor";
 	/**
 	 * Indicates whether a spectrogram will be drawn while analyzing or not.
 	 */
-	private Tuple<String, Boolean> createSpectrogram =
-			new Tuple<String, Boolean>(CREATE_SPECTRO_PROPERTY_NAME, true);
-	private static final String CREATE_SPECTRO_PROPERTY_NAME = "createspectrogram";
+	public static final String CREATE_SPECTRO_PROPERTY_NAME = "createspectrogram";
+	/**
+	 * The path to the log files.
+	 */
+	public static final String SPECTROGRAM_PATH_PROPERTY_NAME = "spectrorgamPath";
 	/**
 	 * Indicates whether the vizualisation will be created when analyzing.
 	 */
-	private Tuple<String, Boolean> showVisualisation =
-			new Tuple<String, Boolean>(SHOW_VISUAL_PROPERTY_NAME, true);
-	private static final String SHOW_VISUAL_PROPERTY_NAME = "showvisualisation";
+	public static final String SHOW_VISUAL_PROPERTY_NAME = "showvisualisation";
 	/**
 	 * Contrast for the spectrogram.
 	 */
-	private Tuple<String, Integer> spectrogramContrast = 
-			new Tuple<String, Integer>(SPECTRO_CONTRAST_PROPERTY_NAME, 300);
-	private static final String SPECTRO_CONTRAST_PROPERTY_NAME = "spectrogramcontrast";
+	public static final String SPECTRO_CONTRAST_PROPERTY_NAME = "spectrogramcontrast";
 	/**
 	 * Number of threads used for analyzing and reading files.
 	 */
-	private Tuple<String, Integer> threadCount = 
-			new Tuple<String, Integer>(THREAD_COUNT_PROPERTY_NAME, 10);
-	private static final String THREAD_COUNT_PROPERTY_NAME = "threadcount";
+	public static final String THREAD_COUNT_PROPERTY_NAME = "threadcount";
 	/**
 	 * The conversion method to convert the samples into frequency domain.
 	 */
-	private Tuple<String, FrequencyConversion> conversionMethod =
-			new Tuple<String, FrequencyConversion>(
-					CONVERSION_METHOD_PROPERTY_NAME, FrequencyConversion.FFT);
-	private static final String CONVERSION_METHOD_PROPERTY_NAME = "conversionmethod";
-
+	public static final String CONVERSION_METHOD_PROPERTY_NAME = "conversionmethod";
 	/**
 	 * The type of window function used.
 	 */
-	private Tuple<String, WindowFunction> windowFunction =
-			new Tuple<String, WindowFunction>(
-					WINDOWFUNCTION_PROPERTY_NAME, WindowFunction.Hanning);
 	public static final String WINDOWFUNCTION_PROPERTY_NAME = "windowfunction";
+	/**
+	 * Indicates whether a log file will be created.
+	 */
+	public static final String CREATE_LOG_PROPERTY_NAME = "createLog";	
+	/**
+	 * The path to the log files.
+	 */
+	public static final String LOG_PATH_PROPERTY_NAME = "logPath";
 	
-	private Settings() {};
+	private Settings() {
+		settingsProperties.put(WINDOW_SIZE_PROPERTY_NAME, 1024);
+		settingsProperties.put(VISUALIZATION_FACTOR_PROPERTY_NAME, 0.01);
+		settingsProperties.put(CREATE_SPECTRO_PROPERTY_NAME, false);
+		settingsProperties.put(SPECTROGRAM_PATH_PROPERTY_NAME, "spectrograms/");
+		settingsProperties.put(SHOW_VISUAL_PROPERTY_NAME, true);
+		settingsProperties.put(SPECTRO_CONTRAST_PROPERTY_NAME, 300);
+		settingsProperties.put(THREAD_COUNT_PROPERTY_NAME, 10);
+		settingsProperties.put(CONVERSION_METHOD_PROPERTY_NAME, FrequencyConversion.FFT);
+		settingsProperties.put(WINDOWFUNCTION_PROPERTY_NAME, WindowFunction.Hanning);
+		settingsProperties.put(CREATE_LOG_PROPERTY_NAME, false);
+		settingsProperties.put(LOG_PATH_PROPERTY_NAME, "logs/");
+	};
 
 	public static Settings createSettings(SettingData data) {
 		if (instance == null) {
@@ -88,6 +100,9 @@ public class Settings {
 		}
 		if (data.getCreateSpectrogram().isPresent()) {
 			instance.setCreateSpectrogram(data.getCreateSpectrogram().get());
+		}
+		if(data.getSpectrogramPath().isPresent()) {
+			instance.setSpectrogramPath(data.getSpectrogramPath().get());
 		}
 		if (data.getWindowSize().isPresent()) {
 			instance.setWindowSize(data.getWindowSize().get());
@@ -110,6 +125,12 @@ public class Settings {
 		if(data.getWindowFunction().isPresent()) {
 			instance.setWindowFunction(data.getWindowFunction().get());
 		}
+		if(data.getCreateLog().isPresent()) {
+			instance.setLogCreation(data.getCreateLog().get());
+		}
+		if(data.getLogPath().isPresent()) {
+			instance.setLogPath(data.getLogPath().get());
+		}
 		return instance;
 	}
 
@@ -128,15 +149,9 @@ public class Settings {
 	 */
 	public void save() throws IOException {
 		Properties p = new Properties();
-		p.put(createSpectrogram.x, String.valueOf(createSpectrogram.y));
-		p.put(windowSize.x, String.valueOf(windowSize.y));
-		p.put(visualisationFactor.x, String.valueOf(visualisationFactor.y));
-		p.put(showVisualisation.x, String.valueOf(showVisualisation.y));
-		p.put(spectrogramContrast.x, String.valueOf(spectrogramContrast.y));
-		p.put(threadCount.x, String.valueOf(threadCount.y));
-		p.put(conversionMethod.x, String.valueOf(conversionMethod.y));
-		p.put(windowFunction.x, String.valueOf(windowFunction.y));
-		
+		for(Map.Entry<String, Object> entry : settingsProperties.entrySet()) {
+			p.put(entry.getKey(), String.valueOf(entry.getValue()));
+		}		
 		p.store(new FileOutputStream(SETTINGS_FILE_NAME), "LANR - Settings");
 	}
 
@@ -167,7 +182,7 @@ public class Settings {
 				data.setWindowSize(size);
 			} catch (NumberFormatException e) {
 				throw new IOException("Invalid value for property '" 
-						+ WINDOW_SIZE_PROPERTY_NAME + "'. Could not read ini file");
+						+ WINDOW_SIZE_PROPERTY_NAME + "'. Could not read ini file.");
 			}
 		}
 		String vfactor = p.getProperty(VISUALIZATION_FACTOR_PROPERTY_NAME);
@@ -178,31 +193,38 @@ public class Settings {
 			} catch (NumberFormatException e) {
 				throw new IOException(
 						"Invalid value for property '" 
-								+ VISUALIZATION_FACTOR_PROPERTY_NAME + "'. Could not read ini file");
+								+ VISUALIZATION_FACTOR_PROPERTY_NAME + "'. Could not read ini file.");
 			}
 		}
 		String spectro = p.getProperty(CREATE_SPECTRO_PROPERTY_NAME);
 		if (spectro != null) {
-			if (spectro.equals("true")) {
-				data.setCreateSpectrogram(true);
-			} else if (spectro.equals("false")) {
-				data.setCreateSpectrogram(false);
-			} else {
+			try {
+				data.setCreateSpectrogram(getBooleanValue(spectro));
+			} catch (LANRException e) {
 				throw new IOException(
 						"Invalid value for property '" 
-								+ CREATE_SPECTRO_PROPERTY_NAME + "'. Could not read ini file");
+								+ CREATE_SPECTRO_PROPERTY_NAME + "'. Could not read ini file.");
 			}
 		}
-		String visual = p.getProperty(SHOW_VISUAL_PROPERTY_NAME);
-		if (visual != null) {
-			if (visual.equals("true")) {
-				data.setShowVisualisation(true);
-			} else if (visual.equals("false")) {
-				data.setShowVisualisation(false);
-			} else {
+		String spectroPath = p.getProperty(SPECTROGRAM_PATH_PROPERTY_NAME);
+		if (spectroPath != null) {
+			try {	
+				Paths.get(spectroPath);				
+				data.setSpectrogramPath(spectroPath);			
+			}catch(InvalidPathException e) {
 				throw new IOException(
 						"Invalid value for property '" 
-								+ SHOW_VISUAL_PROPERTY_NAME + "'. Could not read ini file");
+								+ CREATE_SPECTRO_PROPERTY_NAME + "'. Could not read ini file.");
+			}		
+		}
+		String visual = p.getProperty(SHOW_VISUAL_PROPERTY_NAME);
+		if (visual != null) {			
+			try {
+				data.setShowVisualisation(getBooleanValue(visual));
+			} catch (LANRException e) {
+				throw new IOException(
+						"Invalid value for property '" 
+								+ CREATE_LOG_PROPERTY_NAME + "'. Could not read ini file.");
 			}
 		}
 		String sContrast = p.getProperty(SPECTRO_CONTRAST_PROPERTY_NAME);
@@ -213,7 +235,7 @@ public class Settings {
 			} catch (NumberFormatException e) {
 				throw new IOException(
 						"Invalid value for property '" 
-								+ SPECTRO_CONTRAST_PROPERTY_NAME + "'. Could not read ini file");
+								+ SPECTRO_CONTRAST_PROPERTY_NAME + "'. Could not read ini file.");
 			}
 		}
 		String threads = p.getProperty(THREAD_COUNT_PROPERTY_NAME);
@@ -223,7 +245,7 @@ public class Settings {
 				data.setThreadCount(threadN);
 			} catch (NumberFormatException e) {
 				throw new IOException("Invalid value for property '" 
-						+ THREAD_COUNT_PROPERTY_NAME + "'. Could not read ini file");
+						+ THREAD_COUNT_PROPERTY_NAME + "'. Could not read ini file.");
 			}
 		}
 		String convMethod = p.getProperty(CONVERSION_METHOD_PROPERTY_NAME);
@@ -234,7 +256,7 @@ public class Settings {
 			}catch(IllegalArgumentException e) {
 				throw new IOException(
 						"Invalid value for property '" 
-								+ CONVERSION_METHOD_PROPERTY_NAME + "'. Could not read ini file");
+								+ CONVERSION_METHOD_PROPERTY_NAME + "'. Could not read ini file.");
 			}	
 		}
 		String windowFunc = p.getProperty(WINDOWFUNCTION_PROPERTY_NAME);
@@ -245,80 +267,103 @@ public class Settings {
 			}catch(IllegalArgumentException e) {
 				throw new IOException(
 						"Invalid value for property '" 
-								+ WINDOWFUNCTION_PROPERTY_NAME + "'. Could not read ini file");
+								+ WINDOWFUNCTION_PROPERTY_NAME + "'. Could not read ini file.");
 			}	
+		}
+		String logCreation = p.getProperty(CREATE_LOG_PROPERTY_NAME);
+		if (logCreation != null) {
+			try {
+				data.setCreateLog(getBooleanValue(logCreation));
+			} catch (LANRException e) {
+				throw new IOException(
+						"Invalid value for property '" 
+								+ CREATE_LOG_PROPERTY_NAME + "'. Could not read ini file.");
+			}
+		}
+		String logPath = p.getProperty(LOG_PATH_PROPERTY_NAME);
+		if (logPath != null) {
+			try {	
+				Paths.get(logPath);				
+				data.setLogPath(logPath);		
+			}catch(InvalidPathException e) {
+				throw new IOException(
+						"Invalid value for property '" 
+								+ LOG_PATH_PROPERTY_NAME + "'. Could not read ini file.");
+			}		
 		}
 		return data;
 	}
+	
+	private static boolean getBooleanValue(String value) throws LANRException {
+		String nValue = value.toLowerCase();
+		if(nValue.equals("true")) {
+			return true;
+		}else if(nValue.equals("false")) {
+			return false;
+		}else {
+			throw new LANRException("Invalid boolean value.");
+		}
+	}
 
-	public int getWindowSize() {
-		return windowSize.y;
+	/**
+	 * @param property - Name of the property.
+	 * @return Value of a given property name.
+	 */
+	public Object getPropertyValue(String property) {
+		return settingsProperties.get(property);
 	}
 
 	public void setWindowSize(int windowSize) {
 		AudioLogic.setWindowSize(windowSize);
-		this.windowSize.y = windowSize;
-	}
-
-	public double getVisualisationFactor() {
-		return visualisationFactor.y;
+		this.settingsProperties.put(WINDOW_SIZE_PROPERTY_NAME, windowSize);
 	}
 
 	public void setVisualisationFactor(double visualisationFactor) {
 		StreamVisualisation.setVisualisationReductionFactor(visualisationFactor);
-		this.visualisationFactor.y = visualisationFactor;
-	}
-
-	public boolean createSpectrogram() {
-		return createSpectrogram.y;
+		this.settingsProperties.put(VISUALIZATION_FACTOR_PROPERTY_NAME, visualisationFactor);
 	}
 
 	public void setCreateSpectrogram(boolean createSpectrogram) {
 		AudioStream.setCreateSpectrogram(createSpectrogram);
-		this.createSpectrogram.y = createSpectrogram;
+		this.settingsProperties.put(CREATE_SPECTRO_PROPERTY_NAME, createSpectrogram);
 	}
-
-	public boolean showVisualisation() {
-		return showVisualisation.y;
+	
+	public void setSpectrogramPath(String path) {
+		AudioStream.setSpectrogramOutputFolder(path);
+		this.settingsProperties.put(SPECTROGRAM_PATH_PROPERTY_NAME, path);
 	}
 
 	public void setShowVisualisation(boolean showVisualisation) {
 		AudioDataContainer.setShowVisualization(showVisualisation);
-		this.showVisualisation.y = showVisualisation;
-	}
-
-	public int getSpectrogramContrast() {
-		return spectrogramContrast.y;
+		this.settingsProperties.put(SHOW_VISUAL_PROPERTY_NAME, showVisualisation);
 	}
 
 	public void setSpectrogramContrast(int spectrogramContrast) {
 		Spectrogram.setContrast(spectrogramContrast);
-		this.spectrogramContrast.y = spectrogramContrast;
-	}
-
-	public int getThreadCount() {
-		return threadCount.y;
+		this.settingsProperties.put(SPECTRO_CONTRAST_PROPERTY_NAME, spectrogramContrast);
 	}
 
 	public void setThreadCount(int threadCount) {
-		this.threadCount.y = threadCount;
-	}
-
-	public FrequencyConversion getConversionMethod() {
-		return conversionMethod.y;
+		this.settingsProperties.put(THREAD_COUNT_PROPERTY_NAME, threadCount);
 	}
 
 	public void setConversionMethod(FrequencyConversion conversionMethod) {
 		AudioStream.setConverter(conversionMethod);
-		this.conversionMethod.y = conversionMethod;
+		this.settingsProperties.put(CONVERSION_METHOD_PROPERTY_NAME, conversionMethod);
 	}
 	
-	public WindowFunction getWindowFunction() {
-		return windowFunction.y;
-	}
-
 	public void setWindowFunction(WindowFunction windowFunction) {
 		AudioStream.setWindowFunction(windowFunction);
-		this.windowFunction.y = windowFunction;
+		this.settingsProperties.put(WINDOWFUNCTION_PROPERTY_NAME, windowFunction);
+	}
+	
+	public void setLogPath(String path) {
+		LogWriter.setLogFolderPath(path);
+		this.settingsProperties.put(LOG_PATH_PROPERTY_NAME, path);
+	}
+	
+	public void setLogCreation(boolean value) {
+		AudioStream.setCreateLogFile(value);
+		this.settingsProperties.put(CREATE_LOG_PROPERTY_NAME, value);
 	}
 }

@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import lanr.logic.AudioLogic;
+import lanr.logic.LogWriter;
 import lanr.logic.model.AudioData;
 import lanr.logic.model.LANRException;
 
@@ -31,7 +32,8 @@ public class MainModel extends Model {
 	
 	private MainModel() {
 		reader = new AudioLogic(
-				Settings.getInstance().getThreadCount(), //Number of threads //TODO:
+				(int) Settings.getInstance()
+				.getPropertyValue(Settings.THREAD_COUNT_PROPERTY_NAME), //Number of threads //TODO:
 				getReaderEventHandler());	//Event handler
 	};
 	
@@ -98,6 +100,13 @@ public class MainModel extends Model {
 	 */
 	public void analyzeAudio(AudioData data) {
 		reader.analyze(data);
+	}
+	
+	public void createLogFile(AudioData data) throws LANRException {
+		if(!data.isAnalyzed()) {
+			throw new LANRException("Can't create a log for files that are not analysed!");
+		}
+		LogWriter.writeLogFile(data);
 	}
 
 	public void removeAudioData(AudioData data) {

@@ -23,14 +23,14 @@ public class MainViewController {
 
 	private MainModel model;
 	private MainView mainView;
-	private boolean settingsLoaded = true;
+	private String settingsError;
 	
 	public MainViewController() {
 		SettingData data = null;
 		try {
 			data = Settings.load();		
 		} catch (IOException e) {
-			settingsLoaded = false;
+			settingsError = e.getMessage();
 		}
 		if(data == null) {
 			data = new SettingData();
@@ -41,9 +41,10 @@ public class MainViewController {
 	}
 	
 	public void start() {		
-		if(!settingsLoaded) {
+		if(settingsError != null) {
 			Utils.showErrorDialog(
 					"Could not load settings.ini",
+					settingsError + System.lineSeparator() +  
 					"Default settings will be used instead.");
 		}
 		mainView.showAndWait();	

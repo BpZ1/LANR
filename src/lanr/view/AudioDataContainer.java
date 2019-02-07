@@ -2,7 +2,6 @@ package lanr.view;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.time.LocalTime;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -26,6 +25,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import lanr.controller.AudioController;
 import lanr.logic.model.AudioStream;
+import lanr.logic.model.LANRException;
 import lanr.logic.model.AudioData;
 import lanr.logic.model.Noise;
 import lanr.model.MainModel;
@@ -70,7 +70,8 @@ public class AudioDataContainer extends TitledPane {
 	
 	private void createContextMenu() {
 		ContextMenu menu = new ContextMenu();
-		MenuItem analyze = new MenuItem("Analyze");		
+		MenuItem analyze = new MenuItem("Analyze");	
+		MenuItem createLog = new MenuItem("Create Log");		
 		MenuItem remove = new MenuItem("Remove");
 		analyze.disableProperty().bind(contextMenuDisabled);
 		remove.disableProperty().bind(contextMenuDisabled);
@@ -79,11 +80,25 @@ public class AudioDataContainer extends TitledPane {
 			MainModel.instance().analyzeAudio(data);
 		});
 		
+		createLog.setOnAction(event -> {
+			try {
+				MainModel.instance().createLogFile(data);
+			} catch (LANRException e) {
+				Utils.showErrorDialog("Could not create log file.", e.getMessage());
+			}
+		});
+		
 		remove.setOnAction(event -> {
-			MainModel.instance().removeAudioData(data);
+			boolean result = Utils.confirmationDialog("Please confirm your choice",
+					"Are you sure you want to remove the file?",
+					"All data collected by analysis will be deleted. Logs and other written files will NOT be deleted.");
+			if(result) {
+				MainModel.instance().removeAudioData(data);				
+			}
 		});
 		
 		menu.getItems().add(analyze);
+		menu.getItems().add(createLog);
 		menu.getItems().add(remove);
 		
 		this.setContextMenu(menu);
@@ -142,7 +157,7 @@ public class AudioDataContainer extends TitledPane {
 		for(AudioStream channel : data.getStreams()) {
 			Text durationLabelText = new Text("Duration:");
 			durationLabelText.setId(LABEL_CSS_ID);
-			Text durationNumberText = new Text(getDurationString(channel.getLength()));
+			Text durationNumberText = new Text(lanr.logic.Utils.getDurationString(channel.getLength()));
 			
 			infoBox.add(durationLabelText, 0, row);
 			infoBox.add(durationNumberText, 1, row);	
@@ -262,7 +277,7 @@ public class AudioDataContainer extends TitledPane {
 		positionColumn.setText("Position");
 		positionColumn.setCellValueFactory(param -> {
 			return new SimpleStringProperty(
-					getDurationString(param.getValue().getLocation() / data.getSampleRate()));
+					lanr.logic.Utils.getDurationString(param.getValue().getLocation() / data.getSampleRate()));
 		});
 		noiseTable.getColumns().add(positionColumn);
 		
@@ -271,7 +286,7 @@ public class AudioDataContainer extends TitledPane {
 		lengthColumn.setText("Length");
 		lengthColumn.setCellValueFactory(param -> {
 			return new SimpleStringProperty(
-					getDurationString(param.getValue().getLength() / data.getSampleRate()));
+					lanr.logic.Utils.getDurationString(param.getValue().getLength() / data.getSampleRate()));
 		});
 		noiseTable.getColumns().add(lengthColumn);
 
@@ -310,16 +325,7 @@ public class AudioDataContainer extends TitledPane {
 		return Color.RED;
 	}
 	
-	private String getDurationString(long durationInSeconds) {
-		LocalTime timeOfDay;
-		if(durationInSeconds > 86399) {
-			timeOfDay = LocalTime.ofSecondOfDay(86399);		
-		}else {
-			timeOfDay = LocalTime.ofSecondOfDay(durationInSeconds);			
-		}
-		String time = timeOfDay.toString();
-		return time;
-	}
+
 
 	public static boolean isShowVisualization() {
 		return showVisualization;

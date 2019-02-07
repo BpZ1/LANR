@@ -45,7 +45,8 @@ public class ParameterSettingsView extends GridPane {
 	private void createWindowSizeControl() {
 		Label windowValueLabel = new Label();
 		windowSize.addListener((obs, oldval, newVal) -> windowValueLabel.setText(String.valueOf(newVal.intValue())));
-		windowSize.setValue(Settings.getInstance().getWindowSize());
+		windowSize.setValue((int) Settings.getInstance()
+				.getPropertyValue(Settings.WINDOW_SIZE_PROPERTY_NAME));
 		Label windowSliderLabel = new Label("Window size");
 		Slider windowSizeSlider = new Slider();
 		windowSizeSlider.setValue(Math.log(windowSize.getValue()) / Math.log(2));
@@ -67,7 +68,8 @@ public class ParameterSettingsView extends GridPane {
 		ComboBox<WindowFunction> box = new ComboBox<WindowFunction>();
 		box.setItems(FXCollections.observableArrayList(WindowFunction.values()));
 		windowFunction.bind(box.getSelectionModel().selectedItemProperty());
-		box.getSelectionModel().select(Settings.getInstance().getWindowFunction());
+		box.getSelectionModel().select((WindowFunction)Settings.getInstance()
+				.getPropertyValue(Settings.WINDOWFUNCTION_PROPERTY_NAME));
 		this.add(windowFuncLabel, 0, 1);
 		this.add(box, 1, 1);
 		this.add(new InfoButton(Descriptions.WINDOW_FUNCTION_DESCRIPTION), 2, 1);
@@ -78,7 +80,8 @@ public class ParameterSettingsView extends GridPane {
 		ComboBox<FrequencyConversion> box = new ComboBox<FrequencyConversion>();
 		box.setItems(FXCollections.observableArrayList(FrequencyConversion.values()));
 		conversionMethod.bind(box.getSelectionModel().selectedItemProperty());
-		box.getSelectionModel().select(Settings.getInstance().getConversionMethod());
+		box.getSelectionModel().select((FrequencyConversion)Settings.getInstance()
+				.getPropertyValue(Settings.CONVERSION_METHOD_PROPERTY_NAME));
 		this.add(transformLabel, 0, 2);
 		this.add(box, 1, 2);
 		this.add(new InfoButton(Descriptions.FREQUENCY_TRANSFORM_DESCRIPTION), 2, 2);
