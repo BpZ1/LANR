@@ -24,8 +24,6 @@ public class AudioStream {
 
 	private final PropertyChangeSupport state = new PropertyChangeSupport(this);
 	
-	private static String SPECTROGRAM_OUTPUT_FOLDER;
-	private static boolean createLogFile;
 	
 	public final static String DATA_ADDED_PROPERTY = "added";	
 	public final static String ANALYZING_COMPLETE = "complete";
@@ -36,7 +34,8 @@ public class AudioStream {
 	private static WindowFunction windowFunction = WindowFunction.Hanning;
 	private static boolean usingWindowFunction;
 	private static boolean createSpectrogram;
-	private static boolean createLogs;
+	private static boolean createLogFile;
+	private static String SPECTROGRAM_OUTPUT_FOLDER;
 	
 	private final AudioData parent;
 	private AudioAnalyzer analyzer;
@@ -104,7 +103,7 @@ public class AudioStream {
 					throw new LANRException("Could not create spectrogram!", e);
 				}
 			}
-			if(createLogs) {
+			if(createLogFile) {
 				LogWriter.writeLogFile(parent);
 			}
 			analyzer = null;

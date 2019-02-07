@@ -36,25 +36,24 @@ public class LogWriter {
 		try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName("UTF-8"))) {
 			String space = "\t\t";
 			LocalDateTime now = LocalDateTime.now();
-			writer.write("CREATED AT: " + now.toString() + System.lineSeparator());
-			writer.write("FILE PATH: " + data.getPath() + System.lineSeparator());
-			writer.write("META-DATA:" + System.lineSeparator());
-			writer.write("PENALTY VALUE:" + space + data.getSeverity());
+			writer.write("CREATED AT: " + space + now.toString() + System.lineSeparator());
+			writer.write("FILE PATH: " + space + data.getPath() + System.lineSeparator());
+			writer.write("PENALTY VALUE:" + space + data.getSeverity() + System.lineSeparator());
 			for (AudioStream stream : data.getStreams()) {
 				writer.newLine();
-				writer.write("AUDIO_STREAM" + stream.getId() + ":");
+				writer.write("AUDIO_STREAM_" + stream.getId() + ":" + System.lineSeparator());
 				writer.write(
 						"DURATION:" + space + Utils.getDurationString(stream.getLength()) + System.lineSeparator());
 				writer.write("SAMPLE RATE:" + space + stream.getSampleRate() + System.lineSeparator());
-				writer.write("BIT RATE:" + stream.getBitDepth() + space + System.lineSeparator());
-				writer.write("VOLUME NORMALISATION:" + stream.getReplayGain() + space + System.lineSeparator());
+				writer.write("BIT RATE:" + space + stream.getBitDepth() + System.lineSeparator());
+				writer.write("VOLUME NORMALISATION:" + "\t" + stream.getReplayGain() + " dBFS" + System.lineSeparator());
 				writer.newLine();
 				writer.write("FOUND NOISE:" + System.lineSeparator());
 				writer.newLine();
 				for (Noise noise : stream.getFoundNoise()) {
-					writer.write("Type=" + noise.getType() + "; Location="
-							+ Utils.getDurationString(noise.getLocation()) + "; Duration="
-							+ Utils.getDurationString(noise.getLength()) + "; Severity=" + noise.getSeverity() + ";");
+					writer.write("Type = " + noise.getType() + "; Location = "
+							+ Utils.getDurationString(noise.getLocation()) + "; Duration = "
+							+ Utils.getDurationString(noise.getLength()) + "; Severity = " + noise.getSeverity() + ";");
 					writer.newLine();
 				}
 			}
