@@ -30,7 +30,7 @@ public class SilenceSearch extends NoiseSearch {
 	 * Number of seconds a silence has to last before it is
 	 * recognized as such.
 	 */
-	private static int minimalDuration = 5;
+	private static int minimalDuration = 3;
 		
 	private long sampleCounter = 0;
 	/**

@@ -9,7 +9,7 @@ import lanr.logic.model.NoiseType;
  * @author Nicolas Bruch
  *
  */
-public class HummingSearch extends FrequencySearch {
+public class HummingSearch extends FrequencyDurationSearch {
 	
 	/**
 	 * Severity per second of noise

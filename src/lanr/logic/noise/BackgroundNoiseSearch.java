@@ -1,5 +1,8 @@
 package lanr.logic.noise;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import lanr.logic.model.Noise;
 import lanr.logic.model.NoiseType;
 
@@ -16,8 +19,7 @@ public class BackgroundNoiseSearch extends FrequencySearch {
 
 	private static double severityWeight = 10;
 	private double severityRelativeWeight;
-	private static final double duration = 1.0 / 4.0;
-	private static final int maxSkip = 1500;
+	private static final double duration = 1;
 	/**
 	 * Minimum dBFS value.
 	 */
@@ -29,21 +31,11 @@ public class BackgroundNoiseSearch extends FrequencySearch {
 	private final static double FREQUENCY_BOUND = 800;
 
 	public BackgroundNoiseSearch(int sampleRate, int windowSize, double replayGain, boolean mirrored) {
-		super(sampleRate, windowSize, replayGain, mirrored, duration,
-				FREQUENCY_BOUND, Double.POSITIVE_INFINITY, DECIBEL_BOUND, maxSkip / windowSize);
+		super(sampleRate, windowSize, replayGain, mirrored);
 		severityRelativeWeight = severityWeight / sampleRate;
-	}
-	
-	@Override
-	protected Noise createNoise(long location, long length) {
-		Noise noise = new Noise(NoiseType.Background, location, length, severityRelativeWeight);
-		return noise;
-	}	
-
-	@Override
-	protected double calculateSeverity(double dBFSValue) {
-		double positiveThreshold = DECIBEL_BOUND * -1;	
-		return positiveThreshold + dBFSValue;
+		for (int i = 0; i < windowSize; i++) {
+			frequencies.add(calculateFrequency(i));
+		}
 	}
 
 	public static double getSeverityWeight() {
@@ -52,5 +44,27 @@ public class BackgroundNoiseSearch extends FrequencySearch {
 
 	public static void setSeverityWeight(double severityWeight) {
 		BackgroundNoiseSearch.severityWeight = severityWeight;
+	}
+
+	@Override
+	public void search(double[] samples) {
+		for(int i = 0; i < samples.length; i++) {
+			if(frequencies.get(i) >= FREQUENCY_BOUND && samples[i] >= DECIBEL_BOUND) {
+				System.out.println("Frequency: " + frequencies.get(i) + " Hz ---> " + samples[i]);
+			}
+		}
+		
+	}
+
+	@Override
+	public List<Noise> getNoise() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void compact() {
+		// TODO Auto-generated method stub
+		
 	}
 }
