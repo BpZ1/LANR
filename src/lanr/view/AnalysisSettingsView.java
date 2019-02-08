@@ -12,7 +12,6 @@ import javafx.scene.control.Slider;
 import javafx.scene.layout.GridPane;
 import lanr.logic.frequency.FrequencyConversion;
 import lanr.logic.frequency.windowfunctions.WindowFunction;
-import lanr.model.Descriptions;
 import lanr.model.Settings;
 
 /**
@@ -21,13 +20,13 @@ import lanr.model.Settings;
  * @author Nicolas Bruch
  *
  */
-public class ParameterSettingsView extends GridPane {
+public class AnalysisSettingsView extends GridPane {
 	
 	private SimpleIntegerProperty windowSize = new SimpleIntegerProperty();
 	private SimpleObjectProperty<FrequencyConversion> conversionMethod = new SimpleObjectProperty<FrequencyConversion>();
 	private SimpleObjectProperty<WindowFunction> windowFunction = new SimpleObjectProperty<WindowFunction>();
 
-	public ParameterSettingsView(SimpleBooleanProperty changed) {
+	public AnalysisSettingsView(SimpleBooleanProperty changed) {
 		this.setPadding(new Insets(8, 8, 8, 8));
 		this.setHgap(10);
 		this.setVgap(10);
