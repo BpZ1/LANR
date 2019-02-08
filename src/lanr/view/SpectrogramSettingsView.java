@@ -14,7 +14,6 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
-import lanr.model.Descriptions;
 import lanr.model.Settings;
 
 /**

@@ -24,7 +24,7 @@ import lanr.model.Settings;
 public class SettingsView extends Stage {
 	
 	private SimpleBooleanProperty changed = new SimpleBooleanProperty(false);
-	private ParameterSettingsView parameterView;
+	private AnalysisSettingsView analysisView;
 	private GeneralSettingsView generalView;
 	private SpectrogramSettingsView spectroView;
 	
@@ -48,10 +48,10 @@ public class SettingsView extends Stage {
 				Stage.getWindows().get(0));
 		performanceTab.setContent(generalView);		
 		//Parameter tab
-		Tab parametersTab = new Tab("Parameter");
-		parametersTab.setClosable(false);
-		this.parameterView = new ParameterSettingsView(changed);
-		parametersTab.setContent(parameterView);
+		Tab analysisTab = new Tab("Analysis");
+		analysisTab.setClosable(false);
+		this.analysisView = new AnalysisSettingsView(changed);
+		analysisTab.setContent(analysisView);
 		
 		//Parameter tab
 		Tab spectroTab = new Tab("Spectrogram");
@@ -61,7 +61,7 @@ public class SettingsView extends Stage {
 		spectroTab.setContent(spectroView);
 		
 		pane.getTabs().add(performanceTab);
-		pane.getTabs().add(parametersTab);
+		pane.getTabs().add(analysisTab);
 		pane.getTabs().add(spectroTab);
 		//Buttons
 		Button applyButton = new Button("Apply");
@@ -98,10 +98,10 @@ public class SettingsView extends Stage {
 	 */
 	private void saveSettings() {
 		Settings s = Settings.getInstance();
-		s.setConversionMethod(parameterView.getConversionMethod());
-		s.setWindowFunction(parameterView.getWindowFunction());
-		s.setWindowSize(parameterView.getWindowSize());
-		s.setConversionMethod(parameterView.getConversionMethod());
+		s.setConversionMethod(analysisView.getConversionMethod());
+		s.setWindowFunction(analysisView.getWindowFunction());
+		s.setWindowSize(analysisView.getWindowSize());
+		s.setConversionMethod(analysisView.getConversionMethod());
 		s.setShowVisualisation(generalView.getVisualizeData());
 		s.setVisualisationFactor(generalView.getVisualizationFactor());
 		s.setLogCreation(generalView.getCreateLog());
