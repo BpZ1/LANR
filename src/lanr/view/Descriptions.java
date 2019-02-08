@@ -1,4 +1,4 @@
-package lanr.model;
+package lanr.view;
 
 /**
  * Contains different descriptions used in the GUI.
