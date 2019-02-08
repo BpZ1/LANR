@@ -95,7 +95,7 @@ public class StreamVisualisation extends Canvas {
 	
 	private void drawNoiseIntervals(List<Noise> noises) {
 		GraphicsContext gc = this.getGraphicsContext2D();
-		gc.setGlobalAlpha(0.2);
+		gc.setGlobalAlpha(0.3);
 		double multiplier = visualisationReductionFactor * sampleDistance;
 		for(Noise noise : noises) {
 			gc.setFill(getNoiseColor(noise.getType()));
