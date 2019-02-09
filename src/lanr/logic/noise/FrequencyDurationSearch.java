@@ -139,6 +139,10 @@ public abstract class FrequencyDurationSearch extends FrequencySearch {
 		return foundNoise;
 	}
 	
+	protected final double toDBFS(double binValue) {
+		return 2 * binValue / windowSize;
+	}
+	
 	/**
 	 * Used by the getNoise() method to create the noise
 	 * found.
