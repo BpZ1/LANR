@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import lanr.logic.model.Interval;
+
 class IntervalTest {
 
 	private static Interval interval1;

@@ -3,10 +3,10 @@ package lanr.logic.noise;
 import java.util.LinkedList;
 import java.util.List;
 
+import lanr.logic.model.Interval;
 import lanr.logic.model.Noise;
 import lanr.logic.model.NoiseType;
 import lanr.logic.model.Tuple;
-import lanr.model.Interval;
 
 /**
  * 
