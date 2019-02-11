@@ -7,17 +7,15 @@ package lanr.logic.model;
  *
  */
 public class Noise {
-
-	private double severity;
-	private double severityWeight;
+	
+	private double severity;	
 	private long location;
 	private long length;
 	private int channel;
 	private long end;
 	private NoiseType type;
 
-	public Noise(NoiseType type, long location, long length, double severityWeight) {
-		this.severityWeight = severityWeight;
+	public Noise(NoiseType type, long location, long length) {
 		this.type = type;
 		this.location = location;
 		this.length = length;
@@ -25,7 +23,7 @@ public class Noise {
 	}
 	
 	/**
-	 * Adds the length and the severity of the noises together.
+	 * Adds the length of the noises together and takes the higher severity.
 	 * @param noise
 	 */
 	public boolean add(Noise noise) {
@@ -38,13 +36,13 @@ public class Noise {
 		if(isOutside(noise)) {
 			return false;
 		}else if(isInside(noise)) {
-			this.severity += noise.getSeverity();
+			this.severity = Math.max(this.severity, noise.severity);
 			return true;
 		}else if(noise.isInside(this)){
 			noise.add(this);
 			this.location = noise.getLocation();
 			this.length = noise.getLength();
-			this.severity = noise.getSeverity();
+			this.severity = Math.max(this.severity, noise.severity);
 			return true;
 		}else {
 			//Overlapping bounds
@@ -52,7 +50,7 @@ public class Noise {
 				//Overlapping on the right bound
 				long additionalLength = noise.getEnd() - end;
 				this.length += additionalLength;
-				this.severity += noise.getSeverity();
+				this.severity = Math.max(this.severity, noise.severity);
 				return true;
 			}else{
 				//Overlapping left bound
@@ -85,10 +83,6 @@ public class Noise {
 			return true;
 		}
 		return false;
-	}
-	
-	public void addSeverity(double value) {
-		this.severity += (value * severityWeight);
 	}
 
 	public double getSeverity() {

@@ -50,6 +50,11 @@
 		    <artifactId>jdistlib</artifactId>
 		    <version>0.4.5</version>
 		</dependency>
+		<dependency>
+   			<groupId>org.javolution</groupId>
+  			<artifactId>javolution-core-java</artifactId>
+    		<version>6.0.0</version>
+		</dependency>
 	</dependencies>
 
 	<properties>

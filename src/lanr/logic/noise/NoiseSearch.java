@@ -1,7 +1,6 @@
 package lanr.logic.noise;
 
-import java.util.LinkedList;
-import java.util.List;
+import javolution.util.FastTable;
 
 import lanr.logic.model.Noise;
 
@@ -48,7 +47,7 @@ public abstract class NoiseSearch {
 	 * 
 	 * @return List of found noises.
 	 */
-	public abstract List<Noise> getNoise();
+	public abstract FastTable<Noise> getNoise();
 
 	public abstract void compact();
 
@@ -67,8 +66,8 @@ public abstract class NoiseSearch {
 	 *                 other. Value is in samples.
 	 * @return
 	 */
-	protected List<Noise> combineNoises(List<Noise> noise, long distance) {
-		List<Noise> noises = new LinkedList<Noise>(noise);
+	protected FastTable<Noise> combineNoises(FastTable<Noise> noise, long distance) {
+		FastTable<Noise> noises = new FastTable<Noise>().addAll(noise);
 		int numberOfNoises = 0;
 		//Iterate to keep combining noises until the number stays the same.
 		do {
@@ -78,12 +77,12 @@ public abstract class NoiseSearch {
 		return noises;
 	}
 	
-	private final List<Noise> combine(List<Noise> noise, long distance){
+	private final FastTable<Noise> combine(FastTable<Noise> noise, long distance){
 		if (noise == null) {
 			throw new IllegalArgumentException("The given noise must'nt be null");
 		}
 		if (noise.isEmpty()) {
-			return new LinkedList<Noise>();
+			return new FastTable<Noise>();
 		}
 		for (int i = 0; i < noise.size(); i++) {
 			if(i +1 < noise.size()) {

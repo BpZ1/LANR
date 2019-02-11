@@ -1,10 +1,9 @@
 package lanr.logic.noise;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 
+import javolution.util.FastMap;
+import javolution.util.FastTable;
 import lanr.logic.model.Noise;
 
 /**
@@ -19,7 +18,7 @@ public abstract class FrequencyDurationSearch extends FrequencySearch {
 	/**
 	 * dBFS values that meet the requirements of background noise.
 	 */
-	protected final List<List<Double>> frequencyDbValues = new LinkedList<List<Double>>();
+	protected final FastTable<FastTable<Double>> frequencyDbValues = new FastTable<FastTable<Double>>();
 	/**
 	 * Number of currently skipped windows.
 	 */
@@ -43,13 +42,13 @@ public abstract class FrequencyDurationSearch extends FrequencySearch {
 	/**
 	 * Actually found noise.
 	 */
-	protected List<Noise> foundNoise = new LinkedList<Noise>();
+	protected FastTable<Noise> foundNoise = new FastTable<Noise>();
 	
 	/**
 	 * Number of windows that can be under the threshold.
 	 */
 	private final int maxSkip;
-	private final Map<Integer, Noise> currentNoises = new HashMap<Integer, Noise>();
+	private final FastMap<Integer, Noise> currentNoises = new FastMap<Integer, Noise>();
 	private long locationCounter = 0;
 	
 	/**
@@ -76,7 +75,7 @@ public abstract class FrequencyDurationSearch extends FrequencySearch {
 		int size = windowSize;
 		if(mirrored) size = (size / 2) + 1;
 		for (int i = 0; i < size; i++) {
-			frequencyDbValues.add(new LinkedList<Double>());
+			frequencyDbValues.add(new FastTable<Double>());
 		}
 		skipCounter = new int[size];
 	}
@@ -96,13 +95,10 @@ public abstract class FrequencyDurationSearch extends FrequencySearch {
 			if(frequency >= lowerFreqBound && frequency <= upperFreqBound) {
 				if(value > threshold) {					
 					frequencyDbValues.get(i).add(value);
-					double severity = calculateSeverity(value);
 					if(currentNoises.containsKey(i)) {
 						currentNoises.get(i).setLength(currentNoises.get(i).getLength() + windowSize);
-						currentNoises.get(i).addSeverity(severity);
 					}else {
 						Noise noise = createNoise(locationCounter, windowSize);
-						noise.addSeverity(severity);
 						currentNoises.put(i, noise);
 					}					
 				}else {
@@ -126,7 +122,7 @@ public abstract class FrequencyDurationSearch extends FrequencySearch {
 	
 	@Override
 	public void compact() {
-		for(Map.Entry<Integer, Noise> entry : currentNoises.entrySet()) {
+		for(Entry<Integer, Noise> entry : currentNoises.entrySet()) {
 			if(entry.getValue().getLength() >= duration) {
 				foundNoise.add(entry.getValue());
 			}
@@ -135,7 +131,7 @@ public abstract class FrequencyDurationSearch extends FrequencySearch {
 	}
 	
 	@Override
-	public List<Noise> getNoise() {
+	public FastTable<Noise> getNoise() {
 		return foundNoise;
 	}
 	

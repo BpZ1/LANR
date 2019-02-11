@@ -1,25 +1,14 @@
 package lanr.logic.noise;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
-import lanr.logic.Utils;
-import lanr.logic.model.AudioData;
-import lanr.logic.model.AudioStream;
-import lanr.logic.model.LANRException;
+import javolution.util.FastTable;
 import lanr.logic.model.Noise;
-import lanr.logic.model.NoiseType;
 
 /**
- * @author Nicolas Bruch
+ * 
+ * Implementation of the noise estimation algorithm proposed by:
+ * Rangachari,  Sundarrajan ;Loizou,  Philipos C.: 
+ * A noise-estimation algorithmfor highly non-stationary environments. 
+ * In:Speech  communication48 (2006), Nr.2, S. 220–231
  *
  */
 public class BackgroundNoiseEstimation extends FrequencySearch {
@@ -30,17 +19,24 @@ public class BackgroundNoiseEstimation extends FrequencySearch {
 	private static final double ADAPTION_TIME_CONSTANT = 0.8;
 	private static final double GAMMA = 0.998;
 	
-	
 	private int frameIndex = 0;
-	private double minimumFrameSPS = 0;
 	
+	/**
+	 * Smoothed power spectra of the previous window.
+	 */
 	private double[] previousSPSValues;
+	/**
+	 * Noise estimate of the previous window.
+	 */
 	private double[] previousNoiseEstimates;
+	/**
+	 * Minimum sps values of the previous window.
+	 */
 	private double[] previousMinimumSPS;
+	/**
+	 * Sps minimum of the previous window.
+	 */
 	private double[] previousSProbabilities;
-	private Noise currentNoise;
-	private List<Noise> foundNoise = new LinkedList<Noise>();
-	private double average = 0;
 
 	public BackgroundNoiseEstimation(int sampleRate, int windowSize, double replayGain, boolean mirrored) {
 		super(sampleRate, windowSize, replayGain, mirrored);
@@ -78,29 +74,9 @@ public class BackgroundNoiseEstimation extends FrequencySearch {
 			currentNoiseEstimate[i] = alphaS * previousNoiseEstimates[i] 
 					+ (1 - alphaS) * Math.pow(spsValues[i], 2);
 		}
-		double value = 0;
-		for(int i = 0; i < bins.length; i++) {
-			value += Math.pow(spsValues[i], 2);
-		}
-		value /= bins.length;
-		value = Math.log(value);
-		updateAverage(value);
-		if(value >= average) {
-			System.out.println(value);	
-			if(currentNoise != null) {
-				currentNoise.setLength(currentNoise.getLength() + windowSize);
-				System.out.println("Noise extended");
-			}else {
-				currentNoise = new Noise(NoiseType.Background, frameIndex+1 * windowSize, windowSize, 1);
-				System.out.println("New noise");
-			}
-		}else {
-			if(currentNoise != null) {
-				foundNoise.add(currentNoise);
-				currentNoise = null;
-			}
-		}
-		valueList.add(value);
+
+		//Analyse estimates here!
+	
 		//Update the old values
 		previousSPSValues = spsValues;
 		previousNoiseEstimates = currentNoiseEstimate;
@@ -109,23 +85,14 @@ public class BackgroundNoiseEstimation extends FrequencySearch {
 	}
 
 	@Override
-	public List<Noise> getNoise() {
-		return foundNoise;
+	public FastTable<Noise> getNoise() {
+		//NOT IMPLEMENTED
+		return null;
 	}
 
 	@Override
 	public void compact() {
-		if(currentNoise != null) {
-			foundNoise.add(currentNoise);
-			currentNoise = null;
-		}
-		foundNoise = combineNoises(foundNoise, 3);
-		try {
-			writeLogFile(valueList);
-		} catch (LANRException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//NOT IMPLEMENTED
 	}
 	
 	/**
@@ -174,23 +141,6 @@ public class BackgroundNoiseEstimation extends FrequencySearch {
 			return 2.0;
 		}else {
 			return 5.0;
-		}
-	}
-	
-	private void updateAverage(double value) {
-		average = average + (value - average) / (frameIndex+1);
-	}
-	
-	private List<Double> valueList = new LinkedList<Double>();
-	public static void writeLogFile(List<Double> values) throws LANRException {
-		Path path = Paths.get("data.txt");
-		try (BufferedWriter writer = Files.newBufferedWriter(path, Charset.forName("UTF-8"))) {
-			for(int i = 0; i < values.size(); i++) {
-				writer.write(String.valueOf(values.get(i)));
-				writer.newLine();
-			}
-		} catch (IOException e) {
-			throw new LANRException("Could not create log file.", e);
 		}
 	}
 }

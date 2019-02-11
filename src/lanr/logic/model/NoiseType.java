@@ -6,7 +6,7 @@ package lanr.logic.model;
  * @author Nicolas Bruch
  * 
  */
-public enum NoiseType {
+public enum NoiseType {	
 	/**
 	 * Occurrence of disturbing frequency.
 	 */

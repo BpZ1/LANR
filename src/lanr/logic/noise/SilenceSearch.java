@@ -1,8 +1,6 @@
 package lanr.logic.noise;
 
-import java.util.LinkedList;
-import java.util.List;
-
+import javolution.util.FastTable;
 import lanr.logic.Utils;
 import lanr.logic.model.Noise;
 import lanr.logic.model.NoiseType;
@@ -43,7 +41,7 @@ public class SilenceSearch extends NoiseSearch {
 	private int skipCounter = 0;
 	
 	
-	private List<Noise> foundNoise = new LinkedList<Noise>();
+	private FastTable<Noise> foundNoise = new FastTable<Noise>();
 	private Noise currentNoise;
 	
 	public SilenceSearch(int sampleRate, int windowSize, double replayGain) {
@@ -66,7 +64,7 @@ public class SilenceSearch extends NoiseSearch {
 					}else {
 						currentNoise = new Noise(NoiseType.Silence,
 								sampleCounter - minimalDurationSamples,
-								minimalDurationSamples, 0);
+								minimalDurationSamples);
 					}
 				}				
 			}else {
@@ -90,7 +88,7 @@ public class SilenceSearch extends NoiseSearch {
 	}
 
 	@Override
-	public List<Noise> getNoise() {
+	public FastTable<Noise> getNoise() {
 		return foundNoise;
 	}
 

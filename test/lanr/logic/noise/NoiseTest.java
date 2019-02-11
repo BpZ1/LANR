@@ -22,11 +22,11 @@ public class NoiseTest {
 	
 	@BeforeEach
 	void beforeEach() throws Exception {
-		n1 = new Noise(NoiseType.Background, 5, 5, 100);
-		n2 = new Noise(NoiseType.Background, 6, 2, 50);
-		n3 = new Noise(NoiseType.Background, 9, 5, 30);
-		n4 = new Noise(NoiseType.Background, 1, 6, 20);
-		n5 = new Noise(NoiseType.Background, 0, 20, 10);
+		n1 = new Noise(NoiseType.Background, 5, 5);
+		n2 = new Noise(NoiseType.Background, 6, 2);
+		n3 = new Noise(NoiseType.Background, 9, 5);
+		n4 = new Noise(NoiseType.Background, 1, 6);
+		n5 = new Noise(NoiseType.Background, 0, 20);
 	}
 	
 	@Test
@@ -44,7 +44,6 @@ public class NoiseTest {
 	@Test
 	void additionInsideTest() {		
 		n1.add(n2);
-		assertEquals(150.0, n1.getSeverity(), 0.00001);
 		assertEquals(5, n1.getLocation());
 		assertEquals(5, n1.getLength());
 	}
@@ -53,14 +52,12 @@ public class NoiseTest {
 	void additionLeftBorder() {
 		n1.add(n4);
 		assertEquals(1, n1.getLocation());
-		assertEquals(120, n1.getSeverity());
 	}
 	
 	@Test
 	void additionRightBorder() {
 		n1.add(n3);
 		assertEquals(5, n1.getLocation());
-		assertEquals(130, n1.getSeverity());
 		assertEquals(9, n1.getLength());
 	}
 	
@@ -69,6 +66,5 @@ public class NoiseTest {
 		n1.add(n5);
 		assertEquals(0, n1.getLocation());
 		assertEquals(20, n1.getLength());
-		assertEquals(110, n1.getSeverity());
 	}
 }

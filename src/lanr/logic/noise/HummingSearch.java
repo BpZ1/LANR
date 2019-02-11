@@ -12,11 +12,6 @@ import lanr.logic.model.NoiseType;
 public class HummingSearch extends FrequencyDurationSearch {
 	
 	/**
-	 * Severity per second of noise
-	 */
-	private static double severityWeight = 10;
-	private double severityRelativeWeight;
-	/**
 	 * Threshold for the decibel value of the humming.
 	 */
 	private static final double DECIBEL_BOUND = -50;
@@ -36,12 +31,11 @@ public class HummingSearch extends FrequencyDurationSearch {
 	public HummingSearch(int sampleRate, int windowSize, double replayGain, boolean mirrored) {
 		super(sampleRate, windowSize, replayGain, mirrored, duration,
 				Double.NEGATIVE_INFINITY, FREQUENCY_BOUND_VALUE, DECIBEL_BOUND, maxSkip / windowSize);
-		severityRelativeWeight = severityWeight / sampleRate;
 	}
 
 	@Override
 	protected Noise createNoise(long location, long length) {
-		Noise noise = new Noise(NoiseType.Hum, location, length, severityRelativeWeight);
+		Noise noise = new Noise(NoiseType.Hum, location, length);
 		return noise;
 	}
 
@@ -49,13 +43,5 @@ public class HummingSearch extends FrequencyDurationSearch {
 	protected double calculateSeverity(double dBFSValue) {
 		double positiveThreshold = DECIBEL_BOUND * -1;	
 		return positiveThreshold + dBFSValue;
-	}
-	
-	public static double getSeverityWeight() {
-		return severityWeight;
-	}
-
-	public static void setSeverityWeight(double severityWeight) {
-		HummingSearch.severityWeight = severityWeight;
 	}
 }

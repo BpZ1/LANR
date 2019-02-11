@@ -1,8 +1,6 @@
 package lanr.logic.noise;
 
-import java.util.LinkedList;
-import java.util.List;
-
+import javolution.util.FastTable;
 import lanr.logic.model.Interval;
 import lanr.logic.model.Noise;
 import lanr.logic.model.NoiseType;
@@ -39,12 +37,12 @@ public class ClippingSearch extends NoiseSearch {
 	 */
 	private static double maxProportion = 0.40;
 	
-	private List<Noise> foundNoise = new LinkedList<Noise>();
+	private FastTable<Noise> foundNoise = new FastTable<Noise>();
 	
 	/**
 	 * List of intervals.
 	 */
-	private List<Tuple<Interval, Integer>> subIntervals;	
+	private FastTable<Tuple<Interval, Integer>> subIntervals;	
 	
 	@Override
 	public void search(double[] samples) {
@@ -68,7 +66,7 @@ public class ClippingSearch extends NoiseSearch {
 			 * Add noise if the current window has more than the above defined percentage of its
 			 * samples in the last interval.
 			 */
-			Noise noise = new Noise(NoiseType.Clipping, locationCounter, windowSize, 0);
+			Noise noise = new Noise(NoiseType.Clipping, locationCounter, windowSize);
 			foundNoise.add(noise);
 		}	
 		locationCounter += windowSize;
@@ -95,8 +93,8 @@ public class ClippingSearch extends NoiseSearch {
 	 * @param maximum - Maximum amplitude in the current window.
 	 * @return List of all intervals and their counter.
 	 */
-	private List<Tuple<Interval, Integer>> createSubIntervals(double maximum){
-		List<Tuple<Interval, Integer>> subIntervals = new LinkedList<Tuple<Interval, Integer>>();
+	private FastTable<Tuple<Interval, Integer>> createSubIntervals(double maximum){
+		FastTable<Tuple<Interval, Integer>> subIntervals = new FastTable<Tuple<Interval, Integer>>();
 		double intervalSize = maximum / INTERVALS;	
 		double currentInterval = THRESHOLD;
 		for(int i = 1; i < INTERVALS; i++) {
@@ -113,14 +111,12 @@ public class ClippingSearch extends NoiseSearch {
 	}
 	
 	@Override
-	public List<Noise> getNoise() {
+	public FastTable<Noise> getNoise() {
 		return foundNoise;
 	}
 
 	@Override
 	public void compact() {
 		this.foundNoise = combineNoises(foundNoise, sampleRate * 3);
-	}
-	
-	
+	}	
 }
