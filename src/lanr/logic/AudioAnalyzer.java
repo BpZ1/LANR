@@ -11,8 +11,8 @@ import lanr.logic.frequency.windowfunctions.WindowFunctionImpl;
 import lanr.logic.model.Noise;
 import lanr.logic.noise.ClippingSearch;
 import lanr.logic.noise.FrequencySearch;
-import lanr.logic.noise.BackgroundNoiseSearch;
 import lanr.logic.noise.HummingSearch;
+import lanr.logic.noise.ImpulsiveSearch;
 import lanr.logic.noise.NoiseSearch;
 import lanr.logic.noise.SilenceSearch;
 import lanr.logic.noise.VolumeSearch;
@@ -41,13 +41,14 @@ public class AudioAnalyzer {
 		this.windowFunction = windowFunction.getImplementation(windowSize);
 		this.windowSize = windowSize;
 		this.replayGain = replayGain;
+	
 		//Sample analyzer
 		sampleAnalyzer.add(new ClippingSearch(sampleRate, windowSize, replayGain));
 		sampleAnalyzer.add(new SilenceSearch(sampleRate, windowSize, replayGain));
 		sampleAnalyzer.add(new VolumeSearch(sampleRate, windowSize, replayGain));
 		//Frequency analyzer
-		frequencyAnalyzer.add(new BackgroundNoiseSearch(sampleRate, windowSize, replayGain, conversion.getHalfSamples()));
 		frequencyAnalyzer.add(new HummingSearch(sampleRate, windowSize, replayGain, conversion.getHalfSamples()));
+		frequencyAnalyzer.add(new ImpulsiveSearch(sampleRate, windowSize, replayGain, conversion.getHalfSamples()));
 		
 		this.conversion = conversion;
 		if (createSpectorgam && windowSize < 50000) {
@@ -109,7 +110,7 @@ public class AudioAnalyzer {
 			windowFunction.apply(data);
 		}
 		double[] magnitudes = conversion.getConverter().convert(data);
-
+		
 		if (spectro != null) {
 			spectro.addWindow(magnitudes);
 		}

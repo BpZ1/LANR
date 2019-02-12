@@ -1,7 +1,6 @@
 package lanr.logic;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,8 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import io.humble.ferry.Buffer;
-import io.humble.video.AudioFormat;
 import io.humble.video.Decoder;
 import io.humble.video.Demuxer;
 import io.humble.video.DemuxerStream;
@@ -42,6 +39,7 @@ class FileReader {
 	 * is not played with volume adjusted according to this value.
 	 */
 	private static final double refDBValue = -21.796831800472418;
+	
 	/**
 	 * Creates a {@link AudioData} object containing data about the audio file.
 	 * 
@@ -105,7 +103,7 @@ class FileReader {
 			//Scan file to calculate the ReplayGain
 			demuxer = Demuxer.make();			
 			demuxer.open(data.getPath(), null, false, true, null, null);
-			calculateReplayGain(audioStream, demuxer, windowSize, interrupted);
+			normalizationCalculation(audioStream, demuxer, windowSize, interrupted);
 			demuxer.close();
 			//Scan file for analysis
 			demuxer = Demuxer.make();			
@@ -127,7 +125,7 @@ class FileReader {
 	 * @throws LANRFileException
 	 * @throws LANRException
 	 */
-	private static void calculateReplayGain(AudioStream streamData, Demuxer demuxer, int windowSize, AtomicBoolean interrupted) 
+	private static void normalizationCalculation(AudioStream streamData, Demuxer demuxer, int windowSize, AtomicBoolean interrupted) 
 			throws InterruptedException, IOException, LANRFileException, LANRException {
 		final DemuxerStream stream = demuxer.getStream(streamData.getId());
 		final Decoder decoder = stream.getDecoder();
@@ -149,6 +147,9 @@ class FileReader {
 
 		//RMS (Root Mean Square) values
 		List<Double> rmsValues = new LinkedList<Double>();
+		
+		DerivativeCalculator dAverage = new DerivativeCalculator(streamData.getSampleRate());
+		
 		DoubleConverter doubleConverter;
 		try {
 			doubleConverter = Converter.getConverter(samples.getFormat());
@@ -168,7 +169,7 @@ class FileReader {
 					bytesRead += decoder.decode(samples, packet, offset);
 					if (samples.isComplete()) {
 						// Send the packet data to listeners
-						getChannelSamples(channelData, samples, doubleConverter);
+						FileReaderUtils.getChannelSamples(channelData, samples, doubleConverter);
 						
 						// If enough bytes are in the buffer send data to channel
 						while (channelData[0].position() >= sampleCount50Ms) {
@@ -181,7 +182,7 @@ class FileReader {
 								channelData[i].compact();
 								channelData[i].position(pos - sampleCount50Ms);
 							}	
-							rmsValues.add(Utils.sampleToDBFS(calculateRMS(data)));
+							rmsValues.add(Utils.sampleToDBFS(FileReaderUtils.calculateRMS(data)));
 						}												
 					}
 					offset += bytesRead;
@@ -197,79 +198,11 @@ class FileReader {
 				data[i] = new double[position];
 				channelData[i].get(data[i], 0, position);
 			}	
-			rmsValues.add(Utils.sampleToDBFS(calculateRMS(data)));
+			rmsValues.add(Utils.sampleToDBFS(FileReaderUtils.calculateRMS(data)));
 		}
 		Collections.sort(rmsValues);
 		double replayGain = refDBValue - rmsValues.get((int) (rmsValues.size() * 0.95));
 		streamData.setReplayGain(replayGain);
-	}
-	
-	/**
-	 * Calculates the Root Mean Square of the given samples.
-	 * This is done by calculating the average of the squared channel
-	 * samples, then calculating the average of the channel averages.
-	 * And then squaring the result.
-	 * @param channelSamples
-	 * @return
-	 */
-	private static double calculateRMS(double[][] channelSamples) {
-		double[] means = new double[channelSamples.length];
-		//Calculating the sum of the squared sample values
-		for(int j = 0; j < means.length; j++) {
-			for(int i = 0; i < channelSamples[j].length; i++) {
-				means[j] += Math.pow(channelSamples[j][i], 2);
-			}
-		}
-		//Calculating the average mean
-		for(int i = 0; i < means.length; i++) {
-			means[i] /= channelSamples[i].length;
-		}
-		double sum = 0.0;
-		for(int i = 0; i < means.length; i++) {
-			sum += means[i];
-		}
-		sum /= channelSamples.length;
-		return Math.sqrt(sum);
-	}
-	
-	private static void getChannelSamples(DoubleBuffer[] samples, MediaAudio audio,
-			DoubleConverter doubleConverter) {
-		//Converts the data if it is in planar form
-		if(audio.isPlanar()) {
-			int planeCount = audio.getNumDataPlanes();
-			double[][] planeSamples = new double[planeCount][];
-			//Get the data from every plane
-			for(int i = 0; i < planeCount; i++) {
-				final Buffer buffer = audio.getData(i);		
-			    int bufferSize = audio.getDataPlaneSize(i);
-			    byte[] bytes = new byte[audio.getDataPlaneSize(i)];
-			    buffer.get(0, bytes, 0, bufferSize);
-			    buffer.delete(); 
-				planeSamples[i] = doubleConverter.convert(bytes);
-			}
-			//Put samples in the buffer
-			for(int i = 0; i < planeSamples.length; i++) {
-				for(int j = 0; j < planeSamples[i].length; j++) {
-					samples[i].put(planeSamples[i][j]);
-				}
-			}
-		}else {
-			int size = AudioFormat.getBufferSizeNeeded(audio.getNumSamples(), audio.getChannels(), audio.getFormat());
-			ByteBuffer data = ByteBuffer.allocate(size);
-			final Buffer buffer = audio.getData(0);		
-		    int bufferSize = audio.getDataPlaneSize(0);
-		    byte[] bytes = data.array();
-		    buffer.get(0, bytes, 0, bufferSize);
-		    buffer.delete();
-		    double[] allSamples = doubleConverter.convert(bytes);		    
-	    	for (int i = 0; i < allSamples.length; i += audio.getChannels()) {
-	    		int channelCounter = 0;
-	    		for(int s = i; s < i + audio.getChannels(); s++) {
-	    			samples[channelCounter].put(allSamples[s]);
-	    			channelCounter++;
-	    		}
-			}
-		}
 	}
 
 	/**
@@ -321,7 +254,7 @@ class FileReader {
 					bytesRead += decoder.decode(samples, packet, offset);
 					if (samples.isComplete()) {
 						// Send the packet data to listeners
-						getSamples(channelData, samples, doubleConverter);
+						FileReaderUtils.getSamples(channelData, samples, doubleConverter);
 						
 						// If enough bytes are in the buffer send data to channel
 						while (channelData.position() >= windowSize) {
@@ -353,54 +286,5 @@ class FileReader {
 		streamData.analyseEnd();
 	}
 	
-	/**
-	 * Converts the raw audio data from the {@link MediaAudio} object to
-	 * a mono signal and into samples of type double and stores them in the given buffer.
-	 * @param streamData - Buffer in which the samples will be stored.
-	 * @param audio - Audio data containing the raw data.
-	 * @param doubleConverter - Converter for converting the sample from byte to double.
-	 */
-	private static void getSamples(DoubleBuffer streamData, MediaAudio audio,
-			DoubleConverter doubleConverter) {
-		
-		double multiplicationFactor = 1.0 / audio.getChannels();
-		//Converts the data if it is in planar form
-		if(audio.isPlanar()) {
-			int planeCount = audio.getNumDataPlanes();
-			double[][] planeSamples = new double[planeCount][];
-			//Get the data from every plane
-			for(int i = 0; i < planeCount; i++) {
-				final Buffer buffer = audio.getData(i);		
-			    int bufferSize = audio.getDataPlaneSize(i);
-			    byte[] bytes = new byte[audio.getDataPlaneSize(i)];
-			    buffer.get(0, bytes, 0, bufferSize);
-			    buffer.delete(); 
-				planeSamples[i] = doubleConverter.convert(bytes);
-			}	
-			//Combine the samples from the planes into a single mono sample
-			for(int i = 0; i < planeSamples[0].length; i++) {
-				double currentSample = 0.0;				
-				for(int j = 0; j < planeCount; j++) {
-					currentSample += planeSamples[j][i] * multiplicationFactor; 
-				}
-				streamData.put(currentSample);
-			}
-		}else {
-			int size = AudioFormat.getBufferSizeNeeded(audio.getNumSamples(), audio.getChannels(), audio.getFormat());
-			ByteBuffer data = ByteBuffer.allocate(size);
-			final Buffer buffer = audio.getData(0);		
-		    int bufferSize = audio.getDataPlaneSize(0);
-		    byte[] bytes = data.array();
-		    buffer.get(0, bytes, 0, bufferSize);
-		    buffer.delete();
-		    double[] samples = doubleConverter.convert(bytes);		    
-	    	for (int i = 0; i < samples.length; i += audio.getChannels()) {
-	    		double sample = 0.0;
-	    		for(int s = i; s < i + audio.getChannels(); s++) {
-	    			sample += samples[s] * multiplicationFactor;
-	    		}
-	    		streamData.put(sample);
-			}
-		}
-	}
+
 }
