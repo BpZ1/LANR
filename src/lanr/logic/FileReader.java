@@ -148,8 +148,6 @@ class FileReader {
 		//RMS (Root Mean Square) values
 		List<Double> rmsValues = new LinkedList<Double>();
 		
-		DerivativeCalculator dAverage = new DerivativeCalculator(streamData.getSampleRate());
-		
 		DoubleConverter doubleConverter;
 		try {
 			doubleConverter = Converter.getConverter(samples.getFormat());

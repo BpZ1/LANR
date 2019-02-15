@@ -1,10 +1,8 @@
 package lanr.logic;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
+import javolution.util.FastTable;
 import lanr.logic.frequency.FrequencyConversion;
 import lanr.logic.frequency.windowfunctions.WindowFunction;
 import lanr.logic.frequency.windowfunctions.WindowFunctionImpl;
@@ -12,7 +10,6 @@ import lanr.logic.model.Noise;
 import lanr.logic.noise.ClippingSearch;
 import lanr.logic.noise.FrequencySearch;
 import lanr.logic.noise.HummingSearch;
-import lanr.logic.noise.ImpulsiveSearch;
 import lanr.logic.noise.NoiseSearch;
 import lanr.logic.noise.SilenceSearch;
 import lanr.logic.noise.VolumeSearch;
@@ -26,8 +23,8 @@ import lanr.logic.noise.VolumeSearch;
  */
 public class AudioAnalyzer {
 
-	private List<NoiseSearch> sampleAnalyzer = new ArrayList<NoiseSearch>();
-	private List<FrequencySearch> frequencyAnalyzer = new ArrayList<FrequencySearch>();
+	private FastTable<NoiseSearch> sampleAnalyzer = new FastTable<NoiseSearch>();
+	private FastTable<FrequencySearch> frequencyAnalyzer = new FastTable<FrequencySearch>();
 
 	private Spectrogram spectro;
 	private int windowSize;
@@ -48,7 +45,6 @@ public class AudioAnalyzer {
 		sampleAnalyzer.add(new VolumeSearch(sampleRate, windowSize, replayGain));
 		//Frequency analyzer
 		frequencyAnalyzer.add(new HummingSearch(sampleRate, windowSize, replayGain, conversion.getHalfSamples()));
-		frequencyAnalyzer.add(new ImpulsiveSearch(sampleRate, windowSize, replayGain, conversion.getHalfSamples()));
 		
 		this.conversion = conversion;
 		if (createSpectorgam && windowSize < 50000) {
@@ -79,8 +75,8 @@ public class AudioAnalyzer {
 	 * Should only be called after finish().
 	 * @return List of the found noise.
 	 */
-	public List<Noise> getNoise() {
-		List<Noise> noise = new LinkedList<Noise>();
+	public FastTable<Noise> getNoise() {
+		FastTable<Noise> noise = new FastTable<Noise>();
 		for(NoiseSearch analyzer : sampleAnalyzer) {
 			if(analyzer.getNoise() != null) {
 				noise.addAll(analyzer.getNoise());

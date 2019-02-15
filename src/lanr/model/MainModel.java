@@ -33,7 +33,7 @@ public class MainModel extends Model {
 	private MainModel() {
 		reader = new AudioLogic(
 				(int) Settings.getInstance()
-				.getPropertyValue(Settings.THREAD_COUNT_PROPERTY_NAME), //Number of threads //TODO:
+				.getPropertyValue(Settings.THREAD_COUNT_PROPERTY_NAME),
 				getReaderEventHandler());	//Event handler
 	};
 	
