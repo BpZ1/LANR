@@ -1,4 +1,4 @@
-package lanr.view;
+package lanr.view.settings;
 
 import java.util.ArrayList;
 import java.util.List;

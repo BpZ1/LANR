@@ -7,7 +7,7 @@ import lanr.logic.frequency.windowfunctions.WindowFunction;
 
 /**
  * Contains the loaded settings data.
- * For more information about the different parameter take a look at {@link Settings}
+ * For more information about the different parameter take a look at {@link Settings}.
  *
  * @author Nicolas Bruch
  */
@@ -25,6 +25,19 @@ public class SettingData {
 	private Optional<WindowFunction> windowFunction = Optional.empty();
 	private Optional<Boolean> createLog = Optional.empty();
 	private Optional<String> logPath = Optional.empty();
+	
+	//parameter for the algorithm
+	private Optional<Integer> clippingThreshold = Optional.empty();
+	private Optional<Integer> hummingThreshold = Optional.empty();
+	private Optional<Integer> silenceThreshold = Optional.empty();
+	private Optional<Integer> volumeThreshold = Optional.empty();	
+	private Optional<Float> clippingWeight = Optional.empty();
+	private Optional<Float> hummingWeight = Optional.empty();
+	private Optional<Float> silenceWeight = Optional.empty();
+	private Optional<Float> volumeWeight = Optional.empty();
+	private Optional<Float> hummingLength = Optional.empty();
+	private Optional<Float> silenceLength = Optional.empty();
+	private Optional<Float> volumeLength = Optional.empty();
 	
 	public Optional<Integer> getWindowSize() {
 		return windowSize;
@@ -97,5 +110,71 @@ public class SettingData {
 	}
 	public void setLogPath(String path) {
 		this.logPath = Optional.of(path);
+	}
+	public Optional<Integer> getClippingThreshold(){
+		return clippingThreshold;
+	}
+	public void setClippingThreshold(int value) {
+		this.clippingThreshold = Optional.of(value);
+	}
+	public Optional<Integer> getHummingThreshold(){
+		return hummingThreshold;
+	}
+	public void setHummingThreshold(int value) {
+		this.hummingThreshold = Optional.of(value);
+	}
+	public Optional<Integer> getSilenceThreshold(){
+		return silenceThreshold;
+	}
+	public void setSilenceThreshold(int value) {
+		this.silenceThreshold = Optional.of(value);
+	}
+	public Optional<Integer> getVolumeThreshold(){
+		return volumeThreshold;
+	}
+	public void setVolumeThreshold(int value) {
+		this.volumeThreshold = Optional.of(value);
+	}
+	public Optional<Float> getClippingWeight(){
+		return clippingWeight;
+	}
+	public void setClippingWeight(float value) {
+		this.clippingWeight = Optional.of(value);
+	}
+	public Optional<Float> getSilenceWeight(){
+		return silenceWeight;
+	}
+	public void setSilenceWeight(float value) {
+		this.silenceWeight = Optional.of(value);
+	}
+	public Optional<Float> getVolumeWeight(){
+		return volumeWeight;
+	}
+	public void setVolumeWeight(float value) {
+		this.volumeWeight = Optional.of(value);
+	}
+	public Optional<Float> getHummingWeight(){
+		return hummingWeight;
+	}
+	public void setHummingWeight(float value) {
+		this.hummingWeight = Optional.of(value);
+	}
+	public Optional<Float> getHummingLength(){
+		return hummingLength;
+	}
+	public void setHummingLength(float value) {
+		this.hummingLength = Optional.of(value);
+	}
+	public Optional<Float> getSilenceLength(){
+		return silenceLength;
+	}
+	public void setSilenceLength(float value) {
+		this.silenceLength = Optional.of(value);
+	}
+	public Optional<Float> getVolumeLength(){
+		return volumeLength;
+	}
+	public void setVolumeLength(float value) {
+		this.volumeLength = Optional.of(value);
 	}
 }

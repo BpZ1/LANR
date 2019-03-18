@@ -29,6 +29,9 @@ import lanr.view.StreamVisualisation;
  */
 public class Settings {
 
+	/**
+	 * File name for the settings file.
+	 */
 	private static final String SETTINGS_FILE_NAME = "settings.ini";
 
 	private static Settings instance;
@@ -51,7 +54,7 @@ public class Settings {
 	 */
 	public static final String SPECTROGRAM_PATH_PROPERTY_NAME = "spectrorgamPath";
 	/**
-	 * Indicates whether the vizualisation will be created when analyzing.
+	 * Indicates whether the visualization will be created when analyzing.
 	 */
 	public static final String SHOW_VISUAL_PROPERTY_NAME = "showvisualisation";
 	/**
@@ -79,7 +82,26 @@ public class Settings {
 	 */
 	public static final String LOG_PATH_PROPERTY_NAME = "logPath";
 	
+	/*
+	 * Analysis parameter
+	 */
+	public static final String CLIPPING_THRESHOLD_PROPERTY_NAME = "clippingThreshold";
+	public static final String CLIPPING_WEIGHT_PROPERTY_NAME = "clippingWeight";
+	public static final String HUMMING_WEIGHT_PROPERTY_NAME = "hummingWeight";
+	public static final String HUMMING_LENGTH_PROPERTY_NAME = "hummingLength";
+	public static final String HUMMING_THRESHOLD_PROPERTY_NAME = "hummingThreshold";
+	public static final String SILENCE_WEIGHT_PROPERTY_NAME = "silenceWeight";
+	public static final String SILENCE_LENGTH_PROPERTY_NAME = "silenceLength";
+	public static final String SILENCE_THRESHOLD_PROPERTY_NAME = "silenceThreshold";
+	public static final String VOLUME_LENGTH_PROPERTY_NAME = "volumeLength";
+	public static final String VOLUME_WEIGHT_PROPERTY_NAME = "volumeWeight";
+	public static final String VOLUME_THRESHOLD_PROPERTY_NAME = "volumeThreshold";
+	
 	private Settings() {
+		/*
+		 * If settings are created without loaded data the following default values
+		 * will be set.
+		 */
 		settingsProperties.put(WINDOW_SIZE_PROPERTY_NAME, 1024);
 		settingsProperties.put(VISUALIZATION_FACTOR_PROPERTY_NAME, 0.01);
 		settingsProperties.put(CREATE_SPECTRO_PROPERTY_NAME, false);
@@ -91,6 +113,17 @@ public class Settings {
 		settingsProperties.put(WINDOWFUNCTION_PROPERTY_NAME, WindowFunction.Hanning);
 		settingsProperties.put(CREATE_LOG_PROPERTY_NAME, false);
 		settingsProperties.put(LOG_PATH_PROPERTY_NAME, "logs/");
+		settingsProperties.put(CLIPPING_THRESHOLD_PROPERTY_NAME, 10);
+		settingsProperties.put(CLIPPING_WEIGHT_PROPERTY_NAME, 1);
+		settingsProperties.put(HUMMING_WEIGHT_PROPERTY_NAME, 1);
+		settingsProperties.put(HUMMING_LENGTH_PROPERTY_NAME, 3);
+		settingsProperties.put(HUMMING_THRESHOLD_PROPERTY_NAME, 10);
+		settingsProperties.put(SILENCE_WEIGHT_PROPERTY_NAME, 1);
+		settingsProperties.put(SILENCE_LENGTH_PROPERTY_NAME, 3);
+		settingsProperties.put(SILENCE_THRESHOLD_PROPERTY_NAME, 10);
+		settingsProperties.put(VOLUME_LENGTH_PROPERTY_NAME, 1);
+		settingsProperties.put(VOLUME_WEIGHT_PROPERTY_NAME, 1);
+		settingsProperties.put(VOLUME_THRESHOLD_PROPERTY_NAME, 10);
 	};
 
 	public static Settings createSettings(SettingData data) {
@@ -129,6 +162,39 @@ public class Settings {
 		}
 		if(data.getLogPath().isPresent()) {
 			instance.setLogPath(data.getLogPath().get());
+		}
+		if(data.getClippingThreshold().isPresent()) {
+			instance.setClippingThreshold(data.getClippingThreshold().get());
+		}
+		if(data.getSilenceThreshold().isPresent()) {
+			instance.setSilenceThreshold(data.getSilenceThreshold().get());
+		}
+		if(data.getVolumeThreshold().isPresent()) {
+			instance.setVolumeThreshold(data.getVolumeThreshold().get());
+		}
+		if(data.getHummingThreshold().isPresent()) {
+			instance.setHummingThreshold(data.getHummingThreshold().get());
+		}
+		if(data.getClippingWeight().isPresent()) {
+			instance.setClippingWeight(data.getClippingWeight().get());
+		}
+		if(data.getVolumeWeight().isPresent()) {
+			instance.setVolumeWeight(data.getVolumeWeight().get());
+		}
+		if(data.getSilenceWeight().isPresent()) {
+			instance.setSilenceWeight(data.getSilenceWeight().get());
+		}
+		if(data.getHummingWeight().isPresent()) {
+			instance.setClippingWeight(data.getHummingWeight().get());
+		}
+		if(data.getHummingLength().isPresent()) {
+			instance.setHummingLength(data.getHummingLength().get());
+		}
+		if(data.getSilenceLength().isPresent()) {
+			instance.setSilenceLength(data.getSilenceLength().get());
+		}
+		if(data.getVolumeLength().isPresent()) {
+			instance.setVolumeLength(data.getVolumeLength().get());
 		}
 		return instance;
 	}
@@ -282,7 +348,7 @@ public class Settings {
 		String logPath = p.getProperty(LOG_PATH_PROPERTY_NAME);
 		if (logPath != null) {
 			try {	
-				Paths.get(logPath);				
+				Paths.get(logPath);	//Checks if the path is valid		
 				data.setLogPath(logPath);		
 			}catch(InvalidPathException e) {
 				throw new IOException(
@@ -290,6 +356,117 @@ public class Settings {
 								+ LOG_PATH_PROPERTY_NAME + "'. Could not read ini file.");
 			}		
 		}
+		String clippingThreshold = p.getProperty(CLIPPING_THRESHOLD_PROPERTY_NAME);
+		if(clippingThreshold != null) {
+			try {
+				int threshold = Integer.parseInt(clippingThreshold);
+				data.setClippingThreshold(threshold);
+			} catch (NumberFormatException e) {
+				throw new IOException("Invalid value for property '" 
+						+ THREAD_COUNT_PROPERTY_NAME + "'. Could not read ini file.");
+			}
+		}
+		String hummingThreshold = p.getProperty(HUMMING_THRESHOLD_PROPERTY_NAME);
+		if(hummingThreshold != null) {
+			try {
+				int threshold = Integer.parseInt(hummingThreshold);
+				data.setHummingThreshold(threshold);
+			} catch (NumberFormatException e) {
+				throw new IOException("Invalid value for property '" 
+						+ THREAD_COUNT_PROPERTY_NAME + "'. Could not read ini file.");
+			}
+		}
+		String silenceThreshold = p.getProperty(SILENCE_THRESHOLD_PROPERTY_NAME);
+		if(silenceThreshold != null) {
+			try {
+				int threshold = Integer.parseInt(silenceThreshold);
+				data.setSilenceThreshold(threshold);
+			} catch (NumberFormatException e) {
+				throw new IOException("Invalid value for property '" 
+						+ THREAD_COUNT_PROPERTY_NAME + "'. Could not read ini file.");
+			}
+		}
+		String volumeThreshold = p.getProperty(VOLUME_THRESHOLD_PROPERTY_NAME);
+		if(volumeThreshold != null) {
+			try {
+				int threshold = Integer.parseInt(volumeThreshold);
+				data.setVolumeThreshold(threshold);
+			} catch (NumberFormatException e) {
+				throw new IOException("Invalid value for property '" 
+						+ THREAD_COUNT_PROPERTY_NAME + "'. Could not read ini file.");
+			}
+		}
+		String clippingWeight = p.getProperty(CLIPPING_WEIGHT_PROPERTY_NAME);
+		if(clippingWeight != null) {
+			try {
+				float weight = Float.parseFloat(clippingWeight);
+				data.setClippingWeight(weight);
+			} catch (NumberFormatException e) {
+				throw new IOException("Invalid value for property '" 
+						+ THREAD_COUNT_PROPERTY_NAME + "'. Could not read ini file.");
+			}
+		}
+		String silenceWeight = p.getProperty(SILENCE_WEIGHT_PROPERTY_NAME);
+		if(silenceWeight != null) {
+			try {
+				float weight = Float.parseFloat(silenceWeight);
+				data.setSilenceWeight(weight);
+			} catch (NumberFormatException e) {
+				throw new IOException("Invalid value for property '" 
+						+ THREAD_COUNT_PROPERTY_NAME + "'. Could not read ini file.");
+			}
+		}
+		String volumeWeight = p.getProperty(VOLUME_WEIGHT_PROPERTY_NAME);
+		if(volumeWeight != null) {
+			try {
+				float weight = Float.parseFloat(volumeWeight);
+				data.setVolumeWeight(weight);
+			} catch (NumberFormatException e) {
+				throw new IOException("Invalid value for property '" 
+						+ THREAD_COUNT_PROPERTY_NAME + "'. Could not read ini file.");
+			}
+		}
+		String hummingWeight = p.getProperty(HUMMING_WEIGHT_PROPERTY_NAME);
+		if(hummingWeight != null) {
+			try {
+				float weight = Float.parseFloat(hummingWeight);
+				data.setVolumeWeight(weight);
+			} catch (NumberFormatException e) {
+				throw new IOException("Invalid value for property '" 
+						+ THREAD_COUNT_PROPERTY_NAME + "'. Could not read ini file.");
+			}
+		}
+		String hummingLength = p.getProperty(HUMMING_LENGTH_PROPERTY_NAME);
+		if(hummingLength != null) {
+			try {
+				float length = Float.parseFloat(hummingLength);
+				data.setHummingLength(length);
+			} catch (NumberFormatException e) {
+				throw new IOException("Invalid value for property '" 
+						+ THREAD_COUNT_PROPERTY_NAME + "'. Could not read ini file.");
+			}
+		}
+		String silenceLength = p.getProperty(SILENCE_LENGTH_PROPERTY_NAME);
+		if(silenceLength != null) {
+			try {
+				float length = Float.parseFloat(silenceLength);
+				data.setSilenceLength(length);
+			} catch (NumberFormatException e) {
+				throw new IOException("Invalid value for property '" 
+						+ THREAD_COUNT_PROPERTY_NAME + "'. Could not read ini file.");
+			}
+		}
+		String volumeLength = p.getProperty(VOLUME_LENGTH_PROPERTY_NAME);
+		if(volumeLength != null) {
+			try {
+				float length = Float.parseFloat(volumeLength);
+				data.setVolumeLength(length);
+			} catch (NumberFormatException e) {
+				throw new IOException("Invalid value for property '" 
+						+ THREAD_COUNT_PROPERTY_NAME + "'. Could not read ini file.");
+			}
+		}
+		
 		return data;
 	}
 	
@@ -364,5 +541,60 @@ public class Settings {
 	public void setLogCreation(boolean value) {
 		AudioStream.setCreateLogFile(value);
 		this.settingsProperties.put(CREATE_LOG_PROPERTY_NAME, value);
+	}
+	
+	public void setClippingThreshold(int value) {
+		//TODO SET VALUE
+		this.settingsProperties.put(CLIPPING_THRESHOLD_PROPERTY_NAME, value);
+	}
+	
+	public void setSilenceThreshold(int value) {
+		//TODO SET VALUE
+		this.settingsProperties.put(SILENCE_THRESHOLD_PROPERTY_NAME, value);
+	}
+	
+	public void setVolumeThreshold(int value) {
+		//TODO SET VALUE
+		this.settingsProperties.put(VOLUME_THRESHOLD_PROPERTY_NAME, value);
+	}
+	
+	public void setHummingThreshold(int value) {
+		//TODO SET VALUE
+		this.settingsProperties.put(HUMMING_THRESHOLD_PROPERTY_NAME, value);
+	}
+	
+	public void setClippingWeight(float value) {
+		//TODO SET VALUE
+		this.settingsProperties.put(CLIPPING_WEIGHT_PROPERTY_NAME, value);
+	}
+	
+	public void setSilenceWeight(float value) {
+		//TODO SET VALUE
+		this.settingsProperties.put(SILENCE_WEIGHT_PROPERTY_NAME, value);
+	}
+	
+	public void setHummingWeight(float value) {
+		//TODO SET VALUE
+		this.settingsProperties.put(HUMMING_WEIGHT_PROPERTY_NAME, value);
+	}
+	
+	public void setVolumeWeight(float value) {
+		//TODO SET VALUE
+		this.settingsProperties.put(VOLUME_WEIGHT_PROPERTY_NAME, value);
+	}
+	
+	public void setSilenceLength(float value) {
+		//TODO SET VALUE
+		this.settingsProperties.put(SILENCE_LENGTH_PROPERTY_NAME, value);
+	}
+	
+	public void setHummingLength(float value) {
+		//TODO SET VALUE
+		this.settingsProperties.put(HUMMING_LENGTH_PROPERTY_NAME, value);
+	}
+	
+	public void setVolumeLength(float value) {
+		//TODO SET VALUE
+		this.settingsProperties.put(VOLUME_LENGTH_PROPERTY_NAME, value);
 	}
 }

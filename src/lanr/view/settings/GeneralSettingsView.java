@@ -1,4 +1,4 @@
-package lanr.view;
+package lanr.view.settings;
 
 import java.io.File;
 
@@ -15,6 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
 import lanr.model.Settings;
+import lanr.view.Utils;
 
 /**
  * @author Nicolas Bruch

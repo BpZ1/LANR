@@ -1,4 +1,4 @@
-package lanr.view;
+package lanr.view.settings;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -13,6 +13,7 @@ import javafx.scene.layout.GridPane;
 import lanr.logic.frequency.FrequencyConversion;
 import lanr.logic.frequency.windowfunctions.WindowFunction;
 import lanr.model.Settings;
+import lanr.view.Descriptions;
 
 /**
  * Pane containing the controls for changes to the parameter.

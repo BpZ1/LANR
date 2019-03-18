@@ -10,8 +10,8 @@ import lanr.model.MainModel;
 import lanr.model.SettingData;
 import lanr.model.Settings;
 import lanr.view.MainView;
-import lanr.view.SettingsView;
 import lanr.view.Utils;
+import lanr.view.settings.SettingsView;
 
 /**
  * Main controller.

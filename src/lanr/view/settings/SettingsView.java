@@ -1,4 +1,4 @@
-package lanr.view;
+package lanr.view.settings;
 
 import java.io.IOException;
 
@@ -16,6 +16,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import lanr.model.Settings;
+import lanr.view.MainView;
+import lanr.view.Utils;
 
 /**
  * @author Nicolas Bruch
@@ -53,16 +55,24 @@ public class SettingsView extends Stage {
 		this.analysisView = new AnalysisSettingsView(changed);
 		analysisTab.setContent(analysisView);
 		
-		//Parameter tab
+		//Spectrogram tab
 		Tab spectroTab = new Tab("Spectrogram");
 		spectroTab.setClosable(false);
 		this.spectroView = new SpectrogramSettingsView(changed,
 				Stage.getWindows().get(0));
 		spectroTab.setContent(spectroView);
 		
+		//Parameter Tab
+		Tab parameterTab = new Tab("Spectrogram");
+		parameterTab.setClosable(false);
+		this.spectroView = new SpectrogramSettingsView(changed,
+				Stage.getWindows().get(0));
+		parameterTab.setContent(spectroView);
+		
 		pane.getTabs().add(performanceTab);
 		pane.getTabs().add(analysisTab);
 		pane.getTabs().add(spectroTab);
+		pane.getTabs().add(parameterTab);
 		//Buttons
 		Button applyButton = new Button("Apply");
 		applyButton.setOnAction(event ->{
