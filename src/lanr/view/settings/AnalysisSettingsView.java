@@ -37,6 +37,7 @@ public class AnalysisSettingsView extends GridPane {
 		createWindowFunctionControl();
 		createFrequencyTransformControl();
 
+		//Add observer value to track changes
 		windowSize.addListener((obs, oldval, newVal) -> changed.setValue(true));
 		conversionMethod.addListener((obs, oldval, newVal) -> changed.setValue(true));
 		windowFunction.addListener((obs, oldval, newVal) -> changed.setValue(true));

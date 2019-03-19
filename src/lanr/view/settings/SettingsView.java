@@ -29,6 +29,7 @@ public class SettingsView extends Stage {
 	private AnalysisSettingsView analysisView;
 	private GeneralSettingsView generalView;
 	private SpectrogramSettingsView spectroView;
+	private ParameterSettingsView parameterView;
 	
 	public SettingsView() {
 		Pane root = createRootPane();
@@ -63,11 +64,10 @@ public class SettingsView extends Stage {
 		spectroTab.setContent(spectroView);
 		
 		//Parameter Tab
-		Tab parameterTab = new Tab("Spectrogram");
+		Tab parameterTab = new Tab("Parameter");
 		parameterTab.setClosable(false);
-		this.spectroView = new SpectrogramSettingsView(changed,
-				Stage.getWindows().get(0));
-		parameterTab.setContent(spectroView);
+		this.parameterView = new ParameterSettingsView(changed);
+		parameterTab.setContent(parameterView);
 		
 		pane.getTabs().add(performanceTab);
 		pane.getTabs().add(analysisTab);
