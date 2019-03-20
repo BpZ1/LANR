@@ -56,7 +56,7 @@ public abstract class SliderControl<T extends Number> extends GridPane {
 		value.set(initialValue);
 		slider.setMin(min.doubleValue());
 		slider.setMax(max.doubleValue());
-		
+		GridPane.setFillWidth(slider, true);
 		//Add elements to the GridPane
 		this.add(nameLabel, 0, 0);
 		this.add(valueLabel, 1, 0);

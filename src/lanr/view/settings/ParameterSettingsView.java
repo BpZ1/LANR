@@ -52,6 +52,7 @@ public class ParameterSettingsView extends AnchorPane {
 		pane.setText("Clipping");
 		// VBox containing the different controls
 		VBox content = new VBox();
+		content.setPrefWidth(pane.getWidth());
 		content.setAlignment(Pos.CENTER);
 		content.setSpacing(4);
 		pane.setContent(content);
