@@ -109,7 +109,14 @@ public class VolumeSearch extends NoiseSearch {
 			foundNoise.add(currentNoise);
 		}
 		//Noises that are up to 3 seconds apart will still be counted as one.
-		foundNoise = combineNoises(foundNoise, sampleRate * 3);		
+		foundNoise = combineNoises(foundNoise, sampleRate * 3);	
+		/*
+		 * If the replay gain value of the file is over or under a given value
+		 * the whold file will be recognized as noise.
+		 */	
+		if(replayGain > 10 || replayGain < -10) {
+			foundNoise.add(new Noise(NoiseType.Volume, 0, sampleCounter));
+		}
 	}
 	
 	public static void setLength(float value) {
