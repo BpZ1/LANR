@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
 
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.DirectoryChooser;
@@ -31,6 +32,41 @@ public class Utils {
 		alert.setTitle("Information");
 		alert.setHeaderText(header);
 		alert.setContentText(message);
+
+		alert.showAndWait();
+	}
+	
+	/**
+	 * Displays an info dialog to the user.
+	 * @param header
+	 * @param message
+	 */
+	public static void showInfoDialog(String header, String message, Node content) {
+		if (header == null || message == null) {
+			throw new IllegalArgumentException("Cant show a message with without arguments");
+		}
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("Information");
+		alert.setHeaderText(header);
+		alert.getDialogPane().setContent(content);
+		alert.setContentText(message);
+
+		alert.showAndWait();
+	}
+	
+	/**
+	 * Displays an info dialog to the user.
+	 * @param header
+	 * @param message
+	 */
+	public static void showInfoDialog(String titel, String header, String content) {
+		if (header == null || header == null || content == null) {
+			throw new IllegalArgumentException("Cant show a message with without arguments");
+		}
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle(titel);
+		alert.setHeaderText(header);
+		alert.setContentText(content);
 
 		alert.showAndWait();
 	}

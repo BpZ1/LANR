@@ -10,13 +10,13 @@ import lanr.controller.MainViewController;
  */
 public class Lanr extends Application {
 
-	public static void main(String[] args){
+	public static void startUp(String[] args){
 		launch(args);
 	}
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		MainViewController mainController = new MainViewController();
-		mainController.start();
+		mainController.start(this.getHostServices());
 	}
 }

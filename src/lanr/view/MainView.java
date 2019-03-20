@@ -98,6 +98,7 @@ public class MainView extends Stage {
 	private Node createTopMenu() {
 		MenuBar menuBar = new MenuBar();
 		menuBar.setPadding(new Insets(2,2,2,2));
+		//File menu
 		Menu fileMenu = new Menu("File");
 		MenuItem openMenuItem = new MenuItem("Open");
 		MenuItem openFolderMenuItem = new MenuItem("Open Folder");
@@ -106,12 +107,20 @@ public class MainView extends Stage {
 		fileMenu.getItems().add(openMenuItem);
 		fileMenu.getItems().add(openFolderMenuItem);
 		fileMenu.getItems().add(exitMenuItem);
+		//Edit menu
 		Menu editMenu = new Menu("Edit");
 		MenuItem analysisMenuItem = new MenuItem("Analyse all");
 		MenuItem settingsMenuItem = new MenuItem("Settings");
 		editMenu.getItems().add(settingsMenuItem);
 		editMenu.getItems().add(analysisMenuItem);
-
+		//Help menu
+		Menu helpMenu = new Menu("Help");
+		MenuItem helpMenuItem = new MenuItem("Help");
+		MenuItem aboutMenuItem = new MenuItem("About LANR");
+		helpMenu.getItems().add(helpMenuItem);
+		helpMenu.getItems().add(aboutMenuItem);
+		
+		
 		openMenuItem.setOnAction(event -> {
 			openFileDialog();
 		});
@@ -146,9 +155,17 @@ public class MainView extends Stage {
 		settingsMenuItem.setOnAction(event -> {
 			controller.openSettings();
 		});
+		
+		aboutMenuItem.setOnAction(event ->{
+			controller.showAboutDialog();
+		});
 
+		helpMenuItem.setOnAction(event ->{
+			controller.showHelpDialog();
+		});
 		menuBar.getMenus().add(fileMenu);
 		menuBar.getMenus().add(editMenu);
+		menuBar.getMenus().add(helpMenu);
 		return menuBar;
 	}
 	

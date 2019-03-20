@@ -4,6 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import javafx.application.HostServices;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import lanr.logic.model.LANRException;
 import lanr.model.MainModel;
@@ -24,6 +28,7 @@ public class MainViewController {
 	private MainModel model;
 	private MainView mainView;
 	private String settingsError;
+	private HostServices hostServices;
 	
 	public MainViewController() {
 		SettingData data = null;
@@ -40,7 +45,8 @@ public class MainViewController {
 		mainView = new MainView(model, this);
 	}
 	
-	public void start() {		
+	public void start(HostServices hostServices) {		
+		this.hostServices = hostServices;
 		if(settingsError != null) {
 			Utils.showErrorDialog(
 					"Could not load settings.ini",
@@ -97,6 +103,37 @@ public class MainViewController {
 			Utils.showInfoDialog("Can't open settings",
 					"The settings can't be changed while files are being processed.");
 		}
+	}
+	
+	public void showAboutDialog() {
+		Utils.showInfoDialog("About LANR",
+				"Lecture Audio Noise Recognition",
+				"LANR (Lecture Audio Noise Recognition) is a " 
+						+ "software that strives to automate the reviewing process for the audio of"
+						+ " lecture recordings at the WIAI faculty of the University of Bamberg. It was developed by " 
+						+ "Nicolas Bruch as part of his bachelor thesis at the WIAI faculty of the Otto-Friedrich University Bamberg." 
+						+ System.lineSeparator() + System.lineSeparator() 
+						+ "Version: " + getClass().getPackage().getImplementationVersion() 
+						+ System.lineSeparator() + System.lineSeparator() 
+						+ "Copyright © 2019 Nicolas Bruch" + System.lineSeparator() 
+						+ "This program comes with absolutely no warranty." 
+						+ System.lineSeparator() 
+						+ "See the GNU General Public License version 3 for details.");
+	}
+	
+	public void showHelpDialog() {
+		Hyperlink link = new Hyperlink("GitHub");
+		link.setOnAction(event ->{
+			hostServices.showDocument("https://github.com/BpZ1/LANR");
+		});
+		VBox content = new VBox();
+		Label text = new Label("For questions or bugs contact:"
+				+ System.lineSeparator() + "nicolas.bruch@hotmail.de "
+				+ System.lineSeparator() +"or visit: ");
+		content.getChildren().add(text);
+		content.getChildren().add(link);
+		
+		Utils.showInfoDialog("Help", "Help", content);
 	}
 	
 	/**
