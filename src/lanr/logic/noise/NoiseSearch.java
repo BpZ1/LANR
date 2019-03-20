@@ -13,6 +13,9 @@ import lanr.logic.model.Noise;
  */
 public abstract class NoiseSearch {
 
+	/**
+	 * Weighting factor
+	 */
 	protected static float weight = 1;
 	/**
 	 * Samples rate of the signal to be analyzed.
@@ -42,13 +45,22 @@ public abstract class NoiseSearch {
 	 */
 	public abstract void search(double[] samples);
 
+
+	protected abstract FastTable<Noise> getNoise();
+	
 	/**
 	 * Returns the found {@link Noise}. <b>Should only be called after compact() was
 	 * executed.</b>
 	 * 
 	 * @return List of found noises.
 	 */
-	public abstract FastTable<Noise> getNoise();
+	public FastTable<Noise> getFoundNoise(){
+		FastTable<Noise> noise = getNoise();
+		for(Noise n : noise) {
+			n.setSeverity(n.getLength() / sampleRate * weight);
+		}
+		return noise;
+	}
 
 	public abstract void compact();
 

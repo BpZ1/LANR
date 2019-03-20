@@ -9,10 +9,25 @@ package lanr.logic.model;
 public class Noise {
 	
 	private double severity;	
+	/**
+	 * Start index of the noise in samples.
+	 */
 	private long location;
+	/**
+	 * Length of the noise in samples.
+	 */
 	private long length;
+	/**
+	 * Index of the channel in which the noise was found.
+	 */
 	private int channel;
+	/**
+	 * End index of the noise in samples.
+	 */
 	private long end;
+	/**
+	 * Noise type.
+	 */
 	private NoiseType type;
 
 	public Noise(NoiseType type, long location, long length) {

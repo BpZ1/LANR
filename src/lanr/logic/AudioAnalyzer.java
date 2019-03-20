@@ -78,14 +78,14 @@ public class AudioAnalyzer {
 	public FastTable<Noise> getNoise() {
 		FastTable<Noise> noise = new FastTable<Noise>();
 		for(NoiseSearch analyzer : sampleAnalyzer) {
-			if(analyzer.getNoise() != null) {
-				noise.addAll(analyzer.getNoise());
+			if(analyzer.getFoundNoise() != null) {
+				noise.addAll(analyzer.getFoundNoise());
 			}
 			
 		}
 		for(NoiseSearch analyzer : frequencyAnalyzer) {
-			if(analyzer.getNoise() != null) {
-				noise.addAll(analyzer.getNoise());
+			if(analyzer.getFoundNoise() != null) {
+				noise.addAll(analyzer.getFoundNoise());
 			}
 			
 		}
