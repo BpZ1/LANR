@@ -23,10 +23,12 @@ public class ClippingSearch extends NoiseSearch {
 
 	private long locationCounter = 0;
 	
+	private static int threshold = 0;
+	
 	/**
 	 * Samples under this value will not be taken into account.
 	 */
-	private static final double THRESHOLD = 0.02;
+	private static final double THRESHOLD = 0.02f + ((float)threshold * 0.001f);
 	/**
 	 * Number of sub intervals in which the samples are divided.
 	 */
@@ -119,4 +121,8 @@ public class ClippingSearch extends NoiseSearch {
 	public void compact() {
 		this.foundNoise = combineNoises(foundNoise, sampleRate * 3);
 	}	
+	
+	public static void setThreshold(int value) {
+		threshold = value;
+	}
 }

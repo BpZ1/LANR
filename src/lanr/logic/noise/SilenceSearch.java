@@ -14,21 +14,22 @@ import lanr.logic.model.NoiseType;
  */
 public class SilenceSearch extends NoiseSearch {
 
+	private static float userThreshold = 0;
+	/**
+	 * Number of seconds a silence has to last before it is
+	 * recognized as such.
+	 */
+	private static float minimalDuration = 3;
 	/**
 	 * Threshold of the audio signal under which it is
 	 * recognized as silence.
 	 */
-	private static double threshold = -40;
+	private static double threshold = -40 + userThreshold;
 	/**
 	 * Maximum number of samples that can be over the threshold 
 	 * in a silence window.
 	 */
 	private final int maxSkip = sampleRate / 500;
-	/**
-	 * Number of seconds a silence has to last before it is
-	 * recognized as such.
-	 */
-	private static int minimalDuration = 3;
 		
 	private long sampleCounter = 0;
 	/**
@@ -50,7 +51,7 @@ public class SilenceSearch extends NoiseSearch {
 	
 	@Override
 	public void search(double[] samples) {
-		long minimalDurationSamples = minimalDuration * sampleRate;
+		long minimalDurationSamples = (long) (minimalDuration * (float)sampleRate);
 		for(double s : samples) {
 			sampleCounter++;
 			//Check if the sample is under the threshold
@@ -99,6 +100,14 @@ public class SilenceSearch extends NoiseSearch {
 		}
 		//Noises that are up to 3 seconds apart will still be counted as one.
 		foundNoise = combineNoises(foundNoise, sampleRate * 3);		
+	}
+	
+	public static void setThreshold(int value) {
+		userThreshold = value;
+	}
+	
+	public static void setLength(float value) {
+		minimalDuration = value;
 	}
 
 }

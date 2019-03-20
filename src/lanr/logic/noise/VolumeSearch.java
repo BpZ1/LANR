@@ -12,21 +12,34 @@ import lanr.logic.model.NoiseType;
  */
 public class VolumeSearch extends NoiseSearch {
 
-	private static double lowerSilentThreshold = -40;
-	private static double upperSilentThreshold = -30;
+	/**
+	 * Threshold set by user.
+	 */
+	private static int threshold = 0;
 	
-	private static double lowerLoudThreshold = -10;
-	private static double upperLoudThreshold = 0;
+	/**
+	 * Length of the volume noise in seconds
+	 */
+	private static float length = 1;
+	
+	//Fixed threshold values
+	private static final double LOWER_SILENT_THRESHOLD = -40;
+	private static final double UPPER_SILENT_THRESHOLD = -30;
+	
+	private static final double LOWER_LOUDER_THRESHOLD = -10;
+	private static final double UPPER_LOUDER_THRESHOLD = 0;
+	
+	//Computed threshold values with user threshold
+	private static double lowerSilentThreshold = LOWER_SILENT_THRESHOLD + threshold;
+	private static double upperSilentThreshold = UPPER_SILENT_THRESHOLD + threshold;
+	
+	private static double lowerLoudThreshold = LOWER_LOUDER_THRESHOLD + threshold;
+	private static double upperLoudThreshold = UPPER_LOUDER_THRESHOLD + threshold;
 	/**
 	 * Maximum number of samples that can be over the threshold 
 	 * in a silence window.
 	 */
 	private final int maxSkip = sampleRate / 500;
-	/**
-	 * Number of seconds a silence has to last before it is
-	 * recognized as such.
-	 */
-	private static int minimalDuration = 1;
 		
 	private long sampleCounter = 0;
 	/**
@@ -47,7 +60,7 @@ public class VolumeSearch extends NoiseSearch {
 
 	@Override
 	public void search(double[] samples) {
-		long minimalDurationSamples = minimalDuration * sampleRate;
+		long minimalDurationSamples = (long) (length * (float)sampleRate);
 		for(double s : samples) {
 			sampleCounter++;
 			//Check if the sample is under the threshold
@@ -97,6 +110,14 @@ public class VolumeSearch extends NoiseSearch {
 		}
 		//Noises that are up to 3 seconds apart will still be counted as one.
 		foundNoise = combineNoises(foundNoise, sampleRate * 3);		
+	}
+	
+	public static void setLength(float value) {
+		length = value;
+	}
+	
+	public static void setThreshold(int value) {
+		threshold = value;
 	}
 
 }

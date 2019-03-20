@@ -17,7 +17,10 @@ import lanr.logic.frequency.FrequencyConversion;
 import lanr.logic.frequency.windowfunctions.WindowFunction;
 import lanr.logic.model.AudioStream;
 import lanr.logic.model.LANRException;
+import lanr.logic.noise.ClippingSearch;
 import lanr.logic.noise.HummingSearch;
+import lanr.logic.noise.SilenceSearch;
+import lanr.logic.noise.VolumeSearch;
 import lanr.view.AudioDataContainer;
 import lanr.view.StreamVisualisation;
 
@@ -545,17 +548,17 @@ public class Settings {
 	}
 	
 	public void setClippingThreshold(int value) {
-		//TODO SET VALUE
+		ClippingSearch.setThreshold(value);
 		this.settingsProperties.put(CLIPPING_THRESHOLD_PROPERTY_NAME, value);
 	}
 	
 	public void setSilenceThreshold(int value) {
-		//TODO SET VALUE
+		SilenceSearch.setThreshold(value);
 		this.settingsProperties.put(SILENCE_THRESHOLD_PROPERTY_NAME, value);
 	}
 	
 	public void setVolumeThreshold(int value) {
-		//TODO SET VALUE
+		VolumeSearch.setThreshold(value);
 		this.settingsProperties.put(VOLUME_THRESHOLD_PROPERTY_NAME, value);
 	}
 	
@@ -565,27 +568,27 @@ public class Settings {
 	}
 	
 	public void setClippingWeight(float value) {
-		//TODO SET VALUE
+		ClippingSearch.setWeight(value);
 		this.settingsProperties.put(CLIPPING_WEIGHT_PROPERTY_NAME, value);
 	}
 	
 	public void setSilenceWeight(float value) {
-		//TODO SET VALUE
+		SilenceSearch.setWeight(value);
 		this.settingsProperties.put(SILENCE_WEIGHT_PROPERTY_NAME, value);
 	}
 	
 	public void setHummingWeight(float value) {
-		//TODO SET VALUE
+		HummingSearch.setWeight(value);
 		this.settingsProperties.put(HUMMING_WEIGHT_PROPERTY_NAME, value);
 	}
 	
 	public void setVolumeWeight(float value) {
-		//TODO SET VALUE
+		VolumeSearch.setWeight(value);
 		this.settingsProperties.put(VOLUME_WEIGHT_PROPERTY_NAME, value);
 	}
 	
 	public void setSilenceLength(float value) {
-		//TODO SET VALUE
+		SilenceSearch.setLength(value);
 		this.settingsProperties.put(SILENCE_LENGTH_PROPERTY_NAME, value);
 	}
 	
@@ -595,7 +598,7 @@ public class Settings {
 	}
 	
 	public void setVolumeLength(float value) {
-		//TODO SET VALUE
+		VolumeSearch.setLength(value);
 		this.settingsProperties.put(VOLUME_LENGTH_PROPERTY_NAME, value);
 	}
 }

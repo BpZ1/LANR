@@ -13,6 +13,7 @@ import lanr.logic.model.Noise;
  */
 public abstract class NoiseSearch {
 
+	protected static float weight = 1;
 	/**
 	 * Samples rate of the signal to be analyzed.
 	 */
@@ -97,5 +98,9 @@ public abstract class NoiseSearch {
 			}
 		}
 		return noise;
+	}
+	
+	public static void setWeight(float value) {
+		weight = value;
 	}
 }
