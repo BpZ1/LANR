@@ -5,12 +5,13 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.TitledPane;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import lanr.model.Settings;
 import lanr.view.Descriptions;
 
-public class ParameterSettingsView extends Pane {
+public class ParameterSettingsView extends AnchorPane {
 
 	private IntegerSliderControl clippingThresholdControl;
 	private FloatSliderControl clippingWeightControl;
@@ -29,7 +30,12 @@ public class ParameterSettingsView extends Pane {
 
 	public ParameterSettingsView(SimpleBooleanProperty changed) {
 		this.setPadding(new Insets(8, 8, 8, 8));
-		this.getChildren().add(createParameterControls(changed));
+		Accordion accordion = createParameterControls(changed);
+		this.getChildren().add(accordion);
+		AnchorPane.setBottomAnchor(accordion, 0.0);
+		AnchorPane.setTopAnchor(accordion, 0.0);
+		AnchorPane.setLeftAnchor(accordion, 0.0);
+		AnchorPane.setRightAnchor(accordion, 0.0);
 	}
 
 	private Accordion createParameterControls(SimpleBooleanProperty changed) {
@@ -38,7 +44,6 @@ public class ParameterSettingsView extends Pane {
 		accordion.getPanes().add(createSilenceControl(changed));
 		accordion.getPanes().add(createVolumeControl(changed));
 		accordion.getPanes().add(createHummingControl(changed));
-		accordion.setPrefWidth(400);
 		return accordion;
 	}
 
@@ -50,7 +55,7 @@ public class ParameterSettingsView extends Pane {
 		content.setAlignment(Pos.CENTER);
 		content.setSpacing(4);
 		pane.setContent(content);
-
+		VBox.setVgrow(content, Priority.ALWAYS);
 		clippingWeightControl = new FloatSliderControl("Weight: ",
 				0, 10, (float) Settings.getInstance()
 				.getPropertyValue(Settings.CLIPPING_WEIGHT_PROPERTY_NAME),

@@ -34,8 +34,15 @@ public class SettingsView extends Stage {
 	public SettingsView() {
 		Pane root = createRootPane();
 		this.setTitle("Settings");
-		Scene scene = new Scene(root, 450, 450);
+		Scene scene = new Scene(root, 450, 450);		
 		this.setScene(scene);
+		this.setMinWidth(450);
+		this.setMinHeight(450);
+		this.setMaxHeight(450);
+		this.setMaxWidth(450);
+		this.setWidth(450);
+		this.setHeight(450);
+		this.setResizable(false);
 		scene.getStylesheets().add(MainView.class.getResource("Main.css").toExternalForm());
 	}
 	
