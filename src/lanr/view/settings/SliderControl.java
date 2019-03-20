@@ -67,7 +67,7 @@ public abstract class SliderControl<T extends Number> extends GridPane {
 	
 	/**
 	 * Checks if the given value is inside the min and max range.
-	 * @param value
+	 * @param value to be checked.
 	 * @return
 	 */
 	public boolean isInRange(T value) {
@@ -83,6 +83,20 @@ public abstract class SliderControl<T extends Number> extends GridPane {
 		}
 		this.value.setValue(value);
 		this.slider.setValue(value.doubleValue());
+	}
+	
+	public void setMin(T min) {
+		if(min.doubleValue() > this.max.doubleValue()) {
+			throw new IllegalArgumentException("The minimum of the slider can't be greater than the maximum.");
+		}
+		this.min = min;
+	}
+	
+	public void setMax(T max) {
+		if(max.doubleValue() < this.min.doubleValue()) {
+			throw new IllegalArgumentException("The maximum of the slider can't be smaller than the minimum.");
+		}
+		this.max = max;
 	}
 	
 	public T getValue() {

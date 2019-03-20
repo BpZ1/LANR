@@ -6,7 +6,7 @@ import lanr.logic.model.AudioStream;
 import lanr.logic.model.AudioData;
 
 /**
- * Contains the different stream visualisations for the different audio streams.
+ * Contains the different stream visualizations for the different audio streams.
  * 
  * @author Nicolas Bruch
  *

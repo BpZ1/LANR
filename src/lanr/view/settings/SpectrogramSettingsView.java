@@ -19,14 +19,25 @@ import lanr.view.Descriptions;
 import lanr.view.Utils;
 
 /**
+ * 
+ * View that contains controls for the spectrogram.
  * @author Nicolas Bruch
  *
  */
 public class SpectrogramSettingsView extends GridPane {
 	
 	private Window parent;
+	/**
+	 * If true the spectrogram is created.
+	 */
 	private SimpleBooleanProperty createSpectro = new SimpleBooleanProperty();
+	/**
+	 * Contrast for the spectrogram.
+	 */
 	private SimpleIntegerProperty contrast = new SimpleIntegerProperty();
+	/**
+	 * Spectrogram output path.
+	 */
 	private SimpleStringProperty path = new SimpleStringProperty();
 	
 	public SpectrogramSettingsView(SimpleBooleanProperty changed, Window parent) {
@@ -63,6 +74,7 @@ public class SpectrogramSettingsView extends GridPane {
 		Label sliderLabel = new Label("Contrast");	
 		slider.setMin(1.0);
 		slider.setMax(1000.0);
+		//Listener for change in the slider to update the label.
 		slider.valueProperty()
 			.addListener((obs, oldval, newVal) -> {
 				slider.setValue(newVal.intValue());
@@ -76,7 +88,7 @@ public class SpectrogramSettingsView extends GridPane {
 		this.add(slider, 1, 1);
 		this.add(sliderLabel, 2, 1);
 	}	
-	
+
 	private void createPathControl() {
 		TextField text = new TextField();		
 		Button button = new Button("Change");

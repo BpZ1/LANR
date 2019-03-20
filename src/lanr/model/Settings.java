@@ -244,6 +244,9 @@ public class Settings {
 		}
 		p.load(new FileInputStream(SETTINGS_FILE_NAME));
 
+		/*
+		 * Creates the parameter from their string property values.
+		 */
 		String wSize = p.getProperty(WINDOW_SIZE_PROPERTY_NAME);
 		if (wSize != null) {
 			try {
