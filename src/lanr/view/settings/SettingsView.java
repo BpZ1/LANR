@@ -43,6 +43,13 @@ public class SettingsView extends Stage {
 		this.setWidth(450);
 		this.setHeight(450);
 		this.setResizable(false);
+		this.setOnCloseRequest(event ->{
+			if(changed.getValue()) {
+				if(!confirmationDialog()) {
+					event.consume();
+				}
+			}
+		});
 		scene.getStylesheets().add(MainView.class.getResource("Main.css").toExternalForm());
 	}
 	
@@ -89,10 +96,7 @@ public class SettingsView extends Stage {
 		Button cancelButton = new Button("Cancel");
 		cancelButton.setOnAction(event ->{
 			if(changed.getValue()) {
-				if(Utils.confirmationDialog(
-						"Unsaved changes",
-						"Do you still want to close?",
-						"If yes the changes will be reverted.")) {
+				if(confirmationDialog()) {
 					this.close();
 				}
 			}else {
@@ -108,6 +112,13 @@ public class SettingsView extends Stage {
 		mainPane.setCenter(pane);
 		mainPane.setBottom(buttonPane);
 		return mainPane;
+	}
+	
+	private boolean confirmationDialog() {
+		return Utils.confirmationDialog(
+				"Unsaved changes",
+				"Do you still want to close?",
+				"If yes the changes will be reverted.");
 	}
 	
 	/**
