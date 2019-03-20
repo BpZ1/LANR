@@ -2,6 +2,7 @@ package lanr.view.settings;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.GridPane;
@@ -42,6 +43,10 @@ public abstract class SliderControl<T extends Number> extends GridPane {
 	
 	public SliderControl(String name, T min, T max, T initialValue,
 			String description, SimpleBooleanProperty changedProperty) {
+		
+		this.setPadding(new Insets(4,4,2,2));
+		this.setHgap(4);
+		this.setVgap(2);
 		this.min = min;
 		this.max = max;		
 		nameLabel = new Label(name);
