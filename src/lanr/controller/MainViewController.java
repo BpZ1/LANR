@@ -105,6 +105,9 @@ public class MainViewController {
 		}
 	}
 	
+	/**
+	 * Shows the about dialog that displays information about the program.
+	 */
 	public void showAboutDialog() {
 		Utils.showInfoDialog("About LANR",
 				"Lecture Audio Noise Recognition",
@@ -121,6 +124,9 @@ public class MainViewController {
 						+ "See the GNU General Public License version 3 for details.");
 	}
 	
+	/**
+	 * Shows the help dialog that displays information for problems.
+	 */
 	public void showHelpDialog() {
 		Hyperlink link = new Hyperlink("GitHub");
 		link.setOnAction(event ->{
