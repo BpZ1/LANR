@@ -316,10 +316,10 @@ public class AudioDataContainer extends TitledPane {
 	}
 	
 	private Color getSeverityColor(double severity) {
-		if(severity < 3) {
+		if(severity < 50) {
 			return Color.GREEN;
 		}
-		if(severity < 6) {
+		if(severity < 100) {
 			return Color.YELLOW;
 		}
 		return Color.RED;
