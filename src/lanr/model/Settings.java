@@ -17,6 +17,7 @@ import lanr.logic.frequency.FrequencyConversion;
 import lanr.logic.frequency.windowfunctions.WindowFunction;
 import lanr.logic.model.AudioStream;
 import lanr.logic.model.LANRException;
+import lanr.logic.noise.HummingSearch;
 import lanr.view.AudioDataContainer;
 import lanr.view.StreamVisualisation;
 
@@ -103,7 +104,7 @@ public class Settings {
 		 * will be set.
 		 */
 		settingsProperties.put(WINDOW_SIZE_PROPERTY_NAME, 1024);
-		settingsProperties.put(VISUALIZATION_FACTOR_PROPERTY_NAME, 0.01);
+		settingsProperties.put(VISUALIZATION_FACTOR_PROPERTY_NAME, 0.01d);
 		settingsProperties.put(CREATE_SPECTRO_PROPERTY_NAME, false);
 		settingsProperties.put(SPECTROGRAM_PATH_PROPERTY_NAME, "spectrograms/");
 		settingsProperties.put(SHOW_VISUAL_PROPERTY_NAME, true);
@@ -113,17 +114,17 @@ public class Settings {
 		settingsProperties.put(WINDOWFUNCTION_PROPERTY_NAME, WindowFunction.Hanning);
 		settingsProperties.put(CREATE_LOG_PROPERTY_NAME, false);
 		settingsProperties.put(LOG_PATH_PROPERTY_NAME, "logs/");
-		settingsProperties.put(CLIPPING_THRESHOLD_PROPERTY_NAME, 10);
-		settingsProperties.put(CLIPPING_WEIGHT_PROPERTY_NAME, 1);
-		settingsProperties.put(HUMMING_WEIGHT_PROPERTY_NAME, 1);
-		settingsProperties.put(HUMMING_LENGTH_PROPERTY_NAME, 3);
-		settingsProperties.put(HUMMING_THRESHOLD_PROPERTY_NAME, 10);
-		settingsProperties.put(SILENCE_WEIGHT_PROPERTY_NAME, 1);
-		settingsProperties.put(SILENCE_LENGTH_PROPERTY_NAME, 3);
-		settingsProperties.put(SILENCE_THRESHOLD_PROPERTY_NAME, 10);
-		settingsProperties.put(VOLUME_LENGTH_PROPERTY_NAME, 1);
-		settingsProperties.put(VOLUME_WEIGHT_PROPERTY_NAME, 1);
-		settingsProperties.put(VOLUME_THRESHOLD_PROPERTY_NAME, 10);
+		settingsProperties.put(CLIPPING_THRESHOLD_PROPERTY_NAME, 0);
+		settingsProperties.put(CLIPPING_WEIGHT_PROPERTY_NAME, 1.0f);
+		settingsProperties.put(HUMMING_WEIGHT_PROPERTY_NAME, 1.0f);
+		settingsProperties.put(HUMMING_LENGTH_PROPERTY_NAME, 3.0f);
+		settingsProperties.put(HUMMING_THRESHOLD_PROPERTY_NAME, 0);
+		settingsProperties.put(SILENCE_WEIGHT_PROPERTY_NAME, 1.0f);
+		settingsProperties.put(SILENCE_LENGTH_PROPERTY_NAME, 3.0f);
+		settingsProperties.put(SILENCE_THRESHOLD_PROPERTY_NAME, 0);
+		settingsProperties.put(VOLUME_LENGTH_PROPERTY_NAME, 1.0f);
+		settingsProperties.put(VOLUME_WEIGHT_PROPERTY_NAME, 1.0f);
+		settingsProperties.put(VOLUME_THRESHOLD_PROPERTY_NAME, 0);
 	};
 
 	public static Settings createSettings(SettingData data) {
@@ -559,7 +560,7 @@ public class Settings {
 	}
 	
 	public void setHummingThreshold(int value) {
-		//TODO SET VALUE
+		HummingSearch.setThreshold(value);
 		this.settingsProperties.put(HUMMING_THRESHOLD_PROPERTY_NAME, value);
 	}
 	
@@ -589,7 +590,7 @@ public class Settings {
 	}
 	
 	public void setHummingLength(float value) {
-		//TODO SET VALUE
+		HummingSearch.setLength(value);
 		this.settingsProperties.put(HUMMING_LENGTH_PROPERTY_NAME, value);
 	}
 	

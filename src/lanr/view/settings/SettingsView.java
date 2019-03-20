@@ -119,6 +119,17 @@ public class SettingsView extends Stage {
 		s.setCreateSpectrogram(spectroView.getCreateSpectrogram());
 		s.setSpectrogramContrast(spectroView.getContrast());
 		s.setSpectrogramPath(spectroView.getPath());
+		s.setClippingWeight(parameterView.getClippingWeight());
+		s.setVolumeWeight(parameterView.getVolumeWeight());
+		s.setSilenceWeight(parameterView.getSilenceWeight());
+		s.setHummingWeight(parameterView.getHummingWeight());
+		s.setClippingThreshold(parameterView.getClippingThreshold());
+		s.setSilenceThreshold(parameterView.getSilenceThreshold());
+		s.setVolumeThreshold(parameterView.getVolumeThreshold());
+		s.setHummingThreshold(parameterView.getHummingThreshold());
+		s.setHummingLength(parameterView.getHummingLength());
+		s.setSilenceLength(parameterView.getSilenceLength());
+		s.setVolumeLength(parameterView.getVolumeLength());
 		try {
 			s.save();
 		} catch (IOException e) {

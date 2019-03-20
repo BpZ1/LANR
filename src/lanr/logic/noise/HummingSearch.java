@@ -11,6 +11,9 @@ import lanr.logic.model.NoiseType;
  */
 public class HummingSearch extends FrequencyDurationSearch {
 	
+	private static int threshold = 0;
+	private static float length = 3;
+	
 	/**
 	 * Threshold for the decibel value of the humming.
 	 */
@@ -23,14 +26,11 @@ public class HummingSearch extends FrequencyDurationSearch {
 	 * Number of windows that can be interrupted and still count
 	 */
 	private static int maxSkip = 4000;
-	/**
-	 * Number of seconds for which the humming must persist.
-	 */
-	private static double duration = 3;
 
 	public HummingSearch(int sampleRate, int windowSize, double replayGain, boolean mirrored) {
-		super(sampleRate, windowSize, replayGain, mirrored, duration,
-				Double.NEGATIVE_INFINITY, FREQUENCY_BOUND_VALUE, DECIBEL_BOUND, maxSkip / windowSize);
+		super(sampleRate, windowSize, replayGain, mirrored, length,
+				Double.NEGATIVE_INFINITY, FREQUENCY_BOUND_VALUE,
+				DECIBEL_BOUND + threshold, maxSkip / windowSize);
 	}
 
 	@Override
@@ -43,5 +43,13 @@ public class HummingSearch extends FrequencyDurationSearch {
 	protected double calculateSeverity(double dBFSValue) {
 		double positiveThreshold = DECIBEL_BOUND * -1;	
 		return positiveThreshold + dBFSValue;
+	}
+	
+	public static void setLength(float value) {
+		length = value;
+	}
+	
+	public static void setThreshold(int value) {
+		threshold = value;
 	}
 }
