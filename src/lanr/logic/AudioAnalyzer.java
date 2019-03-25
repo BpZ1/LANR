@@ -47,10 +47,25 @@ public class AudioAnalyzer {
 	private FastTable<NoiseSearch> sampleAnalyzer = new FastTable<NoiseSearch>();
 	private FastTable<FrequencySearch> frequencyAnalyzer = new FastTable<FrequencySearch>();
 
+	/**
+	 * Used for Spectrogram creation.
+	 */
 	private Spectrogram spectro;
+	/**
+	 * Size of each window in samples.
+	 */
 	private int windowSize;
+	/**
+	 * Conversion method (samples in frequency).
+	 */
 	private FrequencyConversion conversion;
+	/**
+	 * Window function for frequency conversion.
+	 */
 	private WindowFunctionImpl windowFunction;
+	/**
+	 * Loudness equalization value.
+	 */
 	private double replayGain;
 
 	public AudioAnalyzer(int windowSize, int sampleRate, double replayGain, boolean createSpectorgam,
@@ -68,6 +83,10 @@ public class AudioAnalyzer {
 		frequencyAnalyzer.add(new HummingSearch(sampleRate, windowSize, replayGain, conversion.getHalfSamples()));
 		
 		this.conversion = conversion;
+		/*
+		 * Spectrograms with a window size that is
+		 * too high should not be created.
+		 */
 		if (createSpectorgam && windowSize < 50000) {
 			// FFT method used only uses half of the output data
 			if (conversion.getHalfSamples()) {
@@ -126,8 +145,9 @@ public class AudioAnalyzer {
 		if (windowFunction != null && conversion != FrequencyConversion.FWT) {
 			windowFunction.apply(data);
 		}
-		double[] magnitudes = conversion.getConverter().convert(data);
-		
+		//Convert data into frequency domain
+		double[] magnitudes = conversion.getConverter().convert(data);		
+		//Create spectrogram
 		if (spectro != null) {
 			spectro.addWindow(magnitudes);
 		}

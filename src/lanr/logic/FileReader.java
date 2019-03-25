@@ -225,12 +225,15 @@ class FileReader {
 	}
 
 	/**
+	 * Reads a file in small windows of given size and analyzes those windows.
+	 * 
 	 * Based on code from
 	 * https://github.com/artclarke/humble-video/blob/master/humble-video-demos/src
 	 * /main/java/io/humble/video/demos/DecodeAndPlayAudio.java
-	 * @param streamId
-	 * @param channels
-	 * @param demuxer
+	 * @param streamData - Audio Data.
+	 * @param demuxer - Media Demuxer for the file.
+	 * @param windowSize - Size of the individual windows.
+	 * @param interrupted - Boolean to check for interruption.
 	 * @throws InterruptedException
 	 * @throws IOException
 	 * @throws LANRFileException
